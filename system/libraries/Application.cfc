@@ -151,6 +151,7 @@
 			application.load.library("file", true);
 			application.load.library("output", true);
 			application.load.library("lang", true);
+			application.load.library("authentication", true);
 		</cfscript>
 		
 		<!--- Preload? --->
@@ -215,41 +216,16 @@
 		
 		<!--- User logout --->
 		<cfif StructKeyExists(url,"logout")>
-			<cflogout>
 			<cfinvoke method="onSessionEnd" sessionScope="#session#">
 			<cfset StructClear(session)>
 			<cfset session.UserId = "">
 			
-			<cfset application.url.redirectMessage("", "Bye, see you soon!")>
+			<cfset application.url.redirectMessage(application.guestDefaultScope, "You have been logged out")>
 		</cfif>
 		
-		<!--- Authenticate user? --->
-		<cfif application.enableUserAuthentication>
-			<cfinvoke component="#application.user#" method="authenticate" />
-		</cfif>
-
-		<!---
-			Check if user is authenticated and allowed to use the system:
-			Put in all conditions to authenticate user here
-		--->
-		<cfset authenticated = 	NOT application.enableUserAuthentication OR IsUserLoggedIn()>
-		
-		<!--- Not authenticated? Load the login form --->
-		<cfif NOT authenticated>
-			<!--- Clear the session but preserve some critical values --->
-			<cfset loginError = session.error>
-			<cfset StructClear(session)>
-			<cfset session.error = loginError>
-			<cfset session.UserId = "">
-			<cfset session.sysAdmin = false>
-			
-			<cfset data = StructNew()>
-			<cfset data.form = StructNew()>
-			<cfset data.form.scope = form.scope>
-			<cfset data.form.view = form.view>
-			<cfset data.pathInfoStr = CGI.PATH_INFO>
-			<cfset data.heading = "Login">
-			<cfset application.load.viewInTemplate("login", data)>
+		<!--- Check if user is authenticated and allowed to use the system --->
+		<cfif form.scope neq "login" AND application.enableUserAuthentication>
+			<cfinvoke component="#application.authentication#" method="validate">
 		</cfif>
 		
 		<!--- Allow the application to dynamically refresh session when necessary --->
@@ -257,19 +233,14 @@
 			<cfset this.refreshSession()>
 		</cfif>
 		
-		<!--- Initialize application objects --->
-		<cfif NOT StructKeyExists(application, "system") OR StructKeyExists(url, "refresh")>
-			<cfset application.system = application.load.model("system")>
-		</cfif>
-		
 		<!--- Get the current page --->
 		<cfset request.currentPage = application.url.currentPage()>
 		
-		<!--- Load the controller based on the scope --->
+		<!--- Load the controller --->
 		<cfset controller = application.load.controller(form.scope)>
 		
 		<!--- Load the view --->
-		<cfif isDefined("controller[form.view]")>
+		<cfif StructKeyExists(controller, form.view)>
 			<cfinvoke component="#controller#" method="#form.view#" />
 		<cfelse>
 			<!--- Show friendy error? --->
@@ -307,7 +278,7 @@
 	
 	
 	<!--- Handle exceptions --->
-	<cffunction name="onError">
+	<!--- <cffunction name="onError">
 		<cfargument name="Exception" required="yes" />
 		<cfargument name="EventName" type="string" required="yes" />
 		
@@ -321,7 +292,7 @@
 			<cfthrow object="#arguments.exception#">
 		</cfif>
 
-	</cffunction>
+	</cffunction> --->
 	
 
 </cfcomponent>
