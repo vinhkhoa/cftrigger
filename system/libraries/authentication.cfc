@@ -36,8 +36,8 @@
 	</cffunction>
 
 
-	<!--- Deauthenticate user. Make sure that user has NOT logged in yet --->
-	<cffunction name="devalidate" displayname="deauthenticate" access="public">
+	<!--- Validate user as guiest. Make sure that user has NOT logged in yet --->
+	<cffunction name="validateAsGuest" displayname="deauthenticate" access="public">
 		
 		<cfset authenticated = StructKeyExists(session, "userId") AND val(session.userId)>
 		
