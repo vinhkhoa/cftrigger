@@ -52,6 +52,20 @@
 		<cfreturn result>
 		
 	</cffunction>
-
-
+	
+	
+	<!--- Extract a phone number from some text --->
+	<cffunction name="extractPhoneNumber" displayname="extractPhoneNumber" access="public" returntype="string" hint="Extract a phone number from some text">
+		<cfargument name="string" type="string" required="yes" hint="The string that contains the phone number">
+		<cfset var result = "">
+		
+		<cfset extractResult = reMatch("0[0-9]{9,9}", arguments.string)>
+		
+		<cfif arrayLen(extractResult)>
+			<cfset result = extractResult[1]>
+		</cfif>
+		
+		<cfreturn result>
+	
+	</cffunction>
 </cfcomponent>
