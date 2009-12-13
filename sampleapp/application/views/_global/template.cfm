@@ -16,6 +16,8 @@
 
 <body>
 <div id="content">
+	<cfinclude template="messages.cfm">
+
 	#content#
 </div>
 

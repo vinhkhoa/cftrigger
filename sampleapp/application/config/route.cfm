@@ -7,7 +7,7 @@
 
 <cfscript>
 	/*
-		VALIDATION LANGUAGES
+		APPLICATION ROUTE RULES
 		
 		If you want to have custom server side routing, put the rules here. Write in the format:
 		
