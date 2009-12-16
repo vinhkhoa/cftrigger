@@ -19,11 +19,4 @@
 <cfparam name="session.errorList" default="#arrayNew(1)#">
 <cfparam name="session.warning" default="">
 <cfparam name="session.warningList" default="#arrayNew(1)#">
-<cfparam name="url.scope" default="#application.defaultScope#">
-<cfparam name="form.scope" default="#url.scope#">
-<cfparam name="url.view" default="#application.defaultView#">
-<cfparam name="form.view" default="#url.view#">
-<cfparam name="form.action" default="">
-<cfparam name="url.subView" default="">
-<cfparam name="form.subView" default="#url.subView#">
 

@@ -206,7 +206,7 @@
 		<!--- Include application variables --->
 		<cfinclude template="#application.appLogicalPath#application/config/variables.cfm">
 		
-		<!--- Get the form, url scope and view values --->
+		<!--- Get the form, url controller and view values --->
 		<cfset pathInfoStr = application.url.getPathInfoStr()>		
 		<cfset vars = application.url.getPathInfoVariables()>
 		<cfloop collection="#vars#" item="item">
@@ -220,11 +220,11 @@
 			<cfset StructClear(session)>
 			<cfset session.UserId = "">
 			
-			<cfset application.url.redirectMessage(application.guestDefaultScope, "You have been logged out")>
+			<cfset application.url.redirectMessage(application.guestDefaultController, "You have been logged out")>
 		</cfif>
 		
 		<!--- Check if user is authenticated and allowed to use the system --->
-		<cfif form.scope neq "login" AND application.enableUserAuthentication>
+		<cfif form.controller neq "login" AND application.enableUserAuthentication>
 			<cfinvoke component="#application.authentication#" method="validate">
 		</cfif>
 		
@@ -237,7 +237,7 @@
 		<cfset request.currentPage = application.url.currentPage()>
 		
 		<!--- Load the controller --->
-		<cfset controller = application.load.controller(form.scope)>
+		<cfset controller = application.load.controller(form.controller)>
 		
 		<!--- Load the view --->
 		<cfif StructKeyExists(controller, form.view)>
@@ -248,7 +248,7 @@
 				<cfif application.show404OnMissingController>
 					<cfset application.error.show_404()>
 				<cfelse>
-					<cfset application.error.show_error("Method not found", "The system could not find the method '#form.view#' inside the controller '#form.scope#.cfc'")>
+					<cfset application.error.show_error("Method not found", "The system could not find the method '#form.view#' inside the controller '#form.controller#.cfc'")>
 				</cfif>
 			<cfelse>
 				<!--- Load the controller to throw error --->

@@ -22,8 +22,8 @@
 	application.fromEmail = "admin <admin@sampleapp.com>";
 	application.ErrorEmail = "admin@sampleapp.com";
 	application.AdminEmail = "admin@sampleapp.com";
-	application.defaultScope = 'home';
-	application.guestDefaultScope = '';
+	application.defaultController = 'home';
+	application.guestDefaultController = '';
 	application.defaultView = 'index';
 	application.refreshWhenReset = true;
 	application.defaultTemplate = "_global/template";

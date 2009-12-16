@@ -90,7 +90,7 @@
 		<cfif application.maintenanceMode>
 			<!--- This client is a development computer? --->
 			<cfif NOT listFind(application.devAddresses, CGI.REMOTE_ADDR)>
-				<cfset result.scope = application.maintenancePage>
+				<cfset result.controller = application.maintenancePage>
 				<cfreturn result>
 			</cfif>
 		</cfif>
@@ -102,19 +102,19 @@
 		<cfset path = "">
 		<cfset logicalPath = "">
 		
-		<!--- Root? Load the default scope --->
+		<!--- Root? Load the default controller --->
 		<cfif listLen(pathInfoStr, '/') eq 0>
-			<cfset pathInfoStr = "/" & application.defaultScope>
+			<cfset pathInfoStr = "/" & application.defaultController>
 		</cfif>
 		
 		<!---
-			Check if the controller is found and what is the correct scope 
+			Check if the controller is found and what is the correct controller 
 			This is needed to search for controllers inside folders
 		--->
 		<cfloop condition="continueSearching AND counter le listLen(pathInfoStr, '/')">
 			<cfset path = listAppend(path, listGetAt(pathInfoStr, counter, "/"), application.separator)>
 			<cfset logicalPath = replace(path, application.separator, ".", "ALL")>
-			<cfset result.scope = replace(path, application.separator, "/", "ALL")>
+			<cfset result.controller = replace(path, application.separator, "/", "ALL")>
 			<cfset controllerPath = application.controllerFilePath & path>
 
 			<cfset foundController = fileExists(controllerPath & ".cfc")>
@@ -161,10 +161,10 @@
 			</cfif>
 		</cfif>
 
-		<!--- Already found the scope, remove it from the path info --->		
-		<cfset pathInfoStr = replace(pathInfoStr, result.scope, "")>
+		<!--- Already found the controller, remove it from the path info --->		
+		<cfset pathInfoStr = replace(pathInfoStr, result.controller, "")>
 
-		<!--- Get the scope, view and resource id--->
+		<!--- Get the controller, view and resource id--->
 		<cfset pathInfo = listToArray(pathInfoStr, "/")>
 		<cfset pathInfoLength = arrayLen(pathInfo)>
 
@@ -177,29 +177,29 @@
 				<!--- Number or text? --->
 				<cfif isNumeric(pathInfo[2])>
 					<!--- Number? => This is the id --->
-					<cfset result[result.scope & "Id"] = pathInfo[2]>
-					<cfset result[result.scope & "TextId"] = "">
+					<cfset result[result.controller & "Id"] = pathInfo[2]>
+					<cfset result[result.controller & "TextId"] = "">
 				<cfelse>
 					<!--- Text? => This is the text id, eg. short title, short name, etc. --->
-					<cfset result[result.scope & "Id"] = 0>
-					<cfset result[result.scope & "TextId"] = pathInfo[2]>
+					<cfset result[result.controller & "Id"] = 0>
+					<cfset result[result.controller & "TextId"] = pathInfo[2]>
 				</cfif>
 				
-				<!--- Get the subScope --->
+				<!--- Get the sub controller --->
 				<cfif pathInfoLength ge 3>
-					<cfset result.subScope = pathInfo[3]>
+					<cfset result.subController = pathInfo[3]>
 					
 					<!--- Get the sub Id value --->
 					<cfif pathInfoLength ge 4>
 						<!--- Number or text? --->
 						<cfif isNumeric(pathInfo[4])>
 							<!--- Number? => This is the id --->
-							<cfset result[result.subScope & "Id"] = pathInfo[4]>
-							<cfset result[result.subScope & "TextId"] = "">
+							<cfset result[result.subController & "Id"] = pathInfo[4]>
+							<cfset result[result.subController & "TextId"] = "">
 						<cfelse>
 							<!--- Text? => This is the text id, eg. short title, short name, etc. --->
-							<cfset result[result.subScope & "Id"] = 0>
-							<cfset result[result.subScope & "TextId"] = pathInfo[4]>
+							<cfset result[result.subController & "Id"] = 0>
+							<cfset result[result.subController & "TextId"] = pathInfo[4]>
 						</cfif>
 					</cfif>
 				</cfif>
