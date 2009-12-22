@@ -152,6 +152,7 @@
 			application.load.library("output", true);
 			application.load.library("lang", true);
 			application.load.library("authentication", true);
+			application.load.library("core", true);
 		</cfscript>
 		
 		<!--- Preload? --->
