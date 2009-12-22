@@ -178,7 +178,7 @@
 				<cfif isNumeric(pathInfo[2])>
 					<!--- Number? => This is the id --->
 					<cfset result[result.controller & "Id"] = pathInfo[2]>
-					<cfset result[result.controller & "TextId"] = "">
+					<cfset result[result.controller & "TextId"] = pathInfo[2]>
 				<cfelse>
 					<!--- Text? => This is the text id, eg. short title, short name, etc. --->
 					<cfset result[result.controller & "Id"] = 0>
