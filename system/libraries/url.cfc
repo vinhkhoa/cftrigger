@@ -69,11 +69,17 @@
 			<cfset session.error = arguments.error>
 		</cfif>
 		
-		<!--- User comes here form another page? --->
-		<cfif trim(CGI.HTTP_REFERER) neq "">
-			<cfset backURL =CGI.HTTP_REFERER>
+		<!--- Is there a specific page set for redirecting page? --->
+		<cfif StructKeyExists(session, "redirectBackURL") AND session.redirectBackURL neq "">
+			<cfset backURL = session.redirectBackURL>
+			<cfset session.redirectBackURL = "">
 		<cfelse>
-			<cfset backURL = "#application.rootURL#/">
+			<!--- User comes here form another page? --->
+			<cfif trim(CGI.HTTP_REFERER) neq "">
+				<cfset backURL = CGI.HTTP_REFERER>
+			<cfelse>
+				<cfset backURL = "#application.rootURL#/">
+			</cfif>
 		</cfif>
 		
 		<cflocation url="#backURL#" addtoken="no">
@@ -246,34 +252,34 @@
 	
 	</cffunction>
 
-	<!--- Forward the page with a message --->
-	<!---<cffunction name="forwardMessage" access="public" output="no">
+	<!--- Redirect the parent page with a message. Used when inside an iframe popup --->
+	<cffunction name="redirectParentMessage" access="public" output="no">
 	
-		<cfargument name="location" type="string" required="yes" hint="The location to forward to">
+		<cfargument name="location" type="string" required="yes" hint="The location to redirect to">
 		<cfargument name="message" type="string" required="yes" hint="The message to be displayed">
 	
 		<cfset session.message = arguments.message>
-		<cfset this.forward(arguments.location)>
+		<cfset this.redirectParent(arguments.location)>
 	
 	</cffunction>
 
 
-	<!--- Forward the page with an error --->
-	<cffunction name="forwardError" access="public" output="no">
+	<!--- Redirect the parent page with an error. Used when inside an iframe popup --->
+	<cffunction name="redirectParentError" access="public" output="no">
 	
-		<cfargument name="location" type="string" required="yes" hint="The location to forward to">
+		<cfargument name="location" type="string" required="yes" hint="The location to redirect to">
 		<cfargument name="error" type="string" required="yes" hint="The error to be displayed">
 	
 		<cfset session.error = arguments.error>
-		<cfset this.forward(arguments.location)>
+		<cfset this.redirectParent(arguments.location)>
 	
 	</cffunction>
 	
 	
-	<!--- Forward user to a page --->
-	<cffunction name="forward" access="public" output="no">
+	<!--- Redirect the parent page to a new page. Used when inside an iframe popup --->
+	<cffunction name="redirectParent" access="public" output="no">
 
-		<cfargument name="location" type="string" required="no" default="" hint="The location to forward to">
+		<cfargument name="location" type="string" required="no" default="" hint="The location to redirect to">
 		
 		<!--- Remove multi-slash and ending index.cfm to make the url looks nicer --->
 		<cfif isValid("url", arguments.location)>
@@ -282,9 +288,9 @@
 			<cfset location = reReplace(reReplace("#application.baseURL#/#arguments.location#", "([^:])/{2,}", "\1/", "ALL"), "index.cfm/$", "")>
 		</cfif>
 		
-		<cfset getPageContext().forward(location)>
+		<cfset this.redirect("redirectParent?parentRedirectURL=#location#")>
 		
-	</cffunction>--->
+	</cffunction>
 	
 
 </cfcomponent>

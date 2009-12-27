@@ -276,6 +276,7 @@
 		<cfargument name="data" type="struct" required="no" default="#StructNew()#" hint="Data passed to the view">
 		<cfargument name="fields" type="array" required="no" hint="Pass in the fields to set client side validation on forms">
 		<cfargument name="contentField" type="string" required="no" default="content" hint="Specify the variable name to be returned after loading the view. This variable is put into the struct to be passed to the template.">
+		<cfargument name="useTemplate" type="string" required="no" default="#application.defaultTemplate#" hint="The template to be used. If no passed in, use the default template defined in the config">
 		
 		<cfset data = arguments.data>
 		<cfinvoke method="view" returnvariable="content">
@@ -288,7 +289,7 @@
 		</cfinvoke>
 
 		<cfset data[contentField] = content>
-		<cfset application.load.view(application.defaultTemplate, data)>
+		<cfset application.load.view(arguments.useTemplate, data)>
 		
 		<!--- Already view the page in template, so terminate the process here --->
 		<cfabort>
