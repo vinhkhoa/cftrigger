@@ -217,6 +217,14 @@
 			<cfset result.view = application.defaultView>
 		</cfif>
 		
+		<!--- Not maintenance mode? Disable the maintenance page --->
+		<cfif NOT application.maintenanceMode AND result.controller eq application.maintenancePage>
+			<!--- This client is a development computer? --->
+			<cfif NOT listFind(application.devAddresses, CGI.REMOTE_ADDR)>
+				<cfset application.url.redirect()>
+			</cfif>
+		</cfif>
+		
 		<cfreturn result>
 		
 	</cffunction>

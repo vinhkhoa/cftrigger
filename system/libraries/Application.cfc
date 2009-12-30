@@ -207,6 +207,9 @@
 		<!--- Include application variables --->
 		<cfinclude template="#application.appLogicalPath#application/config/variables.cfm">
 		
+		<!--- Get the current page --->
+		<cfset request.currentPage = application.url.currentPage()>
+		
 		<!--- Get the form, url controller and view values --->
 		<cfset pathInfoStr = application.url.getPathInfoStr()>		
 		<cfset vars = application.url.getPathInfoVariables()>
@@ -233,9 +236,6 @@
 		<cfif isDefined("this.refreshSession")>
 			<cfset this.refreshSession()>
 		</cfif>
-		
-		<!--- Get the current page --->
-		<cfset request.currentPage = application.url.currentPage()>
 		
 		<!--- Load the controller --->
 		<cfset controller = application.load.controller(form.controller)>
