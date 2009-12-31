@@ -68,4 +68,13 @@
 		<cfreturn result>
 	
 	</cffunction>
+
+	
+	<!--- Return an XML content to the browser. This function ensures there is no extra destructive spaces --->
+	<cffunction name="returnXMLToBrowser">
+		<cfargument name="xmlContent" type="string" required="yes" hint="Content of the xml to be returned">
+		
+		<cfsetting showdebugoutput="no">
+		<cfcontent reset="yes" type="text/xml"><cfoutput>#trim(arguments.xmlContent)#</cfoutput>
+	</cffunction>
 </cfcomponent>

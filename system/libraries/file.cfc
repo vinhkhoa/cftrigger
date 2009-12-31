@@ -12,14 +12,16 @@
 
 --->
 
-<cfcomponent displayname="Image">
+<cfcomponent displayname="File">
 
 	<cfsetting enablecfoutputonly="yes">
 	
 	
 	<!--- Delete a file but ignore any warning, even when the file does not exist to be deleted --->
-	<cffunction name="delete" access="public">
+	<cffunction name="delete" returntype="struct" access="public">
 		<cfargument name="fileLocation" type="string" required="yes" hint="Location of the file to be deleted">
+		<cfset var result = StructNew()>
+		<cfset result.error = "">
 		
 		<cfif trim(fileLocation) neq "" AND fileExists(fileLocation)>
 			<cftry>
@@ -30,6 +32,9 @@
 				</cfcatch>
 			</cftry>
 		</cfif>
+		
+		<cfreturn result>
+		
 	</cffunction>
 	
 	
@@ -65,6 +70,16 @@
 		
 		<cfreturn result>
 	</cffunction>
-
-
+	
+	
+	<!--- Determine if a file is ascii based on its extension --->
+	<cffunction name="isAscii" access="public" returntype="boolean">
+		<cfargument name="fileLocation" type="string" required="yes" hint="Location of the file to be checked">
+		
+		<cfset ext = listLast(getFileFromPath(arguments.fileLocation), ".")>
+		
+		<cfreturn (listFind(application.asciiExtensions, ext) gt 0)>
+	
+	</cffunction>
+	
 </cfcomponent>

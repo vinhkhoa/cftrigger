@@ -95,4 +95,16 @@
 	</cffunction>
 	
 	
+	<!--- Delete the last item of the list --->
+	<cffunction name="ListDeleteLast" access="public" returntype="string">
+		<cfargument name="ls" type="string" required="yes" hint="The original list" />
+		<cfargument name="delimiter" type="string" required="no" default="," hint="The list delimiter" />
+	
+		<cfset result = listDeleteAt(arguments.ls, listLen(arguments.ls, arguments.delimiter), arguments.delimiter)>
+		
+		<cfreturn result>
+	
+	</cffunction>
+	
+	
 </cfcomponent>

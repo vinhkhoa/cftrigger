@@ -306,4 +306,20 @@
 	</cffunction>
 
 
+	<!--- URL field --->
+	<cffunction name="_url" displayname="_url" access="private" returntype="string">
+	
+		<cfargument name="field" type="struct" required="yes" hint="The field being checked">
+		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">
+		<cfset var error = "">
+
+		<cfif NOT isValid("url", arguments.value)>
+			<cfset error = application.lang.getValidationLang(this.modelName, arguments.field, arguments.value, "url")>
+		</cfif>
+			
+		<cfreturn error>
+	
+	</cffunction>
+	
+
 </cfcomponent>

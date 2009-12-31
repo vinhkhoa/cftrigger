@@ -35,6 +35,7 @@
 		<cfinclude template="#application.appLogicalPath#application/config/database.cfm">
 		<cfinclude template="#application.appLogicalPath#application/config/route.cfm">
 		<cfinclude template="#application.appLogicalPath#application/config/lang.cfm">
+		<cfinclude template="#application.FI_LogicalPath#/config/config.cfm">
 		<cfinclude template="#application.FI_LogicalPath#/config/variables.cfm">
 		<cfinclude template="#application.FI_LogicalPath#/config/lang.cfm">
 		

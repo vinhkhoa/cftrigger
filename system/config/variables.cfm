@@ -19,4 +19,6 @@
 <cfparam name="session.errorList" default="#arrayNew(1)#">
 <cfparam name="session.warning" default="">
 <cfparam name="session.warningList" default="#arrayNew(1)#">
+<cfparam name="form.controller" default="">
+<cfparam name="form.view" default="">
 

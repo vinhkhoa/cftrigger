@@ -21,5 +21,6 @@
 <cfset application.defaultValidationLang.username = "The [field] is invalid. It can contain only letters, numbers or underscore">
 <cfset application.defaultValidationLang.letters = "The [field] is invalid. It can contain only letters">
 <cfset application.defaultValidationLang.digits = "The [field] is invalid. It can contain only numbers">
+<cfset application.defaultValidationLang.url = "The [field] is not a valid url">
 
 

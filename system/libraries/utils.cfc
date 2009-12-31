@@ -1,18 +1,16 @@
 <!---
-	Project:		cfTrigger
-	Company:		cfTrigger
-	Summary:		System utilitiy class
+	Project:	cfTrigger
+	Company:	cfTrigger
+	Summary:	System utility library, used to handle general functions
 	
 	Log:
 	
-	Created:		05/08/2009
-	
-	Modified:
-	- 
+		Created:		05/08/2009		
+		Modified:
 
 --->
 
-<cfcomponent>
+<cfcomponent displayname="Utils" hint="Handles utility funtions">
 
 	<cfsetting enablecfoutputonly="yes">
 
