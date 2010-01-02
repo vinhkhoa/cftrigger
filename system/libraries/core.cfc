@@ -99,8 +99,11 @@
 	<cffunction name="ListDeleteLast" access="public" returntype="string">
 		<cfargument name="ls" type="string" required="yes" hint="The original list" />
 		<cfargument name="delimiter" type="string" required="no" default="," hint="The list delimiter" />
+		<cfset var result = "">
 	
-		<cfset result = listDeleteAt(arguments.ls, listLen(arguments.ls, arguments.delimiter), arguments.delimiter)>
+		<cfif listLen(arguments.ls, arguments.delimiter)>
+			<cfset result = listDeleteAt(arguments.ls, listLen(arguments.ls, arguments.delimiter), arguments.delimiter)>
+		</cfif>
 		
 		<cfreturn result>
 	

@@ -165,7 +165,7 @@
 	
 	
 	<!--- Delete a directory --->
-	<!--- <cffunction name="removeDir" displayname="removeDir" access="public" returntype="struct" hint="Delete a directory">
+	<cffunction name="removeDir" displayname="removeDir" access="public" returntype="struct" hint="Delete a directory">
 	
 		<cfargument name="directoryPath" type="string" required="yes" hint="The directory path">
 		<cfset var result = StructNew()>
@@ -173,55 +173,37 @@
 		
 		<!--- Directory exists? --->
 		<cfif this.existsDir(arguments.directoryPath)>
-			<!--- Separate the directory to be deleted and its parent --->
-			<cfswitch expression="#listLen(araguments.directoryPath)#">
-				<!--- Root directory --->
-				<cfcase value="0">
-					<cfset result.error = "Cannot delete root directory.">
-					<cfreturn result>
-				</cfcase>
-				
-				<!--- Directory right under root --->
-				<cfcase value="1">
-					<cfset deleteDirectory = listLast(arguments.directoryPath, "/")>
-					<cfset parentDirectory = "/">
-				</cfcase>
-				
-				<!--- Other subdirectories --->
-				<cfdefaultcase>
-					<cfset deleteDirectory = listLast(arguments.directoryPath, "/")>
-					<cfset parentDirectory = application.core.listDeleteLast(arguments.directoryPath, "/")>
-				</cfdefaultcase>
-			</cfswitch>
-			
-			<cfdump var="#deleteDirectory#">
-			<cfdump var="#parentDirectory#">
-			<cfabort>
-			
-			<!--- Change to the parent directory --->
-			<cfftp action="changedir" directory="#parentDirectory#" server="#variables.server#" username="#variables.username#" password="#variables.password#" port="#variables.port#" stoponerror="no">
-			
-			<!--- Succeeded? --->
-			<cfif NOT cfftp.succeeded>
-				<cfset result.error = "Cannot move to the parent directory '#parentDirectory#' to prepare deletion: " & cfftp.ErrorText>
-				<cfreturn result>
-			</cfif>   
-			
-			<!--- Delete the directory --->
-			<cfftp action="removedir" directory="#deleteDirectory#" server="#variables.server#" username="#variables.username#" password="#variables.password#" port="#variables.port#" stoponerror="no">
-			
-			<!--- Succeeded? --->
-			<cfif NOT cfftp.succeeded>
-				<cfset result.error = "Cannot delete the directory '#deleteDirectory#': " & cfftp.ErrorText>
-				<cfreturn result>
+			<!--- Directory is empty? --->
+			<cfif this.isEmptyDir(arguments.directoryPath)>
+				<!--- Delete the directory --->
+				<cfftp action="removedir" directory="#arguments.directoryPath#" server="#variables.server#" username="#variables.username#" password="#variables.password#" port="#variables.port#" stoponerror="no">
+	
+				<!--- Succeeded? --->
+				<cfif NOT cfftp.succeeded>
+					<cfset result.error = "Cannot delete the directory '#deleteDirectory#': " & cfftp.ErrorText>
+				</cfif>
+			<cfelse>
+				<cfset result.error = "The directory is not empty.">
 			</cfif>
 		<cfelse>
-			<cfset result.error = "The directory does not exist. Nothing is deleted.">
+			<cfset result.error = "The directory does not exist.">
 		</cfif>
 		
 		<cfreturn result>
 	
-	</cffunction> --->
+	</cffunction>
+	
+	
+	<!--- Check if a directory is empty --->
+	<cffunction name="isEmptyDir" displayname="isEmptyDir" access="public" returntype="boolean" hint="Check if a directory is empty">
+	
+		<cfargument name="directoryPath" type="string" required="yes" hint="The directory path">
+
+		<cfftp action="listDir" directory="#arguments.directoryPath#" server="#variables.server#" username="#variables.username#" password="#variables.password#" port="#variables.port#" stoponerror="No" name="qList">
+		
+		<cfreturn qList.recordCount eq 0>
+	
+	</cffunction>
 	
 	
 	<!--- =================================== FILE FUNCTIONS ======================================== --->

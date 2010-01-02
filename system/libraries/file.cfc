@@ -20,17 +20,27 @@
 	<!--- Delete a file but ignore any warning, even when the file does not exist to be deleted --->
 	<cffunction name="delete" returntype="struct" access="public">
 		<cfargument name="fileLocation" type="string" required="yes" hint="Location of the file to be deleted">
+		<cfargument name="ignoreNonExisting" type="boolean" required="no" default="true" hint="true: ignore when the file does not exist, ie. does not return error in that case.">
 		<cfset var result = StructNew()>
 		<cfset result.error = "">
 		
-		<cfif trim(fileLocation) neq "" AND fileExists(fileLocation)>
-			<cftry>
-				<cffile action="delete" file="#fileLocation#">
-			
-				<cfcatch type="any">
-					<!--- IGNORE --->
-				</cfcatch>
-			</cftry>
+		<!--- Has a file path passed in? Otherwise, does nothing --->
+		<cfif trim(fileLocation) neq "">
+			<!--- File exists? --->
+			<cfif fileExists(fileLocation)>
+				<cftry>
+					<cffile action="delete" file="#fileLocation#">
+				
+					<cfcatch type="any">
+						<cfset result.error = cfcatch.message>
+					</cfcatch>
+				</cftry>
+			<cfelse>
+				<!--- Ignore this error? --->
+				<cfif NOT arguments.ignoreNonExisting>
+					<cfset result.error = "The file does not exist.">
+				</cfif>
+			</cfif>
 		</cfif>
 		
 		<cfreturn result>

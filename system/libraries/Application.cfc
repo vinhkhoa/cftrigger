@@ -150,6 +150,7 @@
 			application.load.library("url", true);
 			application.load.library("image", true);
 			application.load.library("file", true);
+			application.load.library("directory", true);
 			application.load.library("output", true);
 			application.load.library("lang", true);
 			application.load.library("authentication", true);
