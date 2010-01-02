@@ -45,7 +45,7 @@
 					</cftry>
 				</cfif>
 			<cfelse>
-				<!--- Ignore this error? --->
+				<!--- Capture this error? --->
 				<cfif NOT arguments.ignoreNonExisting>
 					<cfset result.error = "The directory does not exist.">
 				</cfif>

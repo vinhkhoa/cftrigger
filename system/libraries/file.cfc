@@ -36,7 +36,7 @@
 					</cfcatch>
 				</cftry>
 			<cfelse>
-				<!--- Ignore this error? --->
+				<!--- Capture this error? --->
 				<cfif NOT arguments.ignoreNonExisting>
 					<cfset result.error = "The file does not exist.">
 				</cfif>
