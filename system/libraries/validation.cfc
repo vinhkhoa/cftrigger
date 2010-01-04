@@ -116,6 +116,7 @@
 	</cffunction>
 		
 
+	<!--- ======================================= VALIDATAION RULES ========================================== --->
 
 	<!--- Required field --->
 	<cffunction name="_required" displayname="_required" access="private" returntype="string">
@@ -322,4 +323,36 @@
 	</cffunction>
 	
 
+	<!--- Provide user with freedom to limit what charactesr they want --->
+	<cffunction name="_limitChars" displayname="_limitChars" access="private" returntype="string">
+	
+		<cfargument name="field" type="struct" required="yes" hint="The field being checked">
+		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">
+		<cfargument name="args" type="string" required="no" default="" hint="The maximum value">
+		<cfset var error = "">
+
+		<cfif reFindNoCase("[^#arguments.args#]", arguments.value)>
+			<cfset error = application.lang.getValidationLang(this.modelName, arguments.field, arguments.value, "limitChars", arguments.args)>
+		</cfif>
+			
+		<cfreturn error>
+	
+	</cffunction>
+
+
+	<!--- Valid/existing local directory path --->
+	<cffunction name="_localDirectory" displayname="_localDirectory" access="private" returntype="string">
+	
+		<cfargument name="field" type="struct" required="yes" hint="The field being checked">
+		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">
+		<cfset var error = "">
+
+		<cfif NOT directoryExists(arguments.value)>
+			<cfset error = application.lang.getValidationLang(this.modelName, arguments.field, arguments.value, "localDirectory")>
+		</cfif>
+			
+		<cfreturn error>
+	
+	</cffunction>
+	
 </cfcomponent>

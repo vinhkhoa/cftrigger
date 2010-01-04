@@ -24,12 +24,14 @@
 		<cfargument name="username" type="string" required="yes" hint="The account username used to connect to the server">
 		<cfargument name="password" type="string" required="yes" hint="The account password used to connect to the server">
 		<cfargument name="port" type="numeric" required="no" default="21" hint="The server port number">
+		<cfargument name="rootDirectory" type="string" required="no" default="/" hint="The root directory to work on">
 		<cfset this.error = "">
 		
 		<cfset variables.server = arguments.server>
 		<cfset variables.username = arguments.username>
 		<cfset variables.password = arguments.password>
 		<cfset variables.port = arguments.port>
+		<cfset variables.rootDirectory = arguments.rootDirectory>
 		
 		<!--- Validate FTP connection --->
 		<cfset openResult = this.open()>
@@ -54,6 +56,17 @@
 			<cftry>
 				<cfftp action="open" server="#variables.server#" username="#variables.username#" password="#variables.password#" port="#variables.port#" connection="variables.connection" stoponerror="No">
 				
+				<!--- Succeded opening the connection? --->
+				<cfif cfftp.Succeeded>
+					<!--- Check if the root directory exists --->
+					<cfif NOT this.existsDir(variables.rootDirectory)>
+						<cfset result.error = "The root directory #variables.rootDirectory# does not exist">
+					</cfif>
+				<cfelse>
+					<cfset result.error = cfftp.ErrorText>
+				</cfif>
+				
+				<!--- Any error in attempting to open the FTP connection? --->
 				<cfcatch type="any">
 					<cfset result.error = "Cannot open FTP connection to server #variables.server#: #cfcatch.Message#">
 				</cfcatch>
