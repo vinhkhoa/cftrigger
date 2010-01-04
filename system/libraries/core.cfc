@@ -34,6 +34,62 @@
 	</cffunction>
 
 
+	<!--- ============================================= LIST ============================================ --->
+
+	<!--- Remove duplicates from a list --->
+	<cffunction name="ListUnique" access="public" returntype="string">
+		<cfargument name="ls" type="string" required="yes" hint="The original list" />
+	
+		<!--- Convert it to array to use the arrayUnique function --->
+		<cfset result = arrayToList(this.ArrayUnique(listToArray(arguments.ls)))>
+		
+		<cfreturn result>
+	
+	</cffunction>
+	
+	
+	<!--- Get the first number of items in a lis. Similar to listFirst but more items --->
+	<cffunction name="ListLeft" access="public" returntype="string">
+		<cfargument name="ls" type="string" required="yes" hint="The original list" />
+		<cfargument name="size" type="numeric" required="yes" hint="The number of elements to get" />
+		<cfset result = "">
+		
+		<cfset count = 0>
+		<cfloop list="#arguments.ls#" index="item">
+			<cfset count = count + 1>
+			
+			<!--- Within the range? Add in the item, otherwise stop looping --->
+			<cfif count le arguments.size>
+				<cfset result = listAppend(result, item)>
+			<cfelse>
+				<cfbreak>
+			</cfif>
+		</cfloop>
+		
+		<cfreturn result>
+	
+	</cffunction>
+	
+	
+	<!--- ============================================= ARRAY ============================================ --->
+
+	<!--- Remove duplicates from an array --->
+	<cffunction name="ArrayUnique" access="public" returntype="array">
+		<cfargument name="arr" type="array" required="yes" hint="The original array" />
+	
+		<!--- Create a linked hashset java object as it has: 1) unique key and 2) order --->
+		<cfset lhs = createObject("java", "java.util.LinkedHashSet").init(arguments.arr)>
+		<cfset result = lhs.toArray()>
+		
+		<cfreturn result>
+	
+	</cffunction>
+	
+
+	<!--- ============================================= STRUCT ============================================ --->
+	
+	<!--- ============================================= QUERY ============================================ --->
+	
 	<!--- Sort a query based on a custom list --->
 	<cffunction name="QuerySort" displayname="QuerySort" access="public" hint="Sort a query based on a custom list" returntype="query">
 		<cfargument name="query" type="query" required="yes" hint="The query to be sorted">
@@ -70,31 +126,6 @@
 	</cffunction>
 	
 
-	<!--- Remove duplicates from an array --->
-	<cffunction name="ArrayUnique" access="public" returntype="array">
-		<cfargument name="arr" type="array" required="yes" hint="The original array" />
-	
-		<!--- Create a linked hashset java object as it has: 1) unique key and 2) order --->
-		<cfset lhs = createObject("java", "java.util.LinkedHashSet").init(arguments.arr)>
-		<cfset result = lhs.toArray()>
-		
-		<cfreturn result>
-	
-	</cffunction>
-	
-
-	<!--- Remove duplicates from a list --->
-	<cffunction name="ListUnique" access="public" returntype="string">
-		<cfargument name="ls" type="string" required="yes" hint="The original list" />
-	
-		<!--- Convert it to array to use the arrayUnique function --->
-		<cfset result = arrayToList(this.ArrayUnique(listToArray(arguments.ls)))>
-		
-		<cfreturn result>
-	
-	</cffunction>
-	
-	
 	<!--- Delete the last item of the list --->
 	<cffunction name="ListDeleteLast" access="public" returntype="string">
 		<cfargument name="ls" type="string" required="yes" hint="The original list" />

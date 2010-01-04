@@ -14,6 +14,7 @@
 
 	<cfsetting enablecfoutputonly="yes">
 	
+	
 	<!--- Display text preserving its format --->
 	<cffunction name="pre" access="public" returntype="string" hint="">
 		<cfargument name="string" type="string" required="yes" hint="The text to be displayed">
@@ -69,12 +70,30 @@
 	
 	</cffunction>
 
-	
 	<!--- Return an XML content to the browser. This function ensures there is no extra destructive spaces --->
 	<cffunction name="returnXMLToBrowser">
 		<cfargument name="xmlContent" type="string" required="yes" hint="Content of the xml to be returned">
 		
 		<cfsetting showdebugoutput="no">
 		<cfcontent reset="yes" type="text/xml"><cfoutput>#trim(arguments.xmlContent)#</cfoutput>
+	</cffunction>
+
+
+	<!--- Strip tags from a string --->
+	<cffunction name="stripTags" access="public" returntype="string" hint="">
+		<cfargument name="string" type="string" required="yes" hint="The string that contains tags to be stripped out">
+		<cfargument name="replaceWithSpace" type="boolean" required="no" default="false" hint="True: put in a space where tag is stripped out">
+		
+		<!--- Add in a space to replace tags? --->
+		<cfif arguments.replaceWithSpace>
+			<cfset replacement = " ">
+		<cfelse>
+			<cfset replacement = "">
+		</cfif>
+		
+		<cfset result = reReplace(arguments.string, "</?[A-Za-z]+>", replacement, "ALL")>
+		
+		<cfreturn result>
+	
 	</cffunction>
 </cfcomponent>
