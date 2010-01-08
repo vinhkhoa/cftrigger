@@ -92,13 +92,10 @@
 
 		<cfset var result = StructNew()>
 		
-		<!--- Maintenance mode? --->
-		<cfif application.maintenanceMode>
-			<!--- This client is a development computer? --->
-			<cfif NOT listFind(application.devAddresses, CGI.REMOTE_ADDR)>
-				<cfset result.controller = application.maintenancePage>
-				<cfreturn result>
-			</cfif>
+		<!--- Maintenance mode? Redirect user to the maintenance page on LIVE --->
+		<cfif application.maintenanceMode AND application.environmentType eq 'LIVE'>
+			<cfset result.controller = application.maintenancePage>
+			<cfreturn result>
 		</cfif>
 		
 		<cfset pathInfoStr = this.getPathInfoStr()>
@@ -217,12 +214,10 @@
 			<cfset result.view = application.defaultView>
 		</cfif>
 		
-		<!--- Not maintenance mode? Disable the maintenance page --->
-		<cfif NOT application.maintenanceMode AND result.controller eq application.maintenancePage>
-			<!--- This client is a development computer? --->
-			<cfif NOT listFind(application.devAddresses, CGI.REMOTE_ADDR)>
-				<cfset application.url.redirect()>
-			</cfif>
+		<!--- Not maintenance mode and user attempts to visit the maintenance page on LIVE? Disable it --->
+		<cfif NOT application.maintenanceMode AND application.environmentType eq 'LIVE'
+				AND result.controller eq application.maintenancePage>
+			<cfset application.url.redirect()>
 		</cfif>
 		
 		<cfreturn result>

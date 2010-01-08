@@ -241,7 +241,7 @@
 		<cfset templateFile = application.libraryFilePath & lcase(arguments.template) & ".cfc">
 		<cfset templateComponent = application.libraryRoot & "." & lcase(arguments.template)>
 		<cfset FI_templateFile = application.FI_LibraryFilePath & lcase(arguments.template) & ".cfc">
-		<cfset FI_templateComponent = application.FI_LibraryRoot & "." & lcase(arguments.template)>
+		<cfset FI_templateComponent = "cft.libraries." & lcase(arguments.template)>
 		
 		<!--- load the application library --->
 		<cfif fileExists(templateFile)>
@@ -306,7 +306,7 @@
 		
 		<!--- Get the error file --->
 		<cfset errorFile = "#application.errorPath#/#lcase(arguments.template)#.cfm">
-		<cfset FI_errorFile = "#application.FI_ErrorPath#/#lcase(arguments.template)#.cfm">
+		<cfset FI_errorFile = "/cft/errors/#lcase(arguments.template)#.cfm">
 
 		<!--- Parse the error page and save its content --->
 		<cfif fileExists(expandPath(errorFile))>

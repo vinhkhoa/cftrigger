@@ -31,7 +31,7 @@
 			<!--- Display the FI error page --->
 			<cfset heading = arguments.heading>
 			<cfset message = arguments.message>
-			<cfoutput><cfinclude template="#application.FI_ErrorPath#/404.cfm"></cfoutput>
+			<cfoutput><cfinclude template="/cft/errors/404.cfm"></cfoutput>
 		</cfif>
 
 		<cfabort>
@@ -57,7 +57,7 @@
 			<cfset message = arguments.message>
 		
 			<!--- Display the FI error page --->
-			<cfoutput><cfinclude template="#application.FI_ErrorPath#/error_general.cfm"></cfoutput>
+			<cfoutput><cfinclude template="/cft/errors/error_general.cfm"></cfoutput>
 		</cfif>
 		
 		<cfabort>
@@ -73,7 +73,7 @@
 			<cfset application.load.errorInTemplate("production_error")>
 		<cfelse>
 			<!--- Display the FI error page --->
-			<cfoutput><cfinclude template="#application.FI_ErrorPath#/production_error.cfm"></cfoutput>
+			<cfoutput><cfinclude template="/cft/errors/production_error.cfm"></cfoutput>
 		</cfif>
 		
 		<cfabort>

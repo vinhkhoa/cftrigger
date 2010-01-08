@@ -20,7 +20,6 @@
 		This.Sessionmanagement = "True";
 		This.sessiontimeout = createtimespan(0,2,0,0);
 		This.loginstorage = "session";
-		This.FI_Folder = "cftrigger/system";
 		This.scriptProtect = "none";
 	</cfscript>
 
@@ -31,30 +30,70 @@
 	
 		<!--- Logical Paths --->
 		<cfset application.appLogicalPath = This.rootFolder>
-		<cfset application.FI_LogicalPath = "/" & This.FI_Folder>
 		<cfinclude template="#application.appLogicalPath#application/config/database.cfm">
 		<cfinclude template="#application.appLogicalPath#application/config/route.cfm">
 		<cfinclude template="#application.appLogicalPath#application/config/lang.cfm">
-		<cfinclude template="#application.FI_LogicalPath#/config/config.cfm">
-		<cfinclude template="#application.FI_LogicalPath#/config/variables.cfm">
-		<cfinclude template="#application.FI_LogicalPath#/config/lang.cfm">
+		<cfinclude template="/cft/config/config.cfm">
+		<cfinclude template="/cft/config/variables.cfm">
+		<cfinclude template="/cft/config/lang.cfm">
+		
+		<!--- Get coldfusion admin mappings --->
+		<cfset mappings = createObject("java","coldfusion.server.ServiceFactory").runtimeService.getMappings()>	
 		
 		<cfscript>
 			/* =========================================== SERVER SETTINGS =========================================== */
-		
-			// GET CURRENT SERVER
-			if (findNoCase(application.liveServer, CGI.SERVER_NAME))
+			
+			// Get the current page from CGI to check for server
+			if (CGI.HTTPS eq '')
 			{
-				application.serverType = "LIVE";
+				tempCurrentPage = 'http://' & CGI.SERVER_NAME & CGI.SCRIPT_NAME;
 			}
 			else
 			{
-				application.serverType = "DEV";	
+				tempCurrentPage = 'https://' & CGI.SERVER_NAME & CGI.SCRIPT_NAME;
+			}
+		
+			// GET CURRENT SERVER
+			application.environmentType = '';
+			
+			// Is this server found on the dev list?
+			for (i = 1; i le arrayLen(application.devEnvironments); i++)
+			{
+				if (application.devEnvironments[i].server eq CGI.SERVER_NAME AND
+					 findNoCase(application.devEnvironments[i].url, tempCurrentPage))
+				{
+					application.environmentType = "DEV";
+					application.server = "DEV_" & application.devEnvironments[i].server;
+					application.rootURL = application.devEnvironments[i].url;
+				}
 			}
 			
-			
+			// Not found the server on dev list? Search in the live list
+			if (application.environmentType eq '')
+			{
+				for (i = 1; i le arrayLen(application.liveEnvironments); i++)
+				{
+					if (application.liveEnvironments[i].server eq CGI.SERVER_NAME AND
+						 findNoCase(application.liveEnvironments[i].url, tempCurrentPage))
+					{
+						application.environmentType = "LIVE";
+						application.server = "LIVE_" & application.liveEnvironments[i].server;
+						application.rootURL = application.liveEnvironments[i].url;
+					}
+				}
+			}
+		</cfscript>
+		
+		<!--- Not found the server on either live or dev? terminate the application. This should not happen
+				unless the server settings are not included on the server list inside the application config.cfm file --->
+		<cfif (application.environmentType eq '')>
+			<cfoutput>INVALID SERVER. THE APPLICATION IS NOT ALLOWED TO RUN ON THIS SERVER</cfoutput>
+			<cfabort>
+		</cfif>
+		
+		<cfscript>
 			// SPECIFIC SERVER SETTINGS
-			switch(application.serverType) {
+			switch(application.environmentType) {
 				case "LIVE":
 					application.name = application.appName;
 					application.showFriendlyError = true;
@@ -62,7 +101,6 @@
 					application.applicationDBType = "live";
 					application.userDBType = "live";
 					application.alwaysRefreshSettings = false;
-					application.rootURL = application.liveURL;
 					break;						
 		
 				case "DEV":
@@ -91,7 +129,6 @@
 					application.applicationDBType = "dev";
 					application.userDBType = "dev";
 					application.alwaysRefreshSettings = true;
-					application.rootURL = application.devURL;
 					break;
 			}
 			
@@ -106,19 +143,7 @@
 			application.separator = createObject("java", "java.io.File").separator;
 			application.BaseURL = application.rootURL & "/index.cfm";
 			application.FilePath = ReplaceNoCase(This.appComponentFilePath, application.separator & "Application.cfc", "") & application.separator;
-			/*if (This.rootFolder eq "")
-			{
-				appFile = "Application.cfc";
-			}
-			else
-			{
-				appFile = replace(This.rootFolder, "/", application.separator, "ALL") & application.separator & "Application.cfc";
-			}*/
 			appFile = replace(replace(This.rootFolder, "/", application.separator, "ALL") & "Application.cfc", application.separator, "");
-			application.FI_FilePath = ReplaceNoCase(This.appComponentFilePath, appFile, replace(This.FI_Folder, "/", application.separator, "ALL")) & application.separator;
-			
-			application.FI_ErrorPath = application.FI_LogicalPath & "/errors";
-			
 			
 			// Paths
 			application.appPath = application.appLogicalPath & "application";
@@ -135,16 +160,15 @@
 			application.controllerFilePath = application.appFilePath & "controllers" & application.separator;
 			application.libraryFilePath = application.appFilePath & "libraries" & application.separator;
 			application.errorFilePath = application.appFilePath & "errors" & application.separator;
-			application.FI_LibraryFilePath = application.FI_FilePath & "libraries" & application.separator;
+			application.FI_LibraryFilePath = mappings['/cft'] & application.separator & "libraries" & application.separator;
 			
 			// Package paths (roots)
 			application.modelRoot = Replace(Replace(application.appLogicalPath & "application/models", "/", ""), "/", ".", "all");
 			application.controllerRoot = Replace(Replace(application.appLogicalPath & "application/controllers", "/", ""), "/", ".", "all");
 			application.libraryRoot = Replace(Replace(application.appLogicalPath & "application/libraries", "/", ""), "/", ".", "all");
-			application.FI_LibraryRoot = Replace(This.FI_Folder, "/", ".", "ALL") & ".libraries";
 			
 			// System library
-			application.load = createObject("component", "#application.FI_LibraryRoot#.load");
+			application.load = createObject("component", "cft.libraries.load");
 			application.load.library("error", true);
 			application.load.library("utils", true);
 			application.load.library("url", true);
@@ -185,7 +209,7 @@
 		<cfargument name="targetPage" required="true">
 		
 		<!--- Include FI variables --->
-		<cfinclude template="/#This.FI_Folder#/config/variables.cfm">		
+		<cfinclude template="/cft/config/variables.cfm">		
 		
 		<cfset doReset = StructKeyExists(url,"reset") OR NOT StructKeyExists(application, "alwaysRefreshSettings")>
 		
@@ -286,7 +310,7 @@
 		<cfargument name="EventName" type="string" required="yes" />
 		
 		<cfif application.showFriendlyError>
-			<cfif application.serverType eq "LIVE">
+			<cfif application.environmentType eq "LIVE">
 				<cfset application.error.show_production_error()>
 			<cfelse>
 				<cfset application.error.show_error("Coldfusion Error", arguments.Exception.cause.message)>
