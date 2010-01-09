@@ -17,6 +17,12 @@
 	<cfsetting enablecfoutputonly="yes">
 	
 	
+	<!--- CONTROLLER VARIABLES --->
+	<cfscript>
+		this.defaultView = "";
+	</cfscript>
+	
+	
 	<!--- Initialize the controller --->
 	<cffunction name="init" access="public" output="no">
 		

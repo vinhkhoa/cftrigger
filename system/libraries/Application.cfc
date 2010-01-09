@@ -221,20 +221,6 @@
 			<cfset application.url.redirect()>
 		</cfif>
 		
-		<!--- Include application variables --->
-		<cfinclude template="#application.appLogicalPath#application/config/variables.cfm">
-		
-		<!--- Get the current page --->
-		<cfset request.currentPage = application.url.currentPage()>
-		
-		<!--- Get the form, url controller and view values --->
-		<cfset pathInfoStr = application.url.getPathInfoStr()>		
-		<cfset vars = application.url.getPathInfoVariables()>
-		<cfloop collection="#vars#" item="item">
-			<cfset url[item] = vars[item]>
-			<cfset form[item] = vars[item]>
-		</cfloop>
-		
 		<!--- User logout --->
 		<cfif StructKeyExists(url,"logout")>
 			<cfinvoke method="onSessionEnd" sessionScope="#session#">
@@ -244,9 +230,29 @@
 			<cfset application.url.redirectMessage(application.guestDefaultController, "You have been logged out")>
 		</cfif>
 		
+		<!--- Include application variables --->
+		<cfinclude template="#application.appLogicalPath#application/config/variables.cfm">
+		
+		<!--- Get the current page --->
+		<cfset request.currentPage = application.url.currentPage()>
+		
+		<!--- Get the form, url controller, view and other values from the path info string --->
+		<cfset pathInfoStr = application.url.getPathInfoStr()>		
+		<cfset vars = application.url.getPathInfoVariables()>
+		<cfset url.controller = form.controller = vars.controller>
+		<cfset url.view = form.view = vars.view>
+		<cfif StructKeyExists(vars, "id")>
+			<cfset url[controller & "Id"] = vars.id>
+			<cfset form[controller & "Id"] = vars.id>
+		</cfif>
+		<cfif StructKeyExists(vars, "textId")>
+			<cfset url[controller & "TextId"] = vars.textId>
+			<cfset form[controller & "TextId"] = vars.textId>
+		</cfif>
+
 		<!--- Check if user is authenticated and allowed to use the system --->
 		<cfif form.controller neq "login" AND application.enableUserAuthentication>
-			<cfinvoke component="#application.authentication#" method="validate">
+			<cfset application.authentication.validate()>
 		</cfif>
 		
 		<!--- Allow the application to dynamically refresh session when necessary --->
@@ -261,16 +267,29 @@
 		<cfif StructKeyExists(controller, form.view)>
 			<cfinvoke component="#controller#" method="#form.view#" />
 		<cfelse>
-			<!--- Show friendy error? --->
-			<cfif application.showFriendlyError>
-				<cfif application.show404OnMissingController>
-					<cfset application.error.show_404()>
-				<cfelse>
-					<cfset application.error.show_error("Method not found", "The system could not find the method '#form.view#' inside the controller '#form.controller#.cfc'")>
-				</cfif>
+			<!--- This controller has its own default view? --->
+			<cfif controller.defaultView neq "" AND StructKeyExists(controller, controller.defaultView)>
+				<!--- We now call the default view/function and set the current view to be the id/textId --->
+				<cfset url[form.controller & "Id"] = val(form.view)>
+				<cfset form[form.controller & "Id"] = val(form.view)>
+				<cfset url[form.controller & "TextId"] = form.view>
+				<cfset form[form.controller & "TextId"] = form.view>				
+				<cfset form.view = controller.defaultView>
+				
+				<!--- Load the new (default) view --->
+				<cfinvoke component="#controller#" method="#form.view#" />
 			<cfelse>
-				<!--- Load the controller to throw error --->
-				<cfset controller = CreateObject("component", application.controllerRoot & "." & logicalPath)>
+				<!--- Show friendy error? --->
+				<cfif application.showFriendlyError>
+					<cfif application.show404OnMissingController>
+						<cfset application.error.show_404()>
+					<cfelse>
+						<cfset application.error.show_error("Method not found", "The system could not find the method '#form.view#' inside the controller '#form.controller#.cfc'")>
+					</cfif>
+				<cfelse>
+					<!--- Load the controller to throw error --->
+					<cfinvoke component="#controller#" method="#form.view#" />
+				</cfif>
 			</cfif>
 		</cfif>
 	</cffunction>

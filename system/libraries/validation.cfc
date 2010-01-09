@@ -355,4 +355,24 @@
 	
 	</cffunction>
 	
+
+	<!--- ================================== VALIDATAION RULES THAT CHANGE ORIGINAL VALUE =================================== --->
+	
+	<!--- Create a url friendly version --->
+	<cffunction name="_localDirectory" displayname="_localDirectory" access="private" returntype="string">
+	
+		<cfargument name="field" type="struct" required="yes" hint="The field being checked">
+		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">
+		<cfset var error = "">
+
+		<cfif NOT directoryExists(arguments.value)>
+			<cfset error = application.lang.getValidationLang(this.modelName, arguments.field, arguments.value, "localDirectory")>
+		</cfif>
+			
+		<cfreturn error>
+	
+	</cffunction>
+	
+
+
 </cfcomponent>

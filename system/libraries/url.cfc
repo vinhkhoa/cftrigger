@@ -181,12 +181,12 @@
 				<!--- Number or text? --->
 				<cfif isNumeric(pathInfo[2])>
 					<!--- Number? => This is the id --->
-					<cfset result[result.controller & "Id"] = pathInfo[2]>
-					<cfset result[result.controller & "TextId"] = pathInfo[2]>
+					<cfset result.id = pathInfo[2]>
+					<cfset result.textId = pathInfo[2]>
 				<cfelse>
 					<!--- Text? => This is the text id, eg. short title, short name, etc. --->
-					<cfset result[result.controller & "Id"] = 0>
-					<cfset result[result.controller & "TextId"] = pathInfo[2]>
+					<cfset result.id = 0>
+					<cfset result.textId = pathInfo[2]>
 				</cfif>
 				
 				<!--- Get the sub controller --->
@@ -198,12 +198,12 @@
 						<!--- Number or text? --->
 						<cfif isNumeric(pathInfo[4])>
 							<!--- Number? => This is the id --->
-							<cfset result[result.subController & "Id"] = pathInfo[4]>
-							<cfset result[result.subController & "TextId"] = "">
+							<cfset result.subId = pathInfo[4]>
+							<cfset result.subTextId = "">
 						<cfelse>
 							<!--- Text? => This is the text id, eg. short title, short name, etc. --->
-							<cfset result[result.subController & "Id"] = 0>
-							<cfset result[result.subController & "TextId"] = pathInfo[4]>
+							<cfset result.subId = 0>
+							<cfset result.subTextId = pathInfo[4]>
 						</cfif>
 					</cfif>
 				</cfif>
