@@ -63,12 +63,12 @@
 			tempCurrentPage = tempCurrentPage & CGI.SCRIPT_NAME;
 		
 			// GET CURRENT SERVER
-			application.environmentType = '';
+			application.serverType = '';
 			for (i = 1; i le arrayLen(application.servers); i++)
 			{
 				if (application.servers[i].server_name eq CGI.SERVER_NAME AND findNoCase(application.servers[i].url, tempCurrentPage))
 				{
-					application.environmentType = "DEV";
+					application.serverType = application.servers[i].type;
 					application.server = application.servers[i].name;
 					application.rootURL = application.servers[i].url;
 				}
@@ -77,14 +77,14 @@
 		
 		<!--- Not found the server on the list? terminate the application. This should not happen
 				unless the server settings are not included on the server list inside the application config.cfm file --->
-		<cfif (application.environmentType eq '')>
+		<cfif (application.serverType eq '')>
 			<cfoutput>INVALID SERVER. THE APPLICATION IS NOT ALLOWED TO RUN ON THIS SERVER</cfoutput>
 			<cfabort>
 		</cfif>
 		
 		<cfscript>
 			// SPECIFIC SERVER SETTINGS
-			switch(application.environmentType) {
+			switch(application.serverType) {
 				case "LIVE":
 					application.name = application.appName;
 					application.showFriendlyError = true;
@@ -301,7 +301,7 @@
 		<cfargument name="EventName" type="string" required="yes" />
 		
 		<cfif application.showFriendlyError>
-			<cfif application.environmentType eq "LIVE">
+			<cfif application.serverType eq "LIVE">
 				<cfset application.error.show_production_error()>
 			<cfelse>
 				<cfset application.error.show_error("Coldfusion Error", arguments.Exception.cause.message)>

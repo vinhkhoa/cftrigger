@@ -93,8 +93,9 @@
 		<cfset var result = StructNew()>
 		
 		<!--- Maintenance mode? Redirect user to the maintenance page on LIVE --->
-		<cfif application.maintenanceMode AND application.environmentType eq 'LIVE'>
+		<cfif application.maintenanceMode AND application.serverType eq 'LIVE'>
 			<cfset result.controller = application.maintenancePage>
+			<cfset result.view = application.defaultView>
 			<cfreturn result>
 		</cfif>
 		
@@ -215,7 +216,7 @@
 		</cfif>
 		
 		<!--- Not maintenance mode and user attempts to visit the maintenance page on LIVE? Disable it --->
-		<cfif NOT application.maintenanceMode AND application.environmentType eq 'LIVE'
+		<cfif NOT application.maintenanceMode AND application.serverType eq 'LIVE'
 				AND result.controller eq application.maintenancePage>
 			<cfset application.url.redirect()>
 		</cfif>
