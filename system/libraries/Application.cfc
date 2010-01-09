@@ -38,53 +38,44 @@
 		<cfinclude template="/cft/config/lang.cfm">
 		
 		<!--- Get coldfusion admin mappings --->
-		<cfset mappings = createObject("java","coldfusion.server.ServiceFactory").runtimeService.getMappings()>	
+		<cfset mappings = this.getMappings()>	
 		
 		<cfscript>
 			/* =========================================== SERVER SETTINGS =========================================== */
 			
 			// Get the current page from CGI to check for server
+			// HTTPS?
 			if (CGI.HTTPS eq '')
 			{
-				tempCurrentPage = 'http://' & CGI.SERVER_NAME & CGI.SCRIPT_NAME;
+				tempCurrentPage = 'http://' & CGI.SERVER_NAME;
 			}
 			else
 			{
-				tempCurrentPage = 'https://' & CGI.SERVER_NAME & CGI.SCRIPT_NAME;
+				tempCurrentPage = 'https://' & CGI.SERVER_NAME;
 			}
+			
+			// Has a port number?
+			if (CGI.SERVER_PORT neq '' AND CGI.SERVER_PORT neq 80)
+			{
+				tempCurrentPage = tempCurrentPage & ":" & CGI.SERVER_PORT;
+			}
+			
+			tempCurrentPage = tempCurrentPage & CGI.SCRIPT_NAME;
 		
 			// GET CURRENT SERVER
 			application.environmentType = '';
-			
-			// Is this server found on the dev list?
-			for (i = 1; i le arrayLen(application.devEnvironments); i++)
+			for (i = 1; i le arrayLen(application.servers); i++)
 			{
-				if (application.devEnvironments[i].server eq CGI.SERVER_NAME AND
-					 findNoCase(application.devEnvironments[i].url, tempCurrentPage))
+				if (application.servers[i].server_name eq CGI.SERVER_NAME AND findNoCase(application.servers[i].url, tempCurrentPage))
 				{
 					application.environmentType = "DEV";
-					application.server = "DEV_" & application.devEnvironments[i].server;
-					application.rootURL = application.devEnvironments[i].url;
-				}
-			}
-			
-			// Not found the server on dev list? Search in the live list
-			if (application.environmentType eq '')
-			{
-				for (i = 1; i le arrayLen(application.liveEnvironments); i++)
-				{
-					if (application.liveEnvironments[i].server eq CGI.SERVER_NAME AND
-						 findNoCase(application.liveEnvironments[i].url, tempCurrentPage))
-					{
-						application.environmentType = "LIVE";
-						application.server = "LIVE_" & application.liveEnvironments[i].server;
-						application.rootURL = application.liveEnvironments[i].url;
-					}
+					application.server = application.servers[i].name;
+					application.rootURL = application.servers[i].url;
 				}
 			}
 		</cfscript>
 		
-		<!--- Not found the server on either live or dev? terminate the application. This should not happen
+		<!--- Not found the server on the list? terminate the application. This should not happen
 				unless the server settings are not included on the server list inside the application config.cfm file --->
 		<cfif (application.environmentType eq '')>
 			<cfoutput>INVALID SERVER. THE APPLICATION IS NOT ALLOWED TO RUN ON THIS SERVER</cfoutput>
@@ -322,4 +313,28 @@
 	</cffunction> --->
 	
 
+	<!--- Get the mappings from coldfusion admin --->
+	<cffunction name="getMappings" access="public" returntype="struct">
+
+		<cfset var mappings = StructNew()>
+
+		<!--- Try the adobe coldfusion way --->
+		<cfset ServiceFactory = createObject("java","coldfusion.server.ServiceFactory")>
+		
+		<!--- Is this Adobe coldfusion server? --->
+		<cfif isDefined("ServiceFactory.runtimeService")>
+			<cfset mappings = ServiceFactory.runtimeService.getMappings()>
+		<cfelse>
+			<!--- Get mappings in the Railo way --->
+			<cfadmin action="getMappings" type="web" password="vinhkhoa" returnvariable="qMappings">
+			
+			<cfset mappings = StructNew()>
+			<cfloop query="qMappings">
+				<cfset mappings[qMappings.virtual] = qMappings.strPhysical>
+			</cfloop>
+		</cfif>
+		
+		<cfreturn mappings>
+		
+	</cffunction>
 </cfcomponent>
