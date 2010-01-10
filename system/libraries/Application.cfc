@@ -66,7 +66,7 @@
 			application.serverType = '';
 			for (i = 1; i le arrayLen(application.servers); i++)
 			{
-				if (application.servers[i].server_name eq CGI.SERVER_NAME AND findNoCase(application.servers[i].url, tempCurrentPage))
+				if (application.servers[i].name eq CGI.SERVER_NAME AND findNoCase(application.servers[i].url, tempCurrentPage))
 				{
 					application.serverType = application.servers[i].type;
 					application.server = application.servers[i].name;
@@ -239,8 +239,10 @@
 		<!--- Get the form, url controller, view and other values from the path info string --->
 		<cfset pathInfoStr = application.url.getPathInfoStr()>		
 		<cfset vars = application.url.getPathInfoVariables()>
-		<cfset url.controller = form.controller = vars.controller>
-		<cfset url.view = form.view = vars.view>
+		<cfset url.controller = vars.controller>
+		<cfset form.controller = vars.controller>
+		<cfset url.view = vars.view>
+		<cfset form.view = vars.view>
 		<cfif StructKeyExists(vars, "id")>
 			<cfset url[controller & "Id"] = vars.id>
 			<cfset form[controller & "Id"] = vars.id>
@@ -348,8 +350,6 @@
 			<cfset mappings = ServiceFactory.runtimeService.getMappings()>
 		<cfelse>
 			<!--- Get mappings in the Railo way --->
-			<cfadmin action="getMappings" type="web" password="vinhkhoa" returnvariable="qMappings">
-			
 			<cfset mappings = StructNew()>
 			<cfloop query="qMappings">
 				<cfset mappings[qMappings.virtual] = qMappings.strPhysical>
