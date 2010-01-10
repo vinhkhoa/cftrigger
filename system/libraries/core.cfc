@@ -48,21 +48,133 @@
 	</cffunction>
 	
 	
-	<!--- Get the first number of items in a lis. Similar to listFirst but more items --->
+	<!--- Get the first number of items in a list. Similar to listFirst but more items --->
 	<cffunction name="ListLeft" access="public" returntype="string">
 		<cfargument name="ls" type="string" required="yes" hint="The original list" />
 		<cfargument name="size" type="numeric" required="yes" hint="The number of elements to get" />
-		<cfset result = "">
+		<cfargument name="delimiter" type="string" required="no" default="," hint="The list delimiter" />
+		<cfset var result = "">
 		
 		<cfset count = 0>
-		<cfloop list="#arguments.ls#" index="item">
+		<cfloop list="#arguments.ls#" index="item" delimiters="#arguments.delimiter#">
 			<cfset count = count + 1>
 			
 			<!--- Within the range? Add in the item, otherwise stop looping --->
 			<cfif count le arguments.size>
-				<cfset result = listAppend(result, item)>
+				<cfset result = listAppend(result, item, arguments.delimiter)>
 			<cfelse>
 				<cfbreak>
+			</cfif>
+		</cfloop>
+		
+		<cfreturn result>
+	
+	</cffunction>
+	
+	
+	<!--- Get the last number of items in a list. Similar to listRest but flexible number of items --->
+	<cffunction name="ListRight" access="public" returntype="string">
+		<cfargument name="ls" type="string" required="yes" hint="The original list" />
+		<cfargument name="size" type="numeric" required="yes" hint="The number of elements to get" />
+		<cfargument name="delimiter" type="string" required="no" default="," hint="The list delimiter" />
+		<cfset var result = arguments.ls>
+		
+		<cfset result = this.ListReverse(result, arguments.delimiter)>
+		<cfset result = this.ListLeft(result, arguments.size, arguments.delimiter)>
+		<cfset result = this.ListReverse(result, arguments.delimiter)>
+		
+		<cfreturn result>
+	
+	</cffunction>
+	
+	
+	<!--- Reverse a list --->
+	<cffunction name="ListReverse" access="public" returntype="string">
+		<cfargument name="ls" type="string" required="yes" hint="The original list" />
+		<cfargument name="delimiter" type="string" required="no" default="," hint="The list delimiter" />
+		<cfset var result = "">
+		
+		<cfset arr = arrayNew(1)>
+		<cfset listSize = listLen(arguments.ls, arguments.delimiter)>
+		<cfset counter = 0>
+		<cfloop list="#arguments.ls#" index="item" delimiters="#arguments.delimiter#">
+			<cfset counter = counter + 1>
+			<cfset arr[listSize - counter + 1] = item>
+		</cfloop>
+		<cfset result = arrayToList(arr, arguments.delimiter)>
+		
+		<cfreturn result>
+		
+	</cffunction>
+	
+	
+	<!--- Delete the last item of the list --->
+	<cffunction name="ListDeleteLast" access="public" returntype="string">
+		<cfargument name="ls" type="string" required="yes" hint="The original list" />
+		<cfargument name="delimiter" type="string" required="no" default="," hint="The list delimiter" />
+		<cfset var result = "">
+	
+		<cfif listLen(arguments.ls, arguments.delimiter)>
+			<cfset result = listDeleteAt(arguments.ls, listLen(arguments.ls, arguments.delimiter), arguments.delimiter)>
+		</cfif>
+		
+		<cfreturn result>
+	
+	</cffunction>
+	
+	
+	<!--- Get the intersect of 2 lists: a new list that contains items that appaear in both of the original lists --->
+	<cffunction name="ListIntersect" access="public" returntype="string">
+		<cfargument name="ls1" type="string" required="yes" hint="The first original list" />
+		<cfargument name="ls2" type="string" required="yes" hint="The second original list" />
+		<cfargument name="delimiter" type="string" required="no" default="," hint="The list delimiter" />
+		<cfset var result = "">
+		
+		<cfset ls1 = this.listUnique(arguments.ls1, arguments.delimiter)>
+		<cfset ls2 = this.listUnique(arguments.ls2, arguments.delimiter)>
+		
+		<cfloop list="#ls1#" index="item" delimiters="#arguments.delimiter#">
+			<cfif listFindNoCase(ls2, item, arguments.delimiter)>
+				<cfset result = listAppend(result, item, arguments.delimiter)>
+			</cfif>
+		</cfloop>
+		
+		<cfreturn result>
+	
+	</cffunction>
+	
+	
+	<!--- Get the union of 2 lists: a new list that contains items from both list --->
+	<cffunction name="ListUnion" access="public" returntype="string">
+		<cfargument name="ls1" type="string" required="yes" hint="The first list" />
+		<cfargument name="ls2" type="string" required="yes" hint="The second list" />
+		<cfargument name="delimiter" type="string" required="no" default="," hint="The list delimiter" />
+		<cfset var result = "">
+		
+		<!--- Convert lists to arrays as arrays are more efficient --->
+		<cfset arr1 = listToArray(arguments.ls1, arguments.delimiter)>
+		<cfset arr2 = listToArray(arguments.ls2, arguments.delimiter)>
+
+		<cfset result = arrayToList(this.ArrayUnion(arr1, arr2), arguments.delimiter)>
+		
+		<cfreturn result>
+	
+	</cffunction>
+	
+	
+	<!--- Get the minus of 2 lists: a new list that contains items that appaear the first list but not the second list --->
+	<cffunction name="ListMinus" access="public" returntype="string">
+		<cfargument name="ls1" type="string" required="yes" hint="The first original list" />
+		<cfargument name="ls2" type="string" required="yes" hint="The second original list" />
+		<cfargument name="delimiter" type="string" required="no" default="," hint="The list delimiter" />
+		<cfset var result = "">
+		
+		<cfset ls1 = this.listUnique(arguments.ls1, arguments.delimiter)>
+		<cfset ls2 = this.listUnique(arguments.ls2, arguments.delimiter)>
+		
+		<cfloop list="#ls1#" index="item" delimiters="#arguments.delimiter#">
+			<cfif NOT listFindNoCase(ls2, item, arguments.delimiter)>
+				<cfset result = listAppend(result, item, arguments.delimiter)>
 			</cfif>
 		</cfloop>
 		
@@ -76,6 +188,7 @@
 	<!--- Remove duplicates from an array --->
 	<cffunction name="ArrayUnique" access="public" returntype="array">
 		<cfargument name="arr" type="array" required="yes" hint="The original array" />
+		<cfset var result = ArrayNew(1)>
 	
 		<!--- Create a linked hashset java object as it has: 1) unique key and 2) order --->
 		<cfset lhs = createObject("java", "java.util.LinkedHashSet").init(arguments.arr)>
@@ -86,6 +199,23 @@
 	</cffunction>
 	
 
+	<!--- Get the union of 2 arrays: a new array that contains items from both array --->
+	<cffunction name="ArrayUnion" access="public" returntype="array">
+		<cfargument name="arr1" type="array" required="yes" hint="The first array" />
+		<cfargument name="arr2" type="array" required="yes" hint="The second array" />
+		<cfset var result = ArrayNew(1)>
+		
+		<!--- Add 2 arrays together --->
+		<cfloop array="#arguments.arr2#" index="item">
+			<cfset arrayAppend(arguments.arr1, item)>
+		</cfloop>
+		<cfset result = this.arrayUnique(arr1)>
+
+		<cfreturn result>
+	
+	</cffunction>
+	
+	
 	<!--- ============================================= STRUCT ============================================ --->
 	
 	<!--- ============================================= QUERY ============================================ --->
@@ -126,19 +256,4 @@
 	</cffunction>
 	
 
-	<!--- Delete the last item of the list --->
-	<cffunction name="ListDeleteLast" access="public" returntype="string">
-		<cfargument name="ls" type="string" required="yes" hint="The original list" />
-		<cfargument name="delimiter" type="string" required="no" default="," hint="The list delimiter" />
-		<cfset var result = "">
-	
-		<cfif listLen(arguments.ls, arguments.delimiter)>
-			<cfset result = listDeleteAt(arguments.ls, listLen(arguments.ls, arguments.delimiter), arguments.delimiter)>
-		</cfif>
-		
-		<cfreturn result>
-	
-	</cffunction>
-	
-	
 </cfcomponent>

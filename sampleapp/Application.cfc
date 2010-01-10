@@ -59,8 +59,8 @@
 	</cffunction>
 	
 	
-	<!--- Preload some libraries and models --->
-	<cffunction name="preload">
+	<!--- Autoload some libraries and models on application start --->
+	<cffunction name="autoload_application">
 	
 		<!---
 			PRE-LOAD APPLICATION LIBRARIES
@@ -71,10 +71,30 @@
 			application.load.library("[LIBRARY_NAME]", true)
 			
 			
-			This place can also be used to preload any application variables. This serves a similar
+			This place can also be used to autoload any application variables. This serves a similar
 			purpose section APPLICATION SPECIFIC SETTINGS in the application/config.cfm file. The only
 			difference is this place is called AT THE END of the OnApplicationStart(). That means more
 			application scope variables are available at this stage such as application paths.
+			
+		--->
+	
+	</cffunction>
+	
+
+	<!--- Autoload some libraries and models on request start --->
+	<cffunction name="autoload_request">
+	
+		<!---
+			PRE-LOAD REQUEST VARIABLES
+			
+			In addition to the cfTrigger core libraries, sometimes you might want to load certain
+			libraries or maybe just some variables at the beginning of every request. Put them here:
+			
+			request.LIBRARY_NAME = application.load.library("[LIBRARY_NAME]")
+			
+			OR
+			
+			request.VARIABLE_NAME = ...
 			
 		--->
 	

@@ -172,9 +172,9 @@
 			application.load.library("core", true);
 		</cfscript>
 		
-		<!--- Preload? --->
-		<cfif isDefined("this.preload")>
-			<cfset this.preload()>
+		<!--- Autoload at application level? --->
+		<cfif isDefined("this.autoload_application")>
+			<cfset this.autoload_application()>
 		</cfif>
 		
 	</cffunction>
@@ -260,36 +260,39 @@
 			<cfset this.refreshSession()>
 		</cfif>
 		
+		<!--- Autoload at request level? --->
+		<cfif isDefined("this.autoload_request")>
+			<cfset this.autoload_request()>
+		</cfif>
+		
 		<!--- Load the controller --->
 		<cfset controller = application.load.controller(form.controller)>
+		
+		<!--- Not found view in controller? Check if the controller has default view specified --->
+		<cfif NOT StructKeyExists(controller, form.view) AND controller.defaultView neq ""
+			  AND StructKeyExists(controller, controller.defaultView)>
+			<!--- We now call the default view/function and set the current view to be the id/textId --->
+			<cfset url[form.controller & "Id"] = val(form.view)>
+			<cfset form[form.controller & "Id"] = val(form.view)>
+			<cfset url[form.controller & "TextId"] = form.view>
+			<cfset form[form.controller & "TextId"] = form.view>				
+			<cfset form.view = controller.defaultView>
+		</cfif>
 		
 		<!--- Load the view --->
 		<cfif StructKeyExists(controller, form.view)>
 			<cfinvoke component="#controller#" method="#form.view#" />
 		<cfelse>
-			<!--- This controller has its own default view? --->
-			<cfif controller.defaultView neq "" AND StructKeyExists(controller, controller.defaultView)>
-				<!--- We now call the default view/function and set the current view to be the id/textId --->
-				<cfset url[form.controller & "Id"] = val(form.view)>
-				<cfset form[form.controller & "Id"] = val(form.view)>
-				<cfset url[form.controller & "TextId"] = form.view>
-				<cfset form[form.controller & "TextId"] = form.view>				
-				<cfset form.view = controller.defaultView>
-				
-				<!--- Load the new (default) view --->
-				<cfinvoke component="#controller#" method="#form.view#" />
-			<cfelse>
-				<!--- Show friendy error? --->
-				<cfif application.showFriendlyError>
-					<cfif application.show404OnMissingController>
-						<cfset application.error.show_404()>
-					<cfelse>
-						<cfset application.error.show_error("Method not found", "The system could not find the method '#form.view#' inside the controller '#form.controller#.cfc'")>
-					</cfif>
+			<!--- Show friendy error? --->
+			<cfif application.showFriendlyError>
+				<cfif application.show404OnMissingController>
+					<cfset application.error.show_404()>
 				<cfelse>
-					<!--- Load the controller to throw error --->
-					<cfinvoke component="#controller#" method="#form.view#" />
+					<cfset application.error.show_error("Method not found", "The system could not find the method '#form.view#' inside the controller '#form.controller#.cfc'")>
 				</cfif>
+			<cfelse>
+				<!--- Load the controller to throw error --->
+				<cfinvoke component="#controller#" method="#form.view#" />
 			</cfif>
 		</cfif>
 	</cffunction>
