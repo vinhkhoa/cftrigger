@@ -73,8 +73,8 @@
 		</cfif>
 
 		<cfif (StructKeyExists(arguments, "id") OR StructKeyExists(arguments, "textId"))>
-			<!--- Get the model details --->
-			<cfset this.query = get()>
+			<!--- Get the model details and force it to refresh as user initializes the model --->
+			<cfset this.query = this.get(true)>
 			
 			<cfif this.query.recordCount>
 				<!--- A record is found, update this model id --->
@@ -131,6 +131,8 @@
 					WHERE
 						id = <cfqueryparam value="#val(variables.id)#" cfsqltype="CF_SQL_INTEGER">
 				</cfquery>
+				
+				<cfset result.newId = variables.id>
 			<cfelse>
 				<!--- Add the model --->
 				<cfquery name="qAdd" datasource="#application.dbname#" username="#application.dbuser#" password="#application.dbpassword#">
@@ -215,59 +217,30 @@
 	<!--- Get a model details --->
 	<cffunction name="get" displayname="get" access="public" returntype="query" hint="Get a model details">
 		
-		<cfargument name="relatedModelName" type="string" required="no" default="" hint="Get another model that has relationship with this model">
-
-		<cfif len(trim(arguments.relatedModelName)) OR NOT isDefined("this.query")>
-			<!--- Get this model or another model that has relationship with this model --->
-			<cfif len(trim(arguments.relatedModelName))>
-				<cfset relatedModelName = trim(arguments.relatedModelName)>
-				
-				<!--- Does this model have relationship with the current model? --->
-				<cfif listFindNoCase(this.hasOnes, relatedModelName)>
-	
-					<cfset data = StructNew()>
-					<cfset data.userId = variables.userId>
-					<cfset relatedModel = application.load.model(relatedModelName, 0, '', data)>
-					<cfset thisTable = this.tableName>
-					<cfset relatedTable = relatedModel.tableName>
-					
-					<cfquery name="qDetails" datasource="#application.dbname#" username="#application.dbuser#" password="#application.dbpassword#">
-						SELECT #relatedTable#.*
-						FROM #thisTable# INNER JOIN #relatedTable#
-								ON #thisTable#.#relatedModelName#Id = #relatedTable#.id
-						WHERE #thisTable#.id = <cfqueryparam value="#val(variables.id)#" cfsqltype="cf_sql_integer">
-						  AND #thisTable#.#this.archivedField# IS NULL
-						  AND #relatedTable#.#relatedModel.archivedField# IS NULL
-					</cfquery>
-					
-					<cfreturn qDetails>
+		<cfargument name="refresh" type="boolean" required="no" default="false" hint="true: force refresh the query">
+		
+		<cfif NOT isDefined("this.query") OR arguments.refresh>
+			<!--- Get this record details --->
+			<cfinvoke method="getAll" returnvariable="qDetails">
+				<!--- No id or text id passed in? => Get a blank record --->
+				<cfif NOT StructKeyExists(variables, "id") AND NOT StructKeyExists(variables, "textId")>
+					<cfinvokeargument name="id" value="-9999">
 				<cfelse>
-					<cfset application.error.show_error("Relationship not found", "'#thisModelName#' does not have relationship with '#relatedModelName#'")>
-				</cfif>			
-			<cfelse>
-			
-				<!--- Get this record details --->
-				<cfinvoke method="getAll" returnvariable="qDetails">
-					<!--- No id or text id passed in? => Get a blank record --->
-					<cfif NOT StructKeyExists(variables, "id") AND NOT StructKeyExists(variables, "textId")>
-						<cfinvokeargument name="id" value="-9999">
-					<cfelse>
-						<!--- Limit by id? --->
-						<cfif StructKeyExists(variables, "id")>
-							<cfinvokeargument name="id" value="#val(variables.id)#">
-						</cfif>
-						
-						<!--- Limit by text id? --->
-						<cfif StructKeyExists(variables, "textId")>
-							<cfinvokeargument name="textId" value="#variables.textId#">
-						</cfif>
-
-						<cfinvokeargument name="getArchived" value="#variables.getArchived#">
+					<!--- Limit by id? --->
+					<cfif StructKeyExists(variables, "id")>
+						<cfinvokeargument name="id" value="#val(variables.id)#">
 					</cfif>
-				</cfinvoke>
-				
-				<cfreturn qDetails>		
-			</cfif>		
+					
+					<!--- Limit by text id? --->
+					<cfif StructKeyExists(variables, "textId")>
+						<cfinvokeargument name="textId" value="#variables.textId#">
+					</cfif>
+
+					<cfinvokeargument name="getArchived" value="#variables.getArchived#">
+				</cfif>
+			</cfinvoke>
+			
+			<cfreturn qDetails>		
 		<cfelse>
 			<cfreturn this.query>
 		</cfif>
@@ -278,7 +251,6 @@
 	<!--- Get the list of models --->
 	<cffunction name="getAll" displayname="getAll" access="public" returntype="query" hint="Get the list of models">
 		
-		<cfargument name="relatedModelName" type="string" required="no" default="" hint="Get the list of another model that has relationship with this model">
 		<cfargument name="id" type="numeric" required="no" hint="Limit to a particular record by its id">
 		<cfargument name="textId" type="string" required="no" hint="Limit to a particular record by its text id">
 		<cfargument name="getArchived" type="boolean" required="no" default="false" hint="true: get archived model">
@@ -286,62 +258,46 @@
 		<cfset metaData = getMetaData(this)>
 		<cfset thisModelName = metaData.displayName>
 		
-		<!--- Get this model or another model that has relationship with this model --->
-		<cfif len(trim(arguments.relatedModelName))>
-			<cfset relatedModelName = trim(arguments.relatedModelName)>
-
-			<!--- Does this model have relationship with the current model? --->
-			<cfif listFindNoCase(this.hasManys, relatedModelName)>
-				<cfset data = StructNew()>
-				<cfset data.userId = val(variables.userId)>
-				<cfset relatedModel = application.load.model(relatedModelName, 0, '', data)>
+		<!--- Get the list of models --->
+		<cfquery name="qList" datasource="#application.dbname#" username="#application.dbuser#" password="#application.dbpassword#">
+			SELECT *
+			FROM #this.tableName#
+			WHERE 1 = 1
 				
-				<cfreturn relatedModel.where(thisModelName & "Id", variables.id).getAll()>
-			<cfelse>
-				<cfset application.error.show_error("Relationship not found", "'#thisModelName#' does not have relationship with '#relatedModelName#'")>
-			</cfif>			
-		<cfelse>
-			<!--- Get the list of models --->
-			<cfquery name="qList" datasource="#application.dbname#" username="#application.dbuser#" password="#application.dbpassword#">
-				SELECT *
-				FROM #this.tableName#
-				WHERE 1 = 1
-					
-					<!--- Get archived model? --->
-					<cfif arguments.getArchived>
-						AND #this.archivedField# IS NOT NULL
-					<cfelse>
-						AND #this.archivedField# IS NULL
-					</cfif>
-					
-					<cfloop collection="#This.wheres#" item="field">
-						AND #field# = <cfqueryparam value="#This.wheres[field]#" />
-					</cfloop>
-				
-					<cfloop collection="#This.where_list#" item="field">
-						AND #field# IN (<cfqueryparam value="#This.where_list[field]#" list="yes" />)
-					</cfloop>
-				
-					<!--- Limit to a particular record --->
-					<cfif StructKeyExists(arguments, "id") AND val(arguments.id)>
-						AND id = <cfqueryparam value="#val(arguments.id)#" cfsqltype="cf_sql_integer" />
-					</cfif>
-					
-					<cfif StructKeyExists(arguments, "textId") AND trim(arguments.textId) neq "">
-						AND #this.textIdField# = <cfqueryparam value="#trim(arguments.textId)#" cfsqltype="cf_sql_varchar" />
-					</cfif>
-				  
-				<cfif isDefined("this.orderby")>
-					ORDER BY #this.orderby#
+				<!--- Get archived model? --->
+				<cfif arguments.getArchived>
+					AND #this.archivedField# IS NOT NULL
+				<cfelse>
+					AND #this.archivedField# IS NULL
 				</cfif>
-			</cfquery>
+				
+				<cfloop collection="#This.wheres#" item="field">
+					AND #field# = <cfqueryparam value="#This.wheres[field]#" />
+				</cfloop>
 			
-			<!--- Reset the where clauses --->
-			<cfset StructClear(this.wheres)>
-			<cfset StructClear(this.where_list)>
-	
-			<cfreturn qList>
-		</cfif>
+				<cfloop collection="#This.where_list#" item="field">
+					AND #field# IN (<cfqueryparam value="#This.where_list[field]#" list="yes" />)
+				</cfloop>
+			
+				<!--- Limit to a particular record --->
+				<cfif StructKeyExists(arguments, "id") AND val(arguments.id)>
+					AND id = <cfqueryparam value="#val(arguments.id)#" cfsqltype="cf_sql_integer" />
+				</cfif>
+				
+				<cfif StructKeyExists(arguments, "textId") AND trim(arguments.textId) neq "">
+					AND #this.textIdField# = <cfqueryparam value="#trim(arguments.textId)#" cfsqltype="cf_sql_varchar" />
+				</cfif>
+			  
+			<cfif isDefined("this.orderby")>
+				ORDER BY #this.orderby#
+			</cfif>
+		</cfquery>
+		
+		<!--- Reset the where clauses --->
+		<cfset StructClear(this.wheres)>
+		<cfset StructClear(this.where_list)>
+
+		<cfreturn qList>
 
 	</cffunction>
 
@@ -359,25 +315,6 @@
 	</cffunction>
 		
 
-	<!--- Get a related model --->
-	<!---<cffunction name="related" displayname="related" access="public" hint="Get a related model">
-	
-		<cfargument name="relatedModelName" type="string" required="yes" hint="The name of the related model">
-		
-		<!--- Get related one-models --->
-		<cfif listFindNoCase(this.hasOnes, arguments.relatedModelName)>
-			<cfset relatedModel = application.load.model(arguments.relatedModelName, val(this.query["#arguments.relatedModelName#id"][1]))>
-			<cfreturn relatedModel>
-		<cfelseif listFindNoCase(this.hasManys, arguments.relatedModelName)>
-			<cfset relatedModel = application.load.model(arguments.relatedModelName).where(this.modelName & "Id", variables.id)>
-			<cfreturn relatedModel>
-		<cfelse>
-			<cfset application.error.show_error("Relationship not found", "'#this.modelName#' does not have relationship with '#arguments.relatedModelName#'")>
-		</cfif>
-		
-	</cffunction>--->
-	
-	
 	<!--- Reset all WHERE/filter conditions --->
 	<cffunction name="resetWhere" displayname="resetWhere" access="private" hint="">
 	
@@ -390,14 +327,11 @@
 
 	<!--- Get the list of all models including both active and archived ones --->
 	<cffunction name="getAllIncludingArchived" displayname="getAllIncludingArchived" access="public" returntype="query" hint="Get the list of models">
-		
-		<cfargument name="relatedModelName" type="string" required="no" default="" hint="Get the list of another model that has relationship with this model">
 		<cfargument name="id" type="numeric" required="no" hint="Limit to a particular record by its id">
 		<cfargument name="textId" type="string" required="no" hint="Limit to a particular record by its text id">
 
 		<!--- Get the list of active models --->
 		<cfinvoke method="getAll" returnvariable="qActive">
-			<cfinvokeargument name="relatedModelName" value="#arguments.relatedModelName#">
 			<cfif StructKeyExists(arguments, "id")>
 				<cfinvokeargument name="id" value="#arguments.id#">
 			</cfif>
@@ -408,7 +342,6 @@
 		
 		<!--- Get the list of archived models --->
 		<cfinvoke method="getAll" returnvariable="qArchived">
-			<cfinvokeargument name="relatedModelName" value="#arguments.relatedModelName#">
 			<cfif StructKeyExists(arguments, "id")>
 				<cfinvokeargument name="id" value="#arguments.id#">
 			</cfif>
