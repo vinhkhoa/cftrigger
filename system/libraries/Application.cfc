@@ -45,7 +45,7 @@
 			
 			// Get the current page from CGI to check for server
 			// HTTPS?
-			if (CGI.HTTPS eq '')
+			if (CGI.HTTPS neq 'ON' AND CGI.HTTPS neq 1)
 			{
 				tempCurrentPage = 'http://' & CGI.SERVER_NAME;
 			}
