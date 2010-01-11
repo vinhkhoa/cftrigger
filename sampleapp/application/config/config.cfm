@@ -14,10 +14,17 @@
 		you leave all the variables there. Deleting any of them might cause errors.
 	*/
 	application.appName = "cftSampleApp";
-	application.devURL = "http://localhost:8600/cftrigger/sampleapp";
-	application.liveURL = "http://sampleapp.com";
-	application.devServer = "localhost";
-	application.liveServer = "sampleapp.com";
+	
+	// Development environments
+	application.servers = ArrayNew(1);
+	application.servers[1] = structNew();
+	application.servers[1].name = 'localhost';
+	application.servers[1].type = 'dev';
+	application.servers[1].url = "http://localhost/cftrigger/sampleapp";
+	application.servers[2] = structNew();
+	application.servers[2].name = 'sampleapp';
+	application.servers[2].type = 'live';
+	application.servers[2].url = "http://sampleapp.com";	
 	application.enableUserAuthentication = false;
 	application.fromEmail = "admin <admin@sampleapp.com>";
 	application.ErrorEmail = "admin@sampleapp.com";

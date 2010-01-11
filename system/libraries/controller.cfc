@@ -26,7 +26,11 @@
 	<!--- Initialize the controller --->
 	<cffunction name="init" access="public" output="no">
 		
-		<cfset variables.userId = val(session.userId)>
+		<cfif StructKeyExists(session, "userId")>
+			<cfset variables.userId = val(session.userId)>
+		<cfelse>
+			<cfset variables.userId = "">
+		</cfif>
 		
 		<!--- This controller may be referenced later on --->
 		<cfset request.controller = this>

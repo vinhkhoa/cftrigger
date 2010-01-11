@@ -2,7 +2,8 @@
 	Summary:	Display error messages
  --->
 
-<!--- Display error --->		
+<!--- Display error --->
+<cfoutput>
 <cfif StructKeyExists(request, "error") AND len(trim(request.error))>
 	<cfset session.error = request.error>
 	<cfset StructDelete(request, "error")>
@@ -55,4 +56,4 @@
 	</div>
 	<cfset StructDelete(session, "warningList")>
 </cfif>
-
+</cfoutput>
