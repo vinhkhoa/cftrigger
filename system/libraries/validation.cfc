@@ -80,7 +80,7 @@
 			<cfset ruleTotal = listLen(field.rules)>
 			
 			<!--- Loop through all rules until no rule left or an error has been encountered --->
-			<cfloop condition="#ruleIndex lt ruleTotal AND thisError eq ''#">
+			<cfloop condition="ruleIndex lt ruleTotal AND thisError eq ''">
 				<cfset ruleIndex++>
 				<cfset thisRule = listGetAt(field.rules, ruleIndex)>
 				
@@ -119,7 +119,7 @@
 	<!--- ======================================= VALIDATAION RULES ========================================== --->
 
 	<!--- Required field --->
-	<cffunction name="_required" displayname="_required" access="private" returntype="string">
+	<cffunction name="_required" displayname="_required" returntype="string">
 	
 		<cfargument name="field" type="struct" required="yes" hint="The field being checked">
 		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">
@@ -136,7 +136,7 @@
 	
 	
 	<!--- Unique field --->
-	<cffunction name="_unique" displayname="_unique" access="private" returntype="string">
+	<cffunction name="_unique" displayname="_unique" returntype="string">
 	
 		<cfargument name="field" type="struct" required="yes" hint="The field being checked">
 		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">
@@ -160,7 +160,7 @@
 	
 	
 	<!--- Email field --->
-	<cffunction name="_email" displayname="_email" access="private" returntype="string">
+	<cffunction name="_email" displayname="_email" returntype="string">
 	
 		<cfargument name="field" type="struct" required="yes" hint="The field being checked">
 		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">
@@ -176,7 +176,7 @@
 	
 
 	<!--- Minimum length --->
-	<cffunction name="_minLen" displayname="_minLen" access="private" returntype="string">
+	<cffunction name="_minLen" displayname="_minLen" returntype="string">
 	
 		<cfargument name="field" type="struct" required="yes" hint="The field being checked">
 		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">
@@ -193,7 +193,7 @@
 	
 
 	<!--- Maximum length --->
-	<cffunction name="_maxLen" displayname="_maxLen" access="private" returntype="string">
+	<cffunction name="_maxLen" displayname="_maxLen" returntype="string">
 	
 		<cfargument name="field" type="struct" required="yes" hint="The field being checked">
 		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">
@@ -210,13 +210,13 @@
 	
 
 	<!--- Numeric --->
-	<cffunction name="_numeric" displayname="_numeric" access="private" returntype="string">
+	<cffunction name="_numeric" displayname="_numeric" returntype="string">
 	
 		<cfargument name="field" type="struct" required="yes" hint="The field being checked">
 		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">
 		<cfset var error = "">
 
-		<cfif arguments.value neq "" AND NOT isValid("number", arguments.value)>
+		<cfif arguments.value eq "" OR NOT isValid("number", arguments.value)>
 			<cfset error = application.lang.getValidationLang(this.modelName, arguments.field, arguments.value, "numeric")>
 		</cfif>
 			
@@ -226,7 +226,7 @@
 	
 
 	<!--- Minimum value --->
-	<cffunction name="_minVal" displayname="_minVal" access="private" returntype="string">
+	<cffunction name="_minVal" displayname="_minVal" returntype="string">
 	
 		<cfargument name="field" type="struct" required="yes" hint="The field being checked">
 		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">
@@ -243,7 +243,7 @@
 	
 
 	<!--- Maximum value --->
-	<cffunction name="_maxVal" displayname="_maxVal" access="private" returntype="string">
+	<cffunction name="_maxVal" displayname="_maxVal" returntype="string">
 	
 		<cfargument name="field" type="struct" required="yes" hint="The field being checked">
 		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">
@@ -260,7 +260,7 @@
 
 
 	<!--- Username --->
-	<cffunction name="_username" displayname="_username" access="private" returntype="string">
+	<cffunction name="_username" displayname="_username" returntype="string">
 	
 		<cfargument name="field" type="struct" required="yes" hint="The field being checked">
 		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">
@@ -276,7 +276,7 @@
 
 
 	<!--- Letters --->
-	<cffunction name="_letters" displayname="_letters" access="private" returntype="string">
+	<cffunction name="_letters" displayname="_letters" returntype="string">
 	
 		<cfargument name="field" type="struct" required="yes" hint="The field being checked">
 		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">
@@ -292,7 +292,7 @@
 
 
 	<!--- Numbers/Digits --->
-	<cffunction name="_digits" displayname="_digits" access="private" returntype="string">
+	<cffunction name="_digits" displayname="_digits" returntype="string">
 	
 		<cfargument name="field" type="struct" required="yes" hint="The field being checked">
 		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">
@@ -308,7 +308,7 @@
 
 
 	<!--- URL field --->
-	<cffunction name="_url" displayname="_url" access="private" returntype="string">
+	<cffunction name="_url" displayname="_url" returntype="string">
 	
 		<cfargument name="field" type="struct" required="yes" hint="The field being checked">
 		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">
@@ -324,7 +324,7 @@
 	
 
 	<!--- Provide user with freedom to limit what charactesr they want --->
-	<cffunction name="_limitChars" displayname="_limitChars" access="private" returntype="string">
+	<cffunction name="_limitChars" displayname="_limitChars" returntype="string">
 	
 		<cfargument name="field" type="struct" required="yes" hint="The field being checked">
 		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">
@@ -341,7 +341,7 @@
 
 
 	<!--- Valid/existing local directory path --->
-	<cffunction name="_localDirectory" displayname="_localDirectory" access="private" returntype="string">
+	<cffunction name="_localDirectory" displayname="_localDirectory" returntype="string">
 	
 		<cfargument name="field" type="struct" required="yes" hint="The field being checked">
 		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">

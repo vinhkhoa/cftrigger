@@ -27,11 +27,16 @@
 		<cfset var result = "">
 		
 		<!--- Is there a validation language for this? --->
-		<cfif isDefined("application.validationLang[arguments.modelName][arguments.field.name][arguments.rule]")>
+		<cfif StructKeyExists(application, "validationLang") AND
+				StructKeyExists(application.validationLang, arguments.modelName) AND
+				StructKeyExists(application.validationLang[arguments.modelName], arguments.field.name) AND
+				StructKeyExists(application.validationLang[arguments.modelName][arguments.field.name], arguments.rule)>
+		<!--- <cfif isDefined("application.validationLang[arguments.modelName][arguments.field.name][arguments.rule]")> --->
 			<cfset result = application.validationLang[arguments.modelName][arguments.field.name][arguments.rule]>
 		<cfelse>
 			<!--- Is there a default one? --->
-			<cfif isDefined("application.defaultValidationLang[arguments.rule]")>
+			<cfif StructKeyExists(application.defaultValidationLang, arguments.rule)>
+			<!--- <cfif isDefined("application.defaultValidationLang[arguments.rule]")> --->
 				<cfset result = application.defaultValidationLang[arguments.rule]>
 			</cfif>
 		</cfif>
