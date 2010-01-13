@@ -29,7 +29,6 @@
 	
 		<!--- Include the application specific configurations --->
 		<cfinclude template="application/config/config.cfm" />
-		<cfinclude template="application/config/variables.cfm">
 		
 		<cfset super.OnApplicationStart()>
 

@@ -18,7 +18,6 @@
 	<cfscript>
 		// GENERAL SETTINGS
 		This.Sessionmanagement = "True";
-		This.sessiontimeout = createtimespan(0,2,0,0);
 		This.loginstorage = "session";
 		This.scriptProtect = "none";
 	</cfscript>
@@ -34,7 +33,6 @@
 		<cfinclude template="#application.appLogicalPath#application/config/route.cfm">
 		<cfinclude template="#application.appLogicalPath#application/config/lang.cfm">
 		<cfinclude template="/cft/config/config.cfm">
-		<cfinclude template="/cft/config/variables.cfm">
 		<cfinclude template="/cft/config/lang.cfm">
 		
 		<!--- Get coldfusion admin mappings --->
@@ -69,7 +67,7 @@
 				if (application.servers[i].name eq CGI.SERVER_NAME AND findNoCase(application.servers[i].url, tempCurrentPage))
 				{
 					application.serverType = application.servers[i].type;
-					application.server = application.servers[i].name;
+					application.serverName = application.serverType & "_" & application.servers[i].name;
 					application.rootURL = application.servers[i].url;
 				}
 			}
@@ -229,9 +227,6 @@
 			
 			<cfset application.url.redirectMessage(application.guestDefaultController, "You have been logged out")>
 		</cfif>
-		
-		<!--- Include application variables --->
-		<cfinclude template="#application.appLogicalPath#application/config/variables.cfm">
 		
 		<!--- Get the current page --->
 		<cfset request.currentPage = application.url.currentPage()>
