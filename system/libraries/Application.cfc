@@ -233,18 +233,18 @@
 		
 		<!--- Get the form, url controller, view and other values from the path info string --->
 		<cfset pathInfoStr = application.url.getPathInfoStr()>		
-		<cfset vars = application.url.getPathInfoVariables()>
-		<cfset url.controller = vars.controller>
-		<cfset form.controller = vars.controller>
-		<cfset url.view = vars.view>
-		<cfset form.view = vars.view>
-		<cfif StructKeyExists(vars, "id")>
-			<cfset url[controller & "Id"] = vars.id>
-			<cfset form[controller & "Id"] = vars.id>
+		<cfset getVarsResult = application.url.getPathInfoVariables()>
+		<cfset url.controller = getVarsResult.controller>
+		<cfset form.controller = getVarsResult.controller>
+		<cfset url.view = getVarsResult.view>
+		<cfset form.view = getVarsResult.view>
+		<cfif StructKeyExists(getVarsResult, "id")>
+			<cfset url[controller & "Id"] = getVarsResult.id>
+			<cfset form[controller & "Id"] = getVarsResult.id>
 		</cfif>
-		<cfif StructKeyExists(vars, "textId")>
-			<cfset url[controller & "TextId"] = vars.textId>
-			<cfset form[controller & "TextId"] = vars.textId>
+		<cfif StructKeyExists(getVarsResult, "textId")>
+			<cfset url[controller & "TextId"] = getVarsResult.textId>
+			<cfset form[controller & "TextId"] = getVarsResult.textId>
 		</cfif>
 
 		<!--- Check if user is authenticated and allowed to use the system --->
@@ -262,30 +262,45 @@
 			<cfset this.autoload_request()>
 		</cfif>
 		
-		<!--- Load the controller --->
-		<cfset controller = application.load.controller(form.controller)>
+		<cfset error404 = false>
 		
-		<!--- Not found view in controller? Check if the controller has default view specified --->
-		<cfif NOT StructKeyExists(controller, form.view) AND controller.defaultView neq ""
-			  AND StructKeyExists(controller, controller.defaultView)>
-			<!--- We now call the default view/function and set the current view to be the id/textId --->
-			<cfset url[form.controller & "Id"] = val(form.view)>
-			<cfset form[form.controller & "Id"] = val(form.view)>
-			<cfset url[form.controller & "TextId"] = form.view>
-			<cfset form[form.controller & "TextId"] = form.view>				
-			<cfset form.view = controller.defaultView>
+		<!--- Load the controller --->
+		<cfif getVarsResult.foundController>
+			<cfset controller = application.load.controller(form.controller)>
+			
+			<!--- Not found view in controller? Check if the controller has default view specified --->
+			<cfif NOT StructKeyExists(controller, form.view) AND controller.defaultView neq ""
+				  AND StructKeyExists(controller, controller.defaultView)>
+				<!--- We now call the default view/function and set the current view to be the id/textId --->
+				<cfset url[form.controller & "Id"] = val(form.view)>
+				<cfset form[form.controller & "Id"] = val(form.view)>
+				<cfset url[form.controller & "TextId"] = form.view>
+				<cfset form[form.controller & "TextId"] = form.view>				
+				<cfset form.view = controller.defaultView>
+			</cfif>
+			
+			<!--- Load the view --->
+			<cfif StructKeyExists(controller, form.view)>
+				<cfinvoke component="#controller#" method="#form.view#" />
+			<cfelse>
+				<cfset errorHeading = "Method not found">
+				<cfset errorMessage = "The system could not find the method '#form.view#' inside the controller '#form.controller#.cfc'">
+				<cfset error404 = true>
+			</cfif>
+		<cfelse>
+			<cfset errorHeading = "Controller not found">
+			<cfset errorMessage = "The system could not find the controller '#form.controller#.cfc'">
+			<cfset error404 = true>
 		</cfif>
 		
-		<!--- Load the view --->
-		<cfif StructKeyExists(controller, form.view)>
-			<cfinvoke component="#controller#" method="#form.view#" />
-		<cfelse>
+		<!--- 404 error? --->
+		<cfif error404>
 			<!--- Show friendy error? --->
 			<cfif application.showFriendlyError>
 				<cfif application.show404OnMissingController>
 					<cfset application.error.show_404()>
 				<cfelse>
-					<cfset application.error.show_error("Method not found", "The system could not find the method '#form.view#' inside the controller '#form.controller#.cfc'")>
+					<cfset application.error.show_error(errorHeading, errorMessage)>
 				</cfif>
 			<cfelse>
 				<!--- Load the controller to throw error --->
@@ -344,6 +359,9 @@
 		<cfif isDefined("ServiceFactory.runtimeService")>
 			<cfset mappings = ServiceFactory.runtimeService.getMappings()>
 		<cfelse>
+			<!--- Get mappings in the Railo way --->
+			<cfadmin action="getMappings" type="web" password="vinhkhoa" returnvariable="qMappings">
+
 			<!--- Get mappings in the Railo way --->
 			<cfset mappings = StructNew()>
 			<cfloop query="qMappings">

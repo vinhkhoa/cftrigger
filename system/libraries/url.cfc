@@ -91,6 +91,9 @@
 	<cffunction name="getPathInfoVariables" access="public" returntype="struct" output="no">
 
 		<cfset var result = StructNew()>
+		<cfset result.foundController = false>
+		<cfset result.controller = "">
+		<cfset result.view = "">
 		
 		<!--- Maintenance mode? Redirect user to the maintenance page on LIVE --->
 		<cfif application.maintenanceMode AND application.serverType eq 'LIVE'>
@@ -100,7 +103,6 @@
 		</cfif>
 		
 		<cfset pathInfoStr = this.getPathInfoStr()>
-		<cfset foundController = false>
 		<cfset continueSearching = true>
 		<cfset counter = 1>
 		<cfset path = "">
@@ -121,14 +123,14 @@
 			<cfset result.controller = replace(path, application.separator, "/", "ALL")>
 			<cfset controllerPath = application.controllerFilePath & path>
 
-			<cfset foundController = fileExists(controllerPath & ".cfc")>
-			<cfset continueSearching = (NOT foundController) AND directoryExists(controllerPath)>
+			<cfset result.foundController = fileExists(controllerPath & ".cfc")>
+			<cfset continueSearching = (NOT result.foundController) AND directoryExists(controllerPath)>
 
 			<cfset counter = counter + 1>
 		</cfloop>
 		
 		<!--- Found the controller? --->
-		<cfif NOT foundController>
+		<cfif NOT result.foundController>
 			<!--- Anything to route? --->
 			<!---<cfif StructKeyExists(application, "routes") AND StructKeyExists(application.routes, path)>
 				<cfset vals = ArrayNew(1)>
@@ -151,18 +153,8 @@
 				<!---<cfset application.url.redirect(redirectURL)>--->
 				<cfset getPageContext().forward(redirectURL)>
 			</cfif>--->
-		
-			<!--- Show friendy error? --->
-			<cfif application.showFriendlyError>
-				<cfif application.show404OnMissingController>
-					<cfset application.error.show_404()>
-				<cfelse>
-					<cfset application.error.show_error("Controller not found", "The system could not find the controller: #controllerPath#.cfc")>
-				</cfif>
-			<cfelse>
-				<!--- Load the controller to throw error --->
-				<cfset controller = CreateObject("component", application.controllerRoot & "." & logicalPath)>
-			</cfif>
+			
+			<cfreturn result>
 		</cfif>
 
 		<!--- Already found the controller, remove it from the path info --->		
@@ -211,7 +203,7 @@
 		</cfif>
 		
 		<!--- Has a view? --->
-		<cfif NOT StructKeyExists(result, "view")>
+		<cfif NOT StructKeyExists(result, "view") OR result.view eq "">
 			<cfset result.view = application.defaultView>
 		</cfif>
 		
