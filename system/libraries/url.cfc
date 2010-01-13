@@ -284,7 +284,7 @@
 			<cfset location = reReplace(reReplace("#application.baseURL#/#arguments.location#", "([^:])/{2,}", "\1/", "ALL"), "index.cfm/$", "")>
 		</cfif>
 		
-		<cfset this.redirect("redirectParent?parentRedirectURL=#location#")>
+		<cfset this.redirect("redirectparent?parentRedirectURL=#location#")>
 		
 	</cffunction>
 	
