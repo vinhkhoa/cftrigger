@@ -360,7 +360,7 @@
 			<cfset mappings = ServiceFactory.runtimeService.getMappings()>
 		<cfelse>
 			<!--- Get mappings in the Railo way --->
-			<cfadmin action="getMappings" type="web" password="vinhkhoa" returnvariable="qMappings">
+			<cfinclude template="railo/admin.cfm">
 
 			<!--- Get mappings in the Railo way --->
 			<cfset mappings = StructNew()>

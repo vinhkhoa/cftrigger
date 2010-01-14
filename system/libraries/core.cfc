@@ -183,6 +183,32 @@
 	</cffunction>
 	
 	
+	<!--- Reorder an item on the list --->
+	<cffunction name="ListReorderAt" access="public" returntype="string">
+		<cfargument name="ls" type="string" required="yes" hint="The original list" />
+		<cfargument name="oldPosition" type="numeric" required="yes" hint="The original item position index" />
+		<cfargument name="newPosition" type="numeric" required="yes" hint="The new item position index" />
+		<cfset var result = arguments.ls>
+	
+		<!--- Valid index? --->
+		<cfif val(arguments.oldPosition) ge 1 AND val(arguments.oldPosition) le listLen(arguments.ls)>
+			<!--- Extract the item from the list --->
+			<cfset thisItem = listGetAt(arguments.ls, val(arguments.oldPosition))>
+			<cfset result = listDeleteAt(arguments.ls, val(arguments.oldPosition))>
+			
+			<!--- Insert the item into the new position --->
+			<cfif val(arguments.newPosition) le listLen(result)>
+				<cfset result = listInsertAt(result, val(arguments.newPosition), thisItem)>
+			<cfelse>
+				<cfset result = listAppend(result, thisItem)>
+			</cfif>
+		</cfif>
+
+		<cfreturn result>
+	
+	</cffunction>
+	
+	
 	<!--- ============================================= ARRAY ============================================ --->
 
 	<!--- Remove duplicates from an array --->
