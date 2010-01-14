@@ -96,6 +96,7 @@
 		<cfset var result = StructNew()>
 		<cfset result.errorList = ArrayNew(1)>
 		<cfset result.newId = "">
+		<cfset result.newTextId = "">
 		
 		<!--- Validate the values --->
 		<cfif This.ranValidation>
@@ -133,6 +134,9 @@
 				</cfquery>
 				
 				<cfset result.newId = variables.id>
+				<cfif StructKeyExists(variables, "textId")>
+					<cfset result.newTextId = variables.textId>
+				</cfif>
 			<cfelse>
 				<!--- Add the model --->
 				<cfquery name="qAdd" datasource="#application.dbname#" username="#application.dbuser#" password="#application.dbpassword#">
@@ -178,6 +182,9 @@
 				</cfquery>
 				
 				<cfset result.newId = qAdd.newId>
+				<cfif StructKeyExists(arguments, This.textIdField)>
+					<cfset result.newTextId = arguments[This.textIdField]>
+				</cfif>
 			</cfif>
 		</cfif>
 		

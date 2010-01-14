@@ -189,7 +189,11 @@
 			
 			<!--- Initialize the model --->
 			<cfinvoke component="#result#" method="init" returnvariable="result">
-				<cfinvokeargument name="userId" value="#val(session.userId)#">
+				<cfif StructKeyExists(session, "userId")>
+					<cfinvokeargument name="userId" value="#val(session.userId)#">
+				<cfelse>
+					<cfinvokeargument name="userId" value="0">
+				</cfif>
 				
 				<!--- Limit by id? --->
 				<cfif StructKeyExists(arguments, "id")>
