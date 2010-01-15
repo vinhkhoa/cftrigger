@@ -209,6 +209,21 @@
 	</cffunction>
 	
 	
+	<!--- Create a list from a range of numbers --->
+	<cffunction name="ListFromRange" access="public" returntype="string">
+		<cfargument name="leftBound" type="numeric" required="yes" hint="The left bound number" />
+		<cfargument name="rightBound" type="numeric" required="yes" hint="The right bound number" />
+		<cfset var result = "">
+		
+		<cfloop from="#val(arguments.leftBound)#" to="#val(arguments.rightBound)#" index="i">
+			<cfset result = listAppend(result, i)>
+		</cfloop>
+		
+		<cfreturn result>
+	
+	</cffunction>
+	
+	
 	<!--- ============================================= ARRAY ============================================ --->
 
 	<!--- Remove duplicates from an array --->

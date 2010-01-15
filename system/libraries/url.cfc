@@ -38,6 +38,18 @@
 	</cffunction>
 	
 	
+	<!--- Redirect the page with a list of error --->
+	<cffunction name="redirectErrorList" access="public" output="no">
+	
+		<cfargument name="location" type="string" required="yes" hint="The location to redirect to">
+		<cfargument name="errorList" type="string" required="yes" hint="The error list to be displayed">
+	
+		<cfset session.errorList = arguments.errorList>
+		<cfset this.redirect(arguments.location)>
+	
+	</cffunction>
+	
+	
 	<!--- Redirect user to a page --->
 	<cffunction name="redirect" access="public" output="no">
 
