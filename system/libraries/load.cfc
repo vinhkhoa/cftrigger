@@ -245,22 +245,22 @@
 		<!--- Get the component and file paths --->
 		<cfset templateFile = application.libraryFilePath & lcase(arguments.template) & ".cfc">
 		<cfset templateComponent = application.libraryRoot & "." & lcase(arguments.template)>
-		<cfset FI_templateFile = application.FI_LibraryFilePath & lcase(arguments.template) & ".cfc">
-		<cfset FI_templateComponent = "cft.libraries." & lcase(arguments.template)>
+		<cfset CFT_templateFile = application.CFT_LibraryFilePath & lcase(arguments.template) & ".cfc">
+		<cfset CFT_templateComponent = "cft.libraries." & lcase(arguments.template)>
 		
 		<!--- load the application library --->
 		<cfif fileExists(templateFile)>
 			<cfset result = CreateObject("component", templateComponent)>
 		<cfelse>
-			<cfif fileExists(FI_templateFile)>
-				<cfset result = CreateObject("component", FI_templateComponent)>
+			<cfif fileExists(CFT_templateFile)>
+				<cfset result = CreateObject("component", CFT_templateComponent)>
 			<cfelse>
 				<!--- Display friendly error or let Coldfusion blow it up? --->
 				<cfif application.showFriendlyError>
-					<cfset application.error.show_error("Library not found", "The system cannot find the specified library: #templateComponent# OR #FI_templateComponent#")>
+					<cfset application.error.show_error("Library not found", "The system cannot find the specified library: #templateComponent# OR #CFT_templateComponent#")>
 				<cfelse>
 					<!--- THIS WILL THROW ERROR!!! LOAD THE LIBRARY TO THROW ERROR ON PURPOSE --->
-					<cfset temp = CreateObject("component", FI_templateComponent)>
+					<cfset temp = CreateObject("component", CFT_templateComponent)>
 				</cfif>
 			</cfif>
 		</cfif>		
@@ -311,7 +311,7 @@
 		
 		<!--- Get the error file --->
 		<cfset errorFile = "#application.errorPath#/#lcase(arguments.template)#.cfm">
-		<cfset FI_errorFile = "/cft/errors/#lcase(arguments.template)#.cfm">
+		<cfset CFT_errorFile = "/cft/errors/#lcase(arguments.template)#.cfm">
 
 		<!--- Parse the error page and save its content --->
 		<cfif fileExists(expandPath(errorFile))>
@@ -320,7 +320,7 @@
 			<cfsavecontent variable="result"><cfoutput>#objTemplate.includeWithData()#</cfoutput></cfsavecontent>
 		<cfelse>
 			<!--- Include the template --->
-			<cfset objTemplate = createObject("component", "template").init(FI_errorFile, arguments.data)>
+			<cfset objTemplate = createObject("component", "template").init(CFT_errorFile, arguments.data)>
 			<cfsavecontent variable="result"><cfoutput>#objTemplate.includeWithData()#</cfoutput></cfsavecontent>
 		</cfif>
 

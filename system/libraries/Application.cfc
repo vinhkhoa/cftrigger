@@ -149,7 +149,7 @@
 			application.controllerFilePath = application.appFilePath & "controllers" & application.separator;
 			application.libraryFilePath = application.appFilePath & "libraries" & application.separator;
 			application.errorFilePath = application.appFilePath & "errors" & application.separator;
-			application.FI_LibraryFilePath = mappings['/cft'] & application.separator & "libraries" & application.separator;
+			application.CFT_LibraryFilePath = mappings['/cft'] & "libraries" & application.separator;
 			
 			// Package paths (roots)
 			application.modelRoot = Replace(Replace(application.appLogicalPath & "application/models", "/", ""), "/", ".", "all");

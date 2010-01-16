@@ -216,7 +216,7 @@
 		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">
 		<cfset var error = "">
 
-		<cfif arguments.value eq "" OR NOT isValid("number", arguments.value)>
+		<cfif arguments.value neq "" AND NOT isValid("number", arguments.value)>
 			<cfset error = application.lang.getValidationLang(this.modelName, arguments.field, arguments.value, "numeric")>
 		</cfif>
 			
