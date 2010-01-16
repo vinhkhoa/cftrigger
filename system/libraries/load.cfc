@@ -56,11 +56,12 @@
 		<cfargument name="fields" type="array" required="no" hint="Pass in the fields to set client side validation on forms">
 		<cfset var result = "">
 		
-		<!--- Get the view file --->
-		<cfset viewFile = "#application.viewPath#/#arguments.template#.cfm">
+		<!--- Validate the view --->
+		<cfset validateResult = this.validateView(arguments.template)>
+		<cfset viewFile = validateResult.viewFile>
 
 		<!--- Parse the view and save its content --->
-		<cfif fileExists(expandPath(viewFile))>
+		<cfif validateResult.exists>
 			<!--- Include the template --->
 			<cfset objTemplate = createObject("component", "template").init(viewFile, arguments.data)>
 			<cfsavecontent variable="result"><cfoutput>#objTemplate.includeWithData()#</cfoutput></cfsavecontent>
@@ -355,4 +356,29 @@
 	</cffunction>
 	
 	
+	<!--- Validate if a view exists --->
+	<cffunction name="validateView" access="public" returntype="struct">
+		<cfargument name="template" type="string" required="yes" hint="The path to the view to be validated">
+		<cfset var result = StructNew()>
+		<cfset result.exists = false>
+		<cfset result.viewFile = "">
+		
+		<!--- Direct file? --->
+		<cfset viewFile = "#application.viewPath##application.separator##arguments.template#.cfm">
+		<cfif fileExists(viewFile)>
+			<cfset result.viewFile = viewFile>
+			<cfset result.exists = true>
+		<cfelse>
+			<!--- Index file of a folder? --->
+			<cfset viewFile = "#application.viewPath#/#arguments.template#/index.cfm">
+			
+			<cfif fileExists(viewFile)>
+				<cfset result.viewFile = viewFile>
+				<cfset result.exists = true>
+			</cfif>
+		</cfif>
+
+		<cfreturn result>
+	
+	</cffunction>
 </cfcomponent>

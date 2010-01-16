@@ -228,7 +228,7 @@
 			<cfset application.url.redirectMessage(application.guestDefaultController, "You have been logged out")>
 		</cfif>
 		
-		<!--- Get the current page --->
+		<!--- Get the current page and the path info string --->
 		<cfset request.currentPage = application.url.currentPage()>
 		
 		<!--- Get the form, url controller, view and other values from the path info string --->
@@ -264,7 +264,11 @@
 		
 		<cfset error404 = false>
 		
-		<!--- Load the controller --->
+		
+		<!---
+			FIRST TRY: LOAD THE CONTROLLER AND THEN LOAD THE VIEW
+		--->
+		
 		<cfif getVarsResult.foundController>
 			<cfset controller = application.load.controller(form.controller)>
 			
@@ -293,19 +297,48 @@
 			<cfset error404 = true>
 		</cfif>
 		
-		<!--- 404 error? --->
-		<cfif error404>
-			<!--- Show friendy error? --->
-			<cfif application.showFriendlyError>
-				<cfif application.show404OnMissingController>
-					<cfset application.error.show_404()>
-				<cfelse>
-					<cfset application.error.show_error(errorHeading, errorMessage)>
+		
+		<!---
+			IF THE REQUEST REACHES HERE, WE KNOW THAT WE DIDN'T HAVE A MATCH FOR CONTROLLER & VIEW
+			
+			SECOND TRY: LOOK FOR A MATCH IN THE DIRECT VIEW TO SEE IF THERE IS ANY FOR THIS REQUEST
+		--->
+
+		<cfif StructKeyExists(application, "directView") AND trim(application.directView) neq "">
+			<cfset directViewPath = replace(pathInfoStr, '/', '')>
+			
+			<cfif reFindNoCase(application.directView, directViewPath)>
+				<!--- Validate this view --->
+				<cfset validateResult = application.load.validateView(directViewPath)>
+			
+				<!--- Does the view exist? If yes, load it --->
+				<cfif validateResult.exists>
+					<!--- Contruct a heading from the files name --->
+					<cfset directHeading = getFileFromPath(expandPath(application.viewPath & application.separator & directViewPath))>
+					<cfset directHeading = replaceList(directHeading, "-,_", " , ")>
+					
+					<cfset directData = StructNew()>
+					<cfset directData.heading = directHeading>
+					<cfset application.load.viewInTemplate(directViewPath, directData)>
 				</cfif>
-			<cfelse>
-				<!--- Load the controller to throw error --->
-				<cfinvoke component="#controller#" method="#form.view#" />
 			</cfif>
+		</cfif>
+		
+		<!---
+			IF THE REQUEST REACHES HERE, THE DIRECT VIEW SEARCH FOUND NO MATCH
+			AND THIS IS A DEFINITE 404 ERROR
+		--->
+
+		<!--- Show friendy error? --->
+		<cfif application.showFriendlyError>
+			<cfif application.show404OnMissingController>
+				<cfset application.error.show_404()>
+			<cfelse>
+				<cfset application.error.show_error(errorHeading, errorMessage)>
+			</cfif>
+		<cfelse>
+			<!--- Load the controller to throw error --->
+			<cfinvoke component="#controller#" method="#form.view#" />
 		</cfif>
 	</cffunction>
 
