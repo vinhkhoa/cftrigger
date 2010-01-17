@@ -34,10 +34,7 @@
 		<cfinclude template="#application.appLogicalPath#application/config/lang.cfm">
 		<cfinclude template="/cft/config/config.cfm">
 		<cfinclude template="/cft/config/lang.cfm">
-		
-		<!--- Get coldfusion admin mappings --->
-		<cfset mappings = this.getMappings()>	
-		
+
 		<cfscript>
 			/* =========================================== SERVER SETTINGS =========================================== */
 			
@@ -149,7 +146,17 @@
 			application.controllerFilePath = application.appFilePath & "controllers" & application.separator;
 			application.libraryFilePath = application.appFilePath & "libraries" & application.separator;
 			application.errorFilePath = application.appFilePath & "errors" & application.separator;
-			application.CFT_LibraryFilePath = mappings['/cft'] & "libraries" & application.separator;
+		
+			//Get coldfusion admin mappings for cft and makes sure the path ends with a / or \ --->
+			mappings = this.getMappings();
+			cftMapping = trim(mappings['/cft']);
+			if (right(cftMapping, 1) neq separator)
+			{
+				cftMapping = cftMapping & application.separator;
+			}
+			
+			// CFT file path
+			application.CFT_LibraryFilePath = cftMapping & "libraries" & application.separator;
 			
 			// Package paths (roots)
 			application.modelRoot = Replace(Replace(application.appLogicalPath & "application/models", "/", ""), "/", ".", "all");
