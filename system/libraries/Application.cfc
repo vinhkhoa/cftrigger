@@ -150,7 +150,7 @@
 			//Get coldfusion admin mappings for cft and makes sure the path ends with a / or \ --->
 			mappings = this.getMappings();
 			cftMapping = trim(mappings['/cft']);
-			if (right(cftMapping, 1) neq separator)
+			if (right(cftMapping, 1) neq application.separator)
 			{
 				cftMapping = cftMapping & application.separator;
 			}
