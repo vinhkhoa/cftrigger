@@ -364,15 +364,16 @@
 		<cfset result.viewFile = "">
 		
 		<!--- Direct file? --->
-		<cfset viewFile = "#application.viewPath##application.separator##arguments.template#.cfm">
-		<cfif fileExists(viewFile)>
+		<cfset viewFile = "#application.viewPath#/#arguments.template#.cfm">
+		
+		<cfif fileExists(expandPath(viewFile))>
 			<cfset result.viewFile = viewFile>
 			<cfset result.exists = true>
 		<cfelse>
 			<!--- Index file of a folder? --->
 			<cfset viewFile = "#application.viewPath#/#arguments.template#/index.cfm">
 			
-			<cfif fileExists(viewFile)>
+			<cfif fileExists(expandPath(viewFile))>
 				<cfset result.viewFile = viewFile>
 				<cfset result.exists = true>
 			</cfif>
