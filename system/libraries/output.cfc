@@ -76,6 +76,7 @@
 		
 		<cfsetting showdebugoutput="no">
 		<cfcontent reset="yes" type="text/xml"><cfoutput>#trim(arguments.xmlContent)#</cfoutput>
+		<cfabort>
 	</cffunction>
 
 
