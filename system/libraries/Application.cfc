@@ -313,6 +313,9 @@
 
 		<cfif StructKeyExists(application, "directView") AND trim(application.directView) neq "">
 			<cfset directViewPath = replace(pathInfoStr, '/', '')>
+			<cfif right(directViewPath, 1) eq "/">
+				<cfset directViewPath = left(directViewPath, len(directViewPath) - 1)>
+			</cfif>
 			
 			<cfif reFindNoCase(application.directView, directViewPath)>
 				<!--- Validate this view --->
@@ -320,12 +323,16 @@
 			
 				<!--- Does the view exist? If yes, load it --->
 				<cfif validateResult.exists>
-					<!--- Contruct a heading from the files name --->
-					<cfset directHeading = getFileFromPath(expandPath(application.viewPath & application.separator & directViewPath))>
-					<cfset directHeading = replaceList(directHeading, "-,_", " , ")>
-					
 					<cfset directData = StructNew()>
-					<cfset directData.heading = directHeading>
+
+					<!--- Load the direct view variables --->
+					<cfif StructKeyExists(application, "directViewVariables") AND
+						  StructKeyExists(application.directViewVariables, directViewPath)>
+						<cfloop collection="#application.directViewVariables[directViewPath]#" item="varName">
+							<cfset directData[varName] = application.directViewVariables[directViewPath][varName]>
+						</cfloop>
+					</cfif>
+					
 					<cfset application.load.viewInTemplate(directViewPath, directData)>
 				</cfif>
 			</cfif>
