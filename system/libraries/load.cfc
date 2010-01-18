@@ -163,6 +163,9 @@
 		<!--- Return the view or display it? --->
 		<cfif NOT arguments.saveResult>
 			<cfoutput>#result#</cfoutput>
+			<!--- Already view the page, so terminate the process here --->
+			<cfabort>
+		
 			<cfset result = "">
 		</cfif>
 		

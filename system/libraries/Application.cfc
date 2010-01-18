@@ -338,21 +338,24 @@
 			</cfif>
 		</cfif>
 		
+		
 		<!---
 			IF THE REQUEST REACHES HERE, THE DIRECT VIEW SEARCH FOUND NO MATCH
-			AND THIS IS A DEFINITE 404 ERROR
+			AND THIS SHOULD BE A 404 ERROR. BUT STILL PUT THE CHECKING HERE JUST IN CASE ANYWAY
 		--->
 
-		<!--- Show friendy error? --->
-		<cfif application.showFriendlyError>
-			<cfif application.show404OnMissingController>
-				<cfset application.error.show_404()>
+		<cfif error404>
+			<!--- Show friendy error? --->
+			<cfif application.showFriendlyError>
+				<cfif application.show404OnMissingController>
+					<cfset application.error.show_404()>
+				<cfelse>
+					<cfset application.error.show_error(errorHeading, errorMessage)>
+				</cfif>
 			<cfelse>
-				<cfset application.error.show_error(errorHeading, errorMessage)>
+				<!--- Load the controller to throw error --->
+				<cfinvoke component="#controller#" method="#form.view#" />
 			</cfif>
-		<cfelse>
-			<!--- Load the controller to throw error --->
-			<cfinvoke component="#controller#" method="#form.view#" />
 		</cfif>
 	</cffunction>
 
