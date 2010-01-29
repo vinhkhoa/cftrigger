@@ -255,7 +255,8 @@
 		</cfif>
 
 		<!--- Check if user is authenticated and allowed to use the system --->
-		<cfif form.controller neq "login" AND application.enableUserAuthentication>
+		<cfif form.controller neq "login" AND application.enableUserAuthentication
+				AND NOT listFindNoCase(application.guestControllers, form.controller)>
 			<cfset application.authentication.validate()>
 		</cfif>
 		
