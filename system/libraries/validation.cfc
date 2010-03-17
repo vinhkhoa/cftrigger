@@ -356,6 +356,24 @@
 	</cffunction>
 	
 
+	<!--- Valid phone number --->
+	<cffunction name="_phoneNumber" displayname="_phoneNumber" returntype="string">
+	
+		<cfargument name="field" type="struct" required="yes" hint="The field being checked">
+		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">
+		<cfset var error = "">
+		
+		<cfset conciseNumber = reReplace(arguments.value, "[[:space:]]", "", "ALL")>
+
+		<cfif reFindNoCase("[^0-9 ]", arguments.value) OR (conciseNumber neq "" AND len(conciseNumber) neq 10)>
+			<cfset error = application.lang.getValidationLang(this.modelName, arguments.field, arguments.value, "phoneNumber")>
+		</cfif>
+			
+		<cfreturn error>
+	
+	</cffunction>
+	
+
 	<!--- ================================== VALIDATAION RULES THAT CHANGE ORIGINAL VALUE =================================== --->
 
 </cfcomponent>
