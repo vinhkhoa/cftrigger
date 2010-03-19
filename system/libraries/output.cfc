@@ -97,4 +97,36 @@
 		<cfreturn result>
 	
 	</cffunction>
+
+
+	<!--- Capitalize the first letter --->
+	<cffunction name="capFirst" access="public" returntype="string" hint="">
+		<cfargument name="string" type="string" required="yes" hint="The text to be changed">
+		<cfset var result = "">
+		
+		<cfif len(arguments.string) lt 2>
+			<cfset result = uCase(arguments.string)>
+		<cfelse>
+			<cfset result = ucase(left(arguments.string, 1)) & right(arguments.string, len(arguments.string) - 1)>
+		</cfif>
+		
+		<cfreturn result>
+		
+	</cffunction>
+
+
+	<!--- Capitalize the first letter of each word --->
+	<cffunction name="capWords" access="public" returntype="string" hint="">
+		<cfargument name="string" type="string" required="yes" hint="The text to be changed">
+		<cfset var result = "">
+		
+		<cfloop list="#arguments.string#" index="word" delimiters=" ">
+			<cfset result = listAppend(result, this.capFirst(word), " ")>
+		</cfloop>
+		
+		<cfreturn result>
+		
+	</cffunction>
+
+
 </cfcomponent>
