@@ -66,6 +66,17 @@
 					application.serverType = application.servers[i].type;
 					application.serverName = application.serverType & "_" & application.servers[i].name;
 					application.rootURL = application.servers[i].url;
+					
+					// Allow other configs to be overwritten per server
+					if (StructKeyExists(application.servers[i], "enableUserAuthentication"))
+					{
+						application.enableUserAuthentication = application.servers[i].enableUserAuthentication;
+					}
+					
+					if (StructKeyExists(application.servers[i], "adminAuthentication"))
+					{
+						application.adminAuthentication = application.servers[i].adminAuthentication;
+					}
 				}
 			}
 		</cfscript>
@@ -255,9 +266,25 @@
 		</cfif>
 
 		<!--- Check if user is authenticated and allowed to use the system --->
-		<cfif form.controller neq "login" AND application.enableUserAuthentication
-				AND NOT listFindNoCase(application.guestControllers, form.controller)>
+		<cfset isGuestController = form.controller eq "login" OR
+								   (StructKeyExists(application, "guestControllers") AND
+								   	listFindNoCase(application.guestControllers, form.controller))>
+		<cfset hasAuthentication = StructKeyExists(application, "enableUserAuthentication") AND application.enableUserAuthentication>
+		<cfif NOT isGuestController AND hasAuthentication>
 			<cfset application.authentication.validate()>
+			
+			<!--- Passed the normal user authentication. Now go on authenticate as admin --->
+			<cfif StructKeyExists(application, "adminAuthentication") AND application.adminAuthentication>
+				<!--- Not admin login? --->
+				<cfif NOT session.sysAdmin>
+					<!--- Logout user --->
+					<cfinvoke method="onSessionEnd" sessionScope="#session#">
+					<cfset StructClear(session)>
+					<cfset session.UserId = "">
+					
+					<cfset application.url.redirectError("login", "You are not allowed to access this area")>
+				</cfif>
+			</cfif>
 		</cfif>
 		
 		<!--- Allow the application to dynamically refresh session when necessary --->
