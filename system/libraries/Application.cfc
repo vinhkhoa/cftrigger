@@ -213,7 +213,7 @@
 	<!--- ================================ REQUEST METHODS ================================= --->
 
 	<cffunction name="OnRequestStart">
-		<cfargument name="targetPage" required="true">
+		<cfargument name="targetPage" type="string" required="true">
 		
 		<!--- Include FI variables --->
 		<cfinclude template="/cft/config/variables.cfm">		
@@ -371,7 +371,7 @@
 			IF THE REQUEST REACHES HERE, THE DIRECT VIEW SEARCH FOUND NO MATCH
 			AND THIS SHOULD BE A 404 ERROR. BUT STILL PUT THE CHECKING HERE JUST IN CASE ANYWAY
 		--->
-
+		
 		<cfif error404>
 			<!--- Show friendy error? --->
 			<cfif application.showFriendlyError>
@@ -387,6 +387,19 @@
 		</cfif>
 	</cffunction>
 
+
+	<cffunction name="onRequest">
+		<cfargument name="targetPage" type="string" required="true">
+		
+		<!--- Clear flash variables --->
+		<cfif StructKeyExists(session, "flash")>
+			<cfset StructClear(session.flash)>
+		</cfif>
+		
+	</cffunction>
+	
+			
+	<!--- ================================ OTHER METHODS ================================= --->
 
 	<!--- Get the application server-specific name --->
 	<cffunction name="getAppNameOnServer" displayname="getAppNameOnServer" output="no" hint="Get the application server-specific name">
@@ -450,4 +463,5 @@
 		<cfreturn mappings>
 		
 	</cffunction>
+	
 </cfcomponent>

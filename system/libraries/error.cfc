@@ -33,8 +33,6 @@
 			<cfset message = arguments.message>
 			<cfoutput><cfinclude template="/cft/errors/404.cfm"></cfoutput>
 		</cfif>
-
-		<cfabort>
 		
 	</cffunction>
 	
@@ -59,8 +57,6 @@
 			<!--- Display the FI error page --->
 			<cfoutput><cfinclude template="/cft/errors/error_general.cfm"></cfoutput>
 		</cfif>
-		
-		<cfabort>
 		
 	</cffunction>
 

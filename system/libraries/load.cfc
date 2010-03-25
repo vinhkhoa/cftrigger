@@ -163,9 +163,7 @@
 		<!--- Return the view or display it? --->
 		<cfif NOT arguments.saveResult>
 			<cfoutput>#result#</cfoutput>
-			<!--- Already view the page, so terminate the process here --->
-			<cfabort>
-		
+			
 			<cfset result = "">
 		</cfif>
 		
@@ -299,9 +297,6 @@
 		<cfset data[contentField] = content>
 		<cfset application.load.view(arguments.useTemplate, data)>
 		
-		<!--- Already view the page in template, so terminate the process here --->
-		<cfabort>
-		
 	</cffunction>
 	
 	
@@ -352,9 +347,6 @@
 		</cfinvoke>
 		<cfset data[contentField] = content>
 		<cfset application.load.view(application.defaultTemplate, data)>
-		
-		<!--- Already view the page in template, so terminate the process here --->
-		<cfabort>
 		
 	</cffunction>
 	
