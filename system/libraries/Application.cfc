@@ -186,6 +186,7 @@
 			application.load.library("lang", true);
 			application.load.library("authentication", true);
 			application.load.library("core", true);
+			application.load.library("debug", true);
 		</cfscript>
 		
 		<!--- Autoload at application level? --->
@@ -388,7 +389,7 @@
 	</cffunction>
 
 
-	<cffunction name="onRequest">
+	<cffunction name="onRequestEnd">
 		<cfargument name="targetPage" type="string" required="true">
 		
 		<!--- Clear flash variables --->
