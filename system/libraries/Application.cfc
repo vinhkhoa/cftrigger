@@ -27,14 +27,6 @@
 	<cffunction name="OnApplicationStart">
 		<cfset setLocale("English (Australian)")>
 	
-		<!--- Logical Paths --->
-		<cfset application.appLogicalPath = This.rootFolder>
-		<cfinclude template="#application.appLogicalPath#application/config/database.cfm">
-		<cfinclude template="#application.appLogicalPath#application/config/route.cfm">
-		<cfinclude template="#application.appLogicalPath#application/config/lang.cfm">
-		<cfinclude template="/cft/config/config.cfm">
-		<cfinclude template="/cft/config/lang.cfm">
-
 		<cfscript>
 			/* =========================================== SERVER SETTINGS =========================================== */
 			
@@ -65,8 +57,10 @@
 				{
 					application.serverType = application.servers[i].type;
 					application.serverName = application.serverType & "_" & application.servers[i].name;
+					application.appNameSuffix = application.servers[i].appNameSuffix;
 					application.rootURL = application.servers[i].url;
 					application.rootURLPath = replace(application.rootURL, listFirst(application.rootURL, '/') & '//' & listGetAt(application.rootURL, 2, '/'), '');
+					application.appLogicalPath = replace(application.rootURL, listFirst(application.rootURL, '/') & '//' & listGetAt(application.rootURL, 2, '/'), '') & '/';
 					
 					// Allow other configs to be overwritten per server
 					if (StructKeyExists(application.servers[i], "enableUserAuthentication"))
@@ -89,13 +83,20 @@
 			<cfabort>
 		</cfif>
 		
+		<!--- Logical Paths --->
+		<cfinclude template="#application.appLogicalPath#application/config/database.cfm">
+		<cfinclude template="#application.appLogicalPath#application/config/route.cfm">
+		<cfinclude template="#application.appLogicalPath#application/config/lang.cfm">
+		<cfinclude template="/cft/config/config.cfm">
+		<cfinclude template="/cft/config/lang.cfm">
+		
 		<cfscript>
 			application.onLiveServer = false;
-		
+			application.name = application.appName & "_" & application.appNameSuffix;
+			
 			// SPECIFIC SERVER SETTINGS
 			switch(application.serverType) {
 				case "LIVE":
-					application.name = application.appName;
 					application.showFriendlyError = true;
 					application.show404OnMissingController = true;
 					application.applicationDBType = "live";
@@ -104,7 +105,6 @@
 					break;						
 		
 				case "STAGING":
-					application.name = application.appName & " (staging)";
 					application.showFriendlyError = true;
 					application.show404OnMissingController = true;
 					application.applicationDBType = "staging";
@@ -112,8 +112,6 @@
 					break;						
 		
 				case "DEV":
-					application.name = application.appName & " (dev)";
-					
 					// Allow showLocalFriendlyError to be overwritten per application
 					if (StructKeyExists(application, "showLocalFriendlyError"))
 					{					
@@ -151,7 +149,7 @@
 			application.baseURL = application.rootURL & "/index.cfm";
 			application.baseURLPath = application.rootURLPath & "/index.cfm";
 			application.FilePath = ReplaceNoCase(This.appComponentFilePath, application.separator & "Application.cfc", "") & application.separator;
-			appFile = replace(replace(This.rootFolder, "/", application.separator, "ALL") & "Application.cfc", application.separator, "");
+			appFile = replace(replace(application.appLogicalPath, "/", application.separator, "ALL") & "Application.cfc", application.separator, "");
 			
 			// Paths
 			application.appPath = application.appLogicalPath & "application";
