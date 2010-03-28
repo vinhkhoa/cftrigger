@@ -203,6 +203,9 @@
 		<cfset destinationFolder = application.FilePath & arguments.destinationFolder & application.separator>
 		<cfset destinationFolder = reReplace(destinationFolder, "\#application.separator#{2,}", application.separator, "ALL")>
 		
+		<!--- Create the folder --->
+		<cfset createDirResult = application.directory.create(destinationFolder)>
+		
 		<!--- Generate and save qr code image --->
 		<cfimage action="write" source="http://chart.apis.google.com/chart?cht=qr&chs=#arguments.imageSize#x#arguments.imageSize#&chl=#content#" destination="#destinationFolder##arguments.fileName#" overwrite="yes">
 		
