@@ -188,4 +188,26 @@
 		<cfreturn result>
 		
 	</cffunction>
+
+
+	<!--- Generate qr code image --->
+	<cffunction name="generateQRCode" displayname="generateQRCode" access="public" returntype="struct" hint="Generate qr code image">
+		<cfargument name="destinationFolder" type="string" required="yes" hint="The path to the folder where the images are saved to">
+		<cfargument name="fileName" type="string" required="yes" hint="The file name of the qr code image">
+		<cfargument name="imageSize" type="numeric" required="yes" hint="The width and height of the image">
+		<cfargument name="content" type="string" required="yes" hint="The content to be generated in this qr code">
+		<cfset var result = StructNew()>
+		<cfset result.error = "">
+
+		<!--- Get the qr code image folder and file name --->
+		<cfset destinationFolder = application.FilePath & arguments.destinationFolder & application.separator>
+		<cfset destinationFolder = reReplace(destinationFolder, "\#application.separator#{2,}", application.separator, "ALL")>
+		
+		<!--- Generate and save qr code image --->
+		<cfimage action="write" source="http://chart.apis.google.com/chart?cht=qr&chs=#arguments.imageSize#x#arguments.imageSize#&chl=#content#" destination="#destinationFolder##arguments.fileName#" overwrite="yes">
+		
+		<cfreturn result>
+				
+	</cffunction>
+	
 </cfcomponent>
