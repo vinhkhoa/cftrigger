@@ -89,6 +89,8 @@
 		</cfif>
 		
 		<cfscript>
+			application.onLiveServer = false;
+		
 			// SPECIFIC SERVER SETTINGS
 			switch(application.serverType) {
 				case "LIVE":
@@ -96,7 +98,15 @@
 					application.showFriendlyError = true;
 					application.show404OnMissingController = true;
 					application.applicationDBType = "live";
-					application.userDBType = "live";
+					application.alwaysRefreshSettings = false;
+					application.onLiveServer = true;
+					break;						
+		
+				case "STAGING":
+					application.name = application.appName & " (staging)";
+					application.showFriendlyError = true;
+					application.show404OnMissingController = true;
+					application.applicationDBType = "staging";
 					application.alwaysRefreshSettings = false;
 					break;						
 		
@@ -124,7 +134,6 @@
 					}
 
 					application.applicationDBType = "dev";
-					application.userDBType = "dev";
 					application.alwaysRefreshSettings = true;
 					break;
 			}
