@@ -66,6 +66,7 @@
 					application.serverType = application.servers[i].type;
 					application.serverName = application.serverType & "_" & application.servers[i].name;
 					application.rootURL = application.servers[i].url;
+					application.rootURLPath = replace(application.rootURL, listFirst(application.rootURL, '/') & '//' & listGetAt(application.rootURL, 2, '/'), '');
 					
 					// Allow other configs to be overwritten per server
 					if (StructKeyExists(application.servers[i], "enableUserAuthentication"))
@@ -147,7 +148,8 @@
 			application.dbpassword = databases[application.applicationDBType]["dbpassword"];
 			
 			application.separator = createObject("java", "java.io.File").separator;
-			application.BaseURL = application.rootURL & "/index.cfm";
+			application.baseURL = application.rootURL & "/index.cfm";
+			application.baseURLPath = application.rootURLPath & "/index.cfm";
 			application.FilePath = ReplaceNoCase(This.appComponentFilePath, application.separator & "Application.cfc", "") & application.separator;
 			appFile = replace(replace(This.rootFolder, "/", application.separator, "ALL") & "Application.cfc", application.separator, "");
 			

@@ -24,6 +24,8 @@
 					<th>Variable</th>
 					<th>Value</th>
 				</tr>
+				
+				<!--- Server settings --->
 				<tr>
 					<td colspan="2"><strong>Server settings</strong></td>
 				</tr>
@@ -48,9 +50,19 @@
 					<td>#application.baseURL#</td>
 				</tr>
 				<tr>
+					<td>application.rootURLPath</td>
+					<td>#application.rootURLPath#</td>
+				</tr>
+				<tr>
+					<td>application.baseURLPath</td>
+					<td>#application.baseURLPath#</td>
+				</tr>
+				<tr>
 					<td>application.separator</td>
 					<td>#application.separator#</td>
 				</tr>
+
+				<!--- Database settings --->
 				<tr>
 					<td colspan="2"><strong>Database settings</strong></td>
 				</tr>
@@ -66,6 +78,8 @@
 					<td>application.dbpassword</td>
 					<td>#application.dbpassword#</td>
 				</tr>
+
+				<!--- Logical paths --->
 				<tr>
 					<td colspan="2"><strong>Logical paths</strong></td>
 				</tr>
@@ -89,6 +103,8 @@
 					<td>application.errorPath</td>
 					<td>#application.errorPath#</td>
 				</tr>
+
+				<!--- Absolute paths / File paths --->
 				<tr>
 					<td colspan="2"><strong>Absolute paths / File paths</strong></td>
 				</tr>
@@ -116,8 +132,10 @@
 					<td>application.CFT_LibraryFilePath</td>
 					<td>#application.CFT_LibraryFilePath#</td>
 				</tr>
+
+				<!--- Package paths --->
 				<tr>
-					<td colspan="2"><strong>Package paths:</strong></td>
+					<td colspan="2"><strong>Package paths</strong></td>
 				</tr>
 				<tr>
 					<td>application.modelRoot</td>
