@@ -235,10 +235,16 @@
 	<cffunction name="getPathInfoStr" access="public" returntype="string" output="no">
 	
 		<!--- At the root level address (just index.cfm), sometimes CGI.PATH_INFO returns the full path to the file
-		instead of what is appended after the index.cfm. So we need to remove that before continuing --->
+			instead of what is appended after the index.cfm. So we need to remove that before continuing --->
 		<cfset var result = CGI.PATH_INFO>
 		<cfif findNoCase("index.cfm", result)>
 			<cfset result = reReplace(result, "[^.]*.cfm", "")>
+		</cfif>
+		
+		<!--- Also at the root level, sometimes it returns the actual application logical path,
+			so we need to remove this as well before continuing --->
+		<cfif result eq application.appLogicalPath>
+			<cfset result = "">
 		</cfif>
 
 		<cfreturn result>

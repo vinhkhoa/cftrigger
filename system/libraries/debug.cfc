@@ -109,6 +109,10 @@
 					<td colspan="2"><strong>Absolute paths / File paths</strong></td>
 				</tr>
 				<tr>
+					<td>application.filePath</td>
+					<td>#application.filePath#</td>
+				</tr>
+				<tr>
 					<td>application.modelFilePath</td>
 					<td>#application.modelFilePath#</td>
 				</tr>
