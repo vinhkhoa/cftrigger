@@ -361,6 +361,8 @@
 			
 				<!--- Does the view exist? If yes, load it --->
 				<cfif validateResult.exists>
+					<cfset error404 = false>
+					
 					<cfset directData = StructNew()>
 
 					<!--- Load the direct view variables --->
@@ -431,21 +433,71 @@
 	
 	
 	<!--- Handle exceptions --->
-	<!--- <cffunction name="onError">
+	<cffunction name="onError">
 		<cfargument name="Exception" required="yes" />
 		<cfargument name="EventName" type="string" required="yes" />
 		
-		<cfif application.showFriendlyError>
-			<cfif application.serverType eq "LIVE">
-				<cfset application.error.show_production_error()>
-			<cfelse>
-				<cfset application.error.show_error("Coldfusion Error", arguments.Exception.cause.message)>
-			</cfif>
+		<!--- Send error email to admin? --->
+		<cfif StructKeyExists(application, "sendEmailOnError") AND application.sendEmailOnError>
+			<cfmail from="#application.fromEmail#" to="#application.errorEmail#" subject="[Treegr Error] An error has occurred" type="html">
+				<p>An unexpected error has occurred in the <strong>#application.name#</strong> application.</p>
+									
+				<table>
+				<tr>
+					<td valign="top"><strong>Current page:</strong></td>
+					<td valign="top">#request.currentPage#</td>
+				</tr>
+				<tr>
+					<td valign="top"><strong>Date/Time:</strong></td>
+					<td valign="top">#DateFormat(now(), "d mmmm, yyyy")# #TimeFormat(now(), "h:mm tt")#</td>
+				</tr>
+				<tr>
+					<td valign="top"><strong>Stack Trace:</strong></td>
+					<td valign="top">
+						<cfif ArrayLen(Exception.TagContext)>
+							 The error occurred in <strong>#Exception.TagContext[1]["template"]#: line #Exception.TagContext[1]["line"]#</strong><br />
+							<cfloop from="2" to="#ArrayLen(Exception.TagContext)#" index="i">
+								<strong>Called from</strong> #Exception.TagContext[i]["template"]#: line #Exception.TagContext[i]["line"]#<br />
+							</cfloop>
+						<cfelse>
+							No stack trace available
+						</cfif>
+					</td>
+				</tr>
+				<tr>
+					<td valign="top"><strong>Application varibles debug</strong></td>
+					<td><cfset application.debug.simpleAppVariables()></td>
+				</tr>
+				<tr>
+					<td valign="top"><strong>Form variables:</strong></td>
+					<td valign="top"><cfdump var="#form#" label="Form"></td>
+				</tr>
+				<tr>
+					<td valign="top"><strong>URL variables:</strong></td>
+					<td valign="top"><cfdump var="#url#" label="URL"></td>
+				</tr>
+				<!--- <tr>
+					<td valign="top"><strong>CGI variables:</strong></td>
+					<td valign="top"><cfdump var="#CGI#" label="CGI"></td>
+				</tr> --->
+				</table>
+			</cfmail>
+		</cfif>
+
+		<!--- Display error message --->
+		<cfif application.serverType eq "LIVE">
+			<cfset application.error.show_production_error()>
 		<cfelse>
+			<!--- <cfif application.showFriendlyError>
+				<cfset application.error.show_error("Coldfusion Error", arguments.Exception.cause.message)>
+			<cfelse>
+				<cfthrow object="#arguments.exception#">
+			</cfif> --->
+			
 			<cfthrow object="#arguments.exception#">
 		</cfif>
 
-	</cffunction> --->
+	</cffunction>
 	
 
 	<!--- Get the mappings from coldfusion admin --->
