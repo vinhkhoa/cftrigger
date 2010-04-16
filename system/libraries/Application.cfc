@@ -252,6 +252,7 @@
 			<cfinvoke method="onSessionEnd" sessionScope="#session#">
 			<cfset StructClear(session)>
 			<cfset session.UserId = "">
+			<cflogout>
 			
 			<cfset application.url.redirectMessage(application.guestDefaultController, "You have been logged out")>
 		</cfif>
