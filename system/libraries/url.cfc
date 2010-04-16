@@ -142,7 +142,10 @@
 		</cfloop>
 		
 		<!--- Found the controller? --->
-		<cfif NOT result.foundController>
+		<cfif result.foundController>
+			<!--- Already found the controller, remove it from the path info --->		
+			<cfset pathInfoStr = replace(pathInfoStr, result.controller, "")>
+		<cfelse>		
 			<!--- Anything to route? --->
 			<!---<cfif StructKeyExists(application, "routes") AND StructKeyExists(application.routes, path)>
 				<cfset vals = ArrayNew(1)>
@@ -166,12 +169,16 @@
 				<cfset getPageContext().forward(redirectURL)>
 			</cfif>--->
 			
-			<cfreturn result>
+			<!--- Is there a hidden controller that is always used? --->
+			<cfif StructKeyExists(application, "hiddenController")>
+				<cfset result.foundController = true>
+				<cfset result.view = application.defaultView>
+				<cfset result.controller = application.hiddenController>
+			<cfelse>
+				<cfreturn result>
+			</cfif>
 		</cfif>
-
-		<!--- Already found the controller, remove it from the path info --->		
-		<cfset pathInfoStr = replace(pathInfoStr, result.controller, "")>
-
+		
 		<!--- Get the controller, view and resource id--->
 		<cfset pathInfo = listToArray(pathInfoStr, "/")>
 		<cfset pathInfoLength = arrayLen(pathInfo)>

@@ -440,7 +440,9 @@
 		<cfif StructKeyExists(application, "sendEmailOnError") AND application.sendEmailOnError>
 			<cfmail from="#application.fromEmail#" to="#application.errorEmail#" subject="[Treegr Error] An error has occurred" type="html">
 				<p>An unexpected error has occurred in the <strong>#application.name#</strong> application.</p>
-									
+				
+				<p>ERROR MESSAGE: #arguments.Exception.message#</p>
+								
 				<table>
 				<tr>
 					<td valign="top"><strong>Current page:</strong></td>
@@ -453,10 +455,10 @@
 				<tr>
 					<td valign="top"><strong>Stack Trace:</strong></td>
 					<td valign="top">
-						<cfif ArrayLen(Exception.TagContext)>
-							 The error occurred in <strong>#Exception.TagContext[1]["template"]#: line #Exception.TagContext[1]["line"]#</strong><br />
-							<cfloop from="2" to="#ArrayLen(Exception.TagContext)#" index="i">
-								<strong>Called from</strong> #Exception.TagContext[i]["template"]#: line #Exception.TagContext[i]["line"]#<br />
+						<cfif ArrayLen(arguments.Exception.TagContext)>
+							 The error occurred in <strong>#arguments.Exception.TagContext[1]["template"]#: line #arguments.Exception.TagContext[1]["line"]#</strong><br />
+							<cfloop from="2" to="#ArrayLen(arguments.Exception.TagContext)#" index="i">
+								<strong>Called from</strong> #arguments.Exception.TagContext[i]["template"]#: line #arguments.Exception.TagContext[i]["line"]#<br />
 							</cfloop>
 						<cfelse>
 							No stack trace available
@@ -484,7 +486,7 @@
 		</cfif>
 
 		<!--- Display error message --->
-		<cfif application.hideColdfusionError>
+		<cfif StructKeyExists(application, "hideColdfusionError") AND application.hideColdfusionError>
 			<cfset application.error.show_production_error()>
 		<cfelse>
 			<!--- <cfif application.showFriendlyError>
