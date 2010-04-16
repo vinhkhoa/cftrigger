@@ -63,14 +63,12 @@
 					application.appLogicalPath = replace(application.rootURL, listFirst(application.rootURL, '/') & '//' & listGetAt(application.rootURL, 2, '/'), '') & '/';
 					
 					// Allow other configs to be overwritten per server
-					if (StructKeyExists(application.servers[i], "enableUserAuthentication"))
+					if (StructKeyExists(application.servers[i], "specificSettings"))
 					{
-						application.enableUserAuthentication = application.servers[i].enableUserAuthentication;
-					}
-					
-					if (StructKeyExists(application.servers[i], "adminAuthentication"))
-					{
-						application.adminAuthentication = application.servers[i].adminAuthentication;
+						for (k in application.servers[i].specificSettings)
+						{
+							application[k] = application.servers[i].specificSettings[k];
+						}
 					}
 				}
 			}
@@ -79,7 +77,7 @@
 		<!--- Not found the server on the list? terminate the application. This should not happen
 				unless the server settings are not included on the server list inside the application config.cfm file --->
 		<cfif (application.serverType eq '')>
-			<cfoutput>INVALID SERVER. THE APPLICATION IS NOT ALLOWED TO RUN ON THIS SERVER</cfoutput>
+			<cfoutput>INVALID SERVER. THE APPLICATION IS NOT ALLOWED TO RUN ON THIS SERVER. PLEASE DOUBLE CHECK YOUR SERVER SETTINGS.</cfoutput>
 			<cfabort>
 		</cfif>
 		
@@ -486,7 +484,7 @@
 		</cfif>
 
 		<!--- Display error message --->
-		<cfif application.serverType eq "LIVE">
+		<cfif application.hideColdfusionError>
 			<cfset application.error.show_production_error()>
 		<cfelse>
 			<!--- <cfif application.showFriendlyError>
