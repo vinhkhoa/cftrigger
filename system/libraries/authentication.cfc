@@ -25,7 +25,13 @@
 		<!--- Authenticated? --->
 		<cfif NOT authenticated>
 			<cfset session.redirectURL = CGI.PATH_INFO>
-			<cfset application.url.redirectError("login", "Please login first")>
+			
+			<!--- Do not show error on the first page open --->
+			<cfif session.redirectURL eq "">
+				<cfset application.url.redirect("login")>
+			<cfelse>
+				<cfset application.url.redirectError("login", "Please login first")>
+			</cfif>
 		</cfif>
 	
 		<!--- Needs to be admin? --->
