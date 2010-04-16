@@ -133,7 +133,7 @@
 			<cfset path = listAppend(path, listGetAt(pathInfoStr, counter, "/"), application.separator)>
 			<cfset logicalPath = replace(path, application.separator, ".", "ALL")>
 			<cfset result.controller = replace(path, application.separator, "/", "ALL")>
-			<cfset controllerPath = application.controllerFilePath & path>
+			<cfset controllerPath = lcase(application.controllerFilePath & path)>
 
 			<cfset result.foundController = fileExists(controllerPath & ".cfc")>
 			<cfset continueSearching = (NOT result.foundController) AND directoryExists(controllerPath)>

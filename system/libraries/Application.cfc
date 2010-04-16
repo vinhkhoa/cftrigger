@@ -144,7 +144,16 @@
 			application.dbpassword = databases[application.applicationDBType]["dbpassword"];
 			
 			application.separator = createObject("java", "java.io.File").separator;
-			application.baseURL = application.rootURL & "/index.cfm";
+			
+			<!--- Keep or remove the index.cfm page --->
+			if (StructKeyExists(application, "removeIndexPage") AND application.removeIndexPage)
+			{
+				application.baseURL = application.rootURL;
+			}
+			else
+			{
+				application.baseURL = application.rootURL & "/index.cfm";
+			}
 			application.baseURLPath = application.rootURLPath & "/index.cfm";
 			application.FilePath = ReplaceNoCase(This.appComponentFilePath, application.separator & "Application.cfc", "") & application.separator;
 			appFile = replace(replace(application.appLogicalPath, "/", application.separator, "ALL") & "Application.cfc", application.separator, "");
