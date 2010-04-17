@@ -21,6 +21,7 @@
 	<cfset this.current = "">
 	<cfset this.tableName = "">
 	<cfset this.hasModel = false>
+	
 
 	<!--- Initialize the validation --->
 	<cffunction name="init" displayname="required">
@@ -373,7 +374,4 @@
 	
 	</cffunction>
 	
-
-	<!--- ================================== VALIDATAION RULES THAT CHANGE ORIGINAL VALUE =================================== --->
-
 </cfcomponent>

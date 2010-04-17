@@ -15,6 +15,7 @@
 
 	<cfsetting enablecfoutputonly="yes">
 	
+	
 	<!--- Get the list of values inside a struct. Similar to StructKeyList. Ignores complex variables --->
 	<cffunction name="structValueList" access="public" returntype="string" hint="">
 		<cfargument name="struct" type="struct" required="yes" hint="The struct that contains the values">

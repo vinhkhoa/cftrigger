@@ -16,6 +16,7 @@
 
 	<cfsetting enablecfoutputonly="yes">
 	
+	
 	<!--- Resize an image to fit a size --->
 	<cffunction name="resize" displayname="resize" returntype="struct" hint="Resize an image to fit a size">
 		<cfargument name="fileLocation" type="string" required="yes" hint="The image location">

@@ -21,6 +21,7 @@
 		This.loginstorage = "session";
 		This.scriptProtect = "none";
 	</cfscript>
+	
 
 	<!--- ================================ APPLICATION METHODS ================================= --->
 
@@ -261,7 +262,7 @@
 			<cfset session.UserId = "">
 			<cflogout>
 			
-			<cfset application.url.redirectMessage(application.guestDefaultController, "You have been logged out")>
+			<cfset application.url.redirectMessage(application.guestDefaultController, application.lang.get("loggedOut"))>
 		</cfif>
 		
 		<!--- Get the current page and the path info string --->
@@ -300,7 +301,7 @@
 					<cfset StructClear(session)>
 					<cfset session.UserId = "">
 					
-					<cfset application.url.redirectError("login", "You are not allowed to access this area")>
+					<cfset application.url.redirectError("login", application.lang.get("adminRequired"))>
 				</cfif>
 			</cfif>
 		</cfif>

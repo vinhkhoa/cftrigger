@@ -14,6 +14,7 @@
 
 	<cfsetting enablecfoutputonly="yes">
 
+
 	<!--- --------------------------------------------------------------------------------------- ----
 		
 		Website: CFlib.org
@@ -53,6 +54,7 @@
 		</cfswitch>
 		
 		<cfreturn sInput>
+		
 	</cffunction>
 	
 	
@@ -87,6 +89,7 @@
 	 
 		<!--- Return the current request timeout. --->
 		<cfreturn LOCAL.RequestMonitor.GetRequestTimeout() />
+		
 	</cffunction>
 	
 
@@ -97,7 +100,6 @@
 	--->
 	
 	<cffunction name="plural" access="public" returntype="string" output="false" hint="Return the plural version of a word">
-	
 		<cfargument name="word" type="string" required="yes" hint="The word to be checked">		
 		<cfset var result = "">
 		
@@ -123,29 +125,7 @@
 		</cfif>
 		
 		<cfreturn result>
-	
-		<!---$str = strtolower(trim($str));
-		$end = substr($str, -1);
 
-		if ($end == 'y')
-		{
-			// Y preceded by vowel => regular plural
-			$vowels = array('a', 'e', 'i', 'o', 'u');
-			$str = in_array(substr($str, -2, 1), $vowels) ? $str.'s' : substr($str, 0, -1).'ies';
-		}
-		elseif ($end == 's')
-		{
-			if ($force == TRUE)
-			{
-				$str .= 'es';
-			}
-		}
-		else
-		{
-			$str .= 's';
-		}
-
-		return $str;--->
 	</cffunction>
 	 
 
@@ -261,6 +241,8 @@
 		<cfargument name="password" type="string" required="yes" hint="The password that user wants">
 		<cfargument name="salt" type="string" required="no" hint="The salt that user wants. Pass this in to keep the old salt. Don't pass in to generate a new salt as well">
 		<cfset var result = StructNew()>
+		<cfset result.salt = "">
+		<cfset result.password = "">
 		
 		<!--- Keep old salt? --->
 		<cfif StructKeyExists(arguments, "salt")>

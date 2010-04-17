@@ -3,7 +3,7 @@
 	Company:	cfTrigger
 	Summary:	Template library. The main funciton of this library is to include a templat using
 				to the built cfinclude function except that it has the ability to receive data and
-				mke it available to the included template. It works like a number of cfset before
+				make it available to the included template. It works like a number of cfset before
 				cfinclude function:
 				
 				<cfset ... = ... >
@@ -32,7 +32,7 @@
 	<cfset this.data = StructNew()>
 
 
-	<!--- Initialize teh includer --->
+	<!--- Initialize the "includer" --->
 	<cffunction name="init" access="public">
 		<cfargument name="template" type="string" required="yes" hint="The path to the template to be included">
 		<cfargument name="data" type="struct" required="no" default="#StructNew()#" hint="Data passed to the template">

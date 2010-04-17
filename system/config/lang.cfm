@@ -26,4 +26,9 @@
 <cfset application.defaultValidationLang.localDirectory = "The [field] does not exist. It has to be a valid directory path.">
 <cfset application.defaultValidationLang.phoneNumber = "The [field] is not valid. If you use home number, make sure you include the area code.">
 
+<!--- General messages --->
+<cfset application.defaultMessageLang = StructNew()>
+<cfset application.defaultMessageLang.loginRequired = "Please login first">
+<cfset application.defaultMessageLang.adminRequired = "You are not allowed to access this area">
+<cfset application.defaultMessageLang.loggedOut = "You have been logged out">
 

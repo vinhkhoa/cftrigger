@@ -13,6 +13,7 @@
 <cfcomponent displayname="Url" hint="Handles user funtions">
 
 	<cfsetting enablecfoutputonly="yes">
+	
 
 	<!--- Redirect the page with a message --->
 	<cffunction name="redirectMessage" access="public" output="no">

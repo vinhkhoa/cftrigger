@@ -13,6 +13,7 @@
 <cfcomponent displayname="Error" hint="Handles application errors">
 
 	<cfsetting enablecfoutputonly="yes">
+	
 
 	<!--- Show 404 error --->
 	<cffunction name="show_404" access="public" returntype="string">

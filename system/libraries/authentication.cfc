@@ -25,18 +25,18 @@
 		<!--- Authenticated? --->
 		<cfif NOT authenticated>
 			<cfset session.redirectURL = CGI.PATH_INFO>
-			
+
 			<!--- Do not show error on the first page open --->
-			<cfif session.redirectURL eq "">
+			<cfif session.redirectURL eq "" OR session.redirectURL eq "/" OR session.redirectURL eq application.appLogicalPath>
 				<cfset application.url.redirect("login")>
 			<cfelse>
-				<cfset application.url.redirectError("login", "Please login first")>
+				<cfset application.url.redirectError("login", application.lang.get("loginRequired"))>
 			</cfif>
 		</cfif>
 	
 		<!--- Needs to be admin? --->
 		<cfif arguments.sysAdmin AND NOT session.sysAdmin>
-			<cfset application.url.redirectError("", "You are not allowed to access this area")>
+			<cfset application.url.redirectError("", application.lang.get("adminRequired"))>
 		</cfif>
 		
 	</cffunction>
