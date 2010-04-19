@@ -146,7 +146,7 @@
 			
 			application.separator = createObject("java", "java.io.File").separator;
 			
-			<!--- Keep or remove the index.cfm page --->
+			// Keep or remove the index.cfm page
 			if (StructKeyExists(application, "removeIndexPage") AND application.removeIndexPage)
 			{
 				application.baseURL = application.rootURL;
@@ -175,7 +175,7 @@
 			application.libraryFilePath = application.appFilePath & "libraries" & application.separator;
 			application.errorFilePath = application.appFilePath & "errors" & application.separator;
 		
-			//Get coldfusion admin mappings for cft and makes sure the path ends with a / or \ --->
+			// Get coldfusion admin mappings for cft and makes sure the path ends with a / or \ --->
 			mappings = this.getMappings();
 			cftMapping = trim(mappings['/cft']);
 			if (right(cftMapping, 1) neq application.separator)
