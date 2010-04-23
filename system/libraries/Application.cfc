@@ -204,6 +204,7 @@
 			application.load.library("authentication", true);
 			application.load.library("core", true);
 			application.load.library("debug", true);
+			application.load.library("text", true);
 		</cfscript>
 		
 		<!--- Autoload at application level? --->

@@ -16,19 +16,14 @@
 	<cfsetting enablecfoutputonly="yes">
 	
 	
-	<!--- Get the list of values inside a struct. Similar to StructKeyList. Ignores complex variables --->
-	<cffunction name="structValueList" access="public" returntype="string" hint="">
-		<cfargument name="struct" type="struct" required="yes" hint="The struct that contains the values">
+	<!--- ============================================= STRING ============================================ --->
+	
+	<!--- Capitalize the first word --->
+	<cffunction name="capFirst" access="public" returntype="string" hint="">
+		<cfargument name="str" type="string" required="yes" hint="The text to be capitalized">
 		<cfset var result = "">
 		
-		<cfloop collection="#arguments.struct#" item="k">
-			<cfset v = arguments.struct[k]>
-			
-			<!--- Ignore complex and empty values --->
-			<cfif isSimpleValue(v) AND trim(v) neq "">
-				<cfset result = listAppend(result, v)>
-			</cfif>
-		</cfloop>
+		<cfset result = ucase(left(arguments.str, 1)) & right(arguments.str, len(arguments.str) - 1)>
 
 		<cfreturn result>
 
@@ -95,14 +90,7 @@
 		<cfargument name="delimiter" type="string" required="no" default="," hint="The list delimiter" />
 		<cfset var result = "">
 		
-		<cfset arr = arrayNew(1)>
-		<cfset listSize = listLen(arguments.ls, arguments.delimiter)>
-		<cfset counter = 0>
-		<cfloop list="#arguments.ls#" index="item" delimiters="#arguments.delimiter#">
-			<cfset counter = counter + 1>
-			<cfset arr[listSize - counter + 1] = item>
-		</cfloop>
-		<cfset result = arrayToList(arr, arguments.delimiter)>
+		<cfset result = arrayToList(this.arrayReverse(listToArray(arguments.ls, arguments.delimiter)), arguments.delimiter)>
 		
 		<cfreturn result>
 		
@@ -258,8 +246,39 @@
 	</cffunction>
 	
 	
+	<!--- Reverse an array --->
+	<cffunction name="ArrayReverse" access="public" returntype="array">
+		<cfargument name="arr" type="array" required="yes" hint="The first array" />
+		<cfset var result = arguments.arr>
+		
+		<cfset createObject("java", "java.util.Collections").reverse(result)>
+		
+		<cfreturn result>
+	
+	</cffunction>
+	
+	
 	<!--- ============================================= STRUCT ============================================ --->
 	
+	<!--- Get the list of values inside a struct. Similar to StructKeyList. Ignores complex variables --->
+	<cffunction name="structValueList" access="public" returntype="string" hint="">
+		<cfargument name="struct" type="struct" required="yes" hint="The struct that contains the values">
+		<cfset var result = "">
+		
+		<cfloop collection="#arguments.struct#" item="k">
+			<cfset v = arguments.struct[k]>
+			
+			<!--- Ignore complex and empty values --->
+			<cfif isSimpleValue(v) AND trim(v) neq "">
+				<cfset result = listAppend(result, v)>
+			</cfif>
+		</cfloop>
+
+		<cfreturn result>
+
+	</cffunction>
+
+
 	<!--- ============================================= QUERY ============================================ --->
 	
 	<!--- Sort a query based on a custom list --->
