@@ -236,32 +236,6 @@
 	</cffunction>
 	
 	
-	<!--- Generate an encrypted password and its salt --->
-	<cffunction name="encryptPassword" displayname="encryptPassword" returntype="struct" hint="Generate the encrypted password">
-		<cfargument name="password" type="string" required="yes" hint="The password that user wants">
-		<cfargument name="salt" type="string" required="no" hint="The salt that user wants. Pass this in to keep the old salt. Don't pass in to generate a new salt as well">
-		<cfset var result = StructNew()>
-		<cfset result.salt = "">
-		<cfset result.password = "">
-		
-		<!--- Keep old salt? --->
-		<cfif StructKeyExists(arguments, "salt")>
-			<cfset result.salt = arguments.salt>
-		<cfelse>
-			<cfset result.salt = lcase(createUUID())>
-		</cfif>
-		
-		<cfif trim(arguments.password) neq "">
-			<cfset result.password = hash(result.salt & arguments.password, "SHA")>
-		<cfelse>
-			<cfset result.password = "">
-		</cfif>
-		
-		<cfreturn result>
-	
-	</cffunction>
-
-
 	<!--- Extract a string into an array of substrings --->
 	<cffunction name="extract" access="public" returntype="array">
 		<cfargument name="string" type="string" required="yes" hint="The string to search in" />

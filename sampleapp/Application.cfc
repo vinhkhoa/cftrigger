@@ -8,21 +8,9 @@
 <cfcomponent displayname="Application" extends="cft.libraries.Application">
 	<cfsetting enablecfoutputonly="yes">
 	
-	<cfscript>
-		// SET THE NAME FOR THIS APPLICATION - SEEN BY COLDFUSION - HAS TO BE UNIQUE PER SERVER
-		This.name = super.getAppNameOnServer("cftSampleApp", "sampleapp.com", "localhost");
-		if (findNoCase("sampleapp.com", CGI.SERVER_NAME))
-		{
-			This.rootFolder = "/";
-		}
-		else
-		{
-			This.rootFolder = "/cftrigger/sampleapp/";
-		}
-		
-		// Have to record this in here before going to anywhere else
-		This.appComponentFilePath = GetCurrentTemplatePath();
-	</cfscript>
+	<!--- Have to record this in here before going to anywhere else --->
+	<cfset This.appComponentFilePath = GetCurrentTemplatePath()>
+	<cfset This.name = "cfTriggerSampleApp">
 	
 
 	<cffunction name="OnApplicationStart">

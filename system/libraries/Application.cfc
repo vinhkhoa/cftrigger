@@ -423,25 +423,6 @@
 			
 	<!--- ================================ OTHER METHODS ================================= --->
 
-	<!--- Get the application server-specific name --->
-	<cffunction name="getAppNameOnServer" displayname="getAppNameOnServer" output="no" hint="Get the application server-specific name">
-		<cfargument name="genericName" type="string" required="yes" hint="The generic name of the application">
-		<cfargument name="liveServer" type="string" required="yes" hint="The live server of the application">
-		<cfargument name="devServer" type="string" required="yes" hint="The development server of the application">
-		<cfset var result = "">
-		
-		<!--- What server? --->
-		<cfif findNoCase(arguments.liveServer, CGI.SERVER_NAME)>
-			<cfset result = arguments.genericName & "Live">
-		<cfelse>
-			<cfset result = arguments.genericName & "Dev">
-		</cfif>
-		
-		<cfreturn result>
-		
-	</cffunction>
-	
-	
 	<!--- Handle exceptions --->
 	<cffunction name="onError">
 		<cfargument name="Exception" required="yes" />
