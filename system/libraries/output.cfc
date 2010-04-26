@@ -126,6 +126,115 @@
 		<cfreturn result>
 		
 	</cffunction>
+	
+	
+	<!--- Display pagination --->
+	<cffunction name="pagination" access="public" hint="">
+		<cfargument name="page" type="numeric" required="no" default="1" hint="The current page">
+		<cfargument name="total" type="numeric" required="yes" hint="The total number of records">	
+		<cfargument name="pageSize" type="numeric" required="yes" hint="The number of records per page">	
+		<cfargument name="paginationSize" type="numeric" required="yes" hint="The number of pages to be shown in the pagination">	
+		<cfargument name="urlPageVariable" type="string" required="no" default="p" hint="The url variable that represents the current page">	
+		<cfargument name="alternativePathInfo" type="string" required="no" hint="In case of no path info, use this one">	
+		<cfargument name="paginationClassName" type="string" required="no" default="pagination" hint="The class name to be used for the pagination">	
+		<cfargument name="nextPrevClassName" type="string" required="no" default="nextprev" hint="The class name to be used for the next and previous buttons">	
+		<cfargument name="paginationId" type="string" required="no" default="pagination" hint="The ID to be used for the pagination">	
+	
+		<cfif val(arguments.total)>
+			<!--- Validate the current page number --->
+			<cfset page = round(val(arguments.page))>
+			<cfif page lt 1>
+				<cfset page = 1>
+			</cfif>
+			
+			<!--- Get the total number of pages --->
+			<cfif val(arguments.total) MOD val(arguments.pageSize) eq 0>
+				<cfset pageNum = val(arguments.total) / val(arguments.pageSize)>
+			<cfelse>
+				<cfset pageNum = int(val(arguments.total) / val(arguments.pageSize)) + 1>
+			</cfif>
+			
+			<!--- Remove page number from the query string --->
+			<cfset queryString = reReplaceNoCase(reReplaceNoCase(reReplaceNoCase(CGI.QUERY_STRING, "#urlPageVariable#=[^&]+", "", "ALL"), "^&|&$", "", "ALL"), "[&]+", "&amp;", "ALL")>
+			<cfif queryString neq "">
+				<cfset queryString = queryString & "&amp;">
+			</cfif>
 
+			<!--- Get the current page url. If home page, set it to the ad list page --->
+			<cfif CGI.PATH_INFO eq "" AND StructKeyExists(arguments, "alternativePathInfo")>
+				<cfset pathInfo = arguments.alternativePathInfo>
+			<cfelse>
+				<cfset pathInfo = CGI.PATH_INFO>
+			</cfif>
+			<cfset pageURL = application.baseURL & pathInfo & "?" & queryString>
+			
+			<!--- ============================ Pagination ============================ --->
+			
+			<!--- Get the left and right number of pages --->
+			<cfif val(arguments.paginationSize) MOD 2 eq 0>
+				<cfset leftPage = page - val(arguments.paginationSize)/2 + 1>
+			<cfelse>
+				<cfset leftPage = page - (val(arguments.paginationSize) - 1)/2>
+			</cfif>
+			<cfset rightPage = leftPage + val(arguments.paginationSize) - 1>
+			
+			<!--- If both page ends are outside of range --->
+			<cfif leftPage le 1 AND rightPage gt pageNum>
+				<cfset leftPage = 1>
+				<cfset rightPage = pageNum>
+			
+			<!--- If left page is inside range, but right page is not --->
+			<cfelseif leftPage ge 1 AND rightPage gt pageNum>
+				<cfset rightPage = pageNum>
+				<cfset leftPage = max(rightPage - val(arguments.paginationSize) + 1, 1)>
+			
+			<!--- If left page is out side of range, but right is inside --->
+			<cfelseif leftPage lt 1 AND rightPage le pageNum>
+				<cfset leftPage = 1>
+				<cfset rightPage = min(leftPage + val(arguments.paginationSize) - 1, pageNum)>
+			<cfelse>
+				<!--- Do nothing --->
+			</cfif>
+			
+			<!--- Has more than one page to display the pagination? --->
+			<cfif pageNum gt 1>
+				<cfoutput>
+				<ul id="#arguments.paginationId#" class="#arguments.paginationClassName#">
+				
+				<!--- Check if to display the "First" and "Previous" links --->
+				<cfif page gt 1>
+					<li><a href="#pageURL##urlPageVariable#=1" class="#nextPrevClassName#">First</a></li>
+					<li><a href="#pageURL##urlPageVariable#=#page - 1#" class="#nextPrevClassName#">&lt; Prev</a></li>
+				<cfelse>
+					<li><span class="#nextPrevClassName#">First</span></li>
+					<li><span class="#nextPrevClassName#">&lt; Prev</span></li>
+				</cfif>
+				
+				<!--- Only display page in range --->
+				<cfloop from="1" to="#pageNum#" index="i">
+					<cfif i ge leftPage AND i le rightPage>
+						<cfif i eq page>
+							<li class="current"><span>Page </span>#i#</li>
+						<cfelse>
+							<li><a href="#pageURL##urlPageVariable#=#i#"><span>Page </span>#i#</a></li>
+						</cfif>
+					</cfif>
+				</cfloop>
+				
+				<!--- Check if to display the "Next" and "Last" links --->
+				<cfif page lt pageNum>
+					<li><a href="#pageURL##urlPageVariable#=#page + 1#" class="#nextPrevClassName#">Next &gt;</a></li>
+					<li><a href="#pageURL##urlPageVariable#=#pageNum#" class="#nextPrevClassName#">Last</a></li>
+				<cfelse>
+					<li><span class="#nextPrevClassName#">Next &gt;</span></li>
+					<li><span class="#nextPrevClassName#">Last</span></li>
+				</cfif>
+				
+				</ul>
+				</cfoutput>	
+			</cfif>
+		</cfif>
+		
+	</cffunction>
 
 </cfcomponent>
