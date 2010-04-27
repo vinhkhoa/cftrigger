@@ -21,60 +21,107 @@
 	<cffunction name="numberToWord" displayname="numberToWord" access="public" returntype="string" hint="Convert a number to word">
 		<cfargument name="number" type="numeric" required="yes" hint="The number to be converted to text">
 		<cfset var result = "">
+		<cfset var positions = listToArray(reReplace(reverse(arguments.number), "(\d)", "\1,", "ALL"))>
+		<cfset var positionWords = arrayNew(1)>
+		<cfset number = int(val(arguments.number))>
+
+		<!--- Units --->
+		<cfset units = arrayNew(1)>
+		<cfset units[1] = "">
+		<cfset units[2] = "one">
+		<cfset units[3] = "two">
+		<cfset units[4] = "three">
+		<cfset units[5] = "four">
+		<cfset units[6] = "five">
+		<cfset units[7] = "six">
+		<cfset units[8] = "seven">
+		<cfset units[9] = "eight">
+		<cfset units[10] = "nine">
 		
-		<!--- Arrays --->
-		<cfset words = arrayNew(2)>
-		<cfset words[1][1] = "one">
-		<cfset words[1][2] = "two">
-		<cfset words[1][3] = "three">
-		<cfset words[1][4] = "four">
-		<cfset words[1][5] = "five">
-		<cfset words[1][6] = "six">
-		<cfset words[1][7] = "seven">
-		<cfset words[1][8] = "eight">
-		<cfset words[1][9] = "nine">
-		<cfset words[1][10] = "ten">
-		<cfset words[2][1] = "eleven">
-		<cfset words[2][2] = "twelve">
-		<cfset words[2][3] = "thirteen">
-		<cfset words[2][4] = "fourteen">
-		<cfset words[2][5] = "fifteen">
-		<cfset words[2][6] = "sixteen">
-		<cfset words[2][7] = "seventeen">
-		<cfset words[2][8] = "eighteen">
-		<cfset words[2][9] = "ninteen">
-		<cfset words[2][10] = "twenty">
-		
+		<!--- Teens --->
 		<cfset teens = arrayNew(1)>
-		<cfset teens[1] = "eleven">
-		<cfset teens[2] = "twelve">
-		<cfset teens[3] = "thirteen">
-		<cfset teens[4] = "fourteen">
-		<cfset teens[5] = "fifteen">
-		<cfset teens[6] = "sixteen">
-		<cfset teens[7] = "seventeen">
-		<cfset teens[8] = "eighteen">
-		<cfset teens[9] = "ninteen">
+		<cfset teens[1] = "ten">
+		<cfset teens[2] = "eleven">
+		<cfset teens[3] = "twelve">
+		<cfset teens[4] = "thirteen">
+		<cfset teens[5] = "fourteen">
+		<cfset teens[6] = "fifteen">
+		<cfset teens[7] = "sixteen">
+		<cfset teens[8] = "seventeen">
+		<cfset teens[9] = "eighteen">
+		<cfset teens[10] = "ninteen">
 		
+		<!--- Ties --->
 		<cfset ties = arrayNew(1)>
-		<cfset ties[1] = "ten">
-		<cfset ties[2] = "twenty">
-		<cfset ties[3] = "thirty">
-		<cfset ties[4] = "forty">
-		<cfset ties[5] = "fifty">
-		<cfset ties[6] = "sixty">
-		<cfset ties[7] = "seventy">
-		<cfset ties[8] = "eighty">
-		<cfset ties[9] = "ninty">
-		
-		<!--- <cfset digits = listToArray(reReplace(reverse(arguments.number), "(\d)", "\1,", "ALL"))>
-		<cfdump var="#digits#">
-		<cfabort> --->
-		
-		<cfif val(arguments.number) ge 1 AND val(arguments.number) le 10>
-			<cfset result = words[1][val(arguments.number)]>
+		<cfset ties[1] = "">
+		<cfset ties[2] = "">
+		<cfset ties[3] = "twenty">
+		<cfset ties[4] = "thirty">
+		<cfset ties[5] = "forty">
+		<cfset ties[6] = "fifty">
+		<cfset ties[7] = "sixty">
+		<cfset ties[8] = "seventy">
+		<cfset ties[9] = "eighty">
+		<cfset ties[10] = "ninty">
+
+		<cfif number ge 1>
+			<!--- 1 to 9 --->
+			<cfif number le 9>
+				<cfset result = units[number + 1]>
+				
+			<!--- 10 to 19 --->
+			<cfelseif number le 19>
+				<cfset result = teens[number - 9]>
+				
+			<!--- 20 to 99 --->
+			<cfelseif number le 99>
+				<cfloop from="1" to="#arrayLen(positions)#" index="pos">
+					<cfset digit = positions[pos]>
+					
+					<!--- First digit? --->
+					<cfif pos eq 1>
+						<cfset positionWords[pos] = units[digit + 1]>
+					<cfelse>
+						<cfset positionWords[pos] = ties[digit + 1]>
+					</cfif>
+				</cfloop>
+				
+				<cfset result = trim(arrayToList(application.core.arrayReverse(positionWords), " "))>
+			
+			<!--- 100 to 999 --->
+			<cfelseif number le 999>
+				<cfset part1 = this.numberToWord(number MOD 100)>
+				<cfset part2 = units[positions[3] + 1]>
+				
+				<!--- Anything in part 1? --->
+				<cfif part1 eq "">
+					<cfset result = part2 & " hundred">
+				<cfelse>
+					<cfset result = part2 & " hundred and " & part1>
+				</cfif>
+				
+			<!--- 1000 to 9999 --->
+			<cfelseif number le 9999>
+				<cfset part1Value = number MOD 1000>
+				<cfset part1 = this.numberToWord(part1Value)>
+				<cfset part2 = units[positions[4] + 1]>
+				
+				<!--- Anything in part 1? --->
+				<cfif part1 eq "">
+					<cfset result = part2 & " thousand">
+				<cfelse>
+					<!--- Part 1 from 1 to 99 --->
+					<cfif part1Value lt 100>
+						<cfset result = part2 & " thousand and " & part1>
+					<cfelse>
+						<cfset result = part2 & " thousand " & part1>
+					</cfif>
+				</cfif>
+			<cfelse>
+				<cfset result = "[Error!! the number is too big]">
+			</cfif>
 		</cfif>
-		
+
 		<cfreturn result>
 		
 	</cffunction>
