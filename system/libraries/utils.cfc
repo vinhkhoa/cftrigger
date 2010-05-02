@@ -230,6 +230,7 @@
 		<cfset result = reReplace(result, "([^\w-_]|\s)+", "-", "ALL")>
 		<cfset result = reReplace(result, "[_]+", "-", "ALL")>
 		<cfset result = reReplace(result, "[-]{2,}", "-", "ALL")>
+		<cfset result = application.core.trimChar(result, "-")>
 		
 		<cfreturn result>
 	

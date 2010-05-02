@@ -30,6 +30,22 @@
 	</cffunction>
 
 
+	<!--- Trim a particular character. Similar to the default trim which trims spaces, this one trims any characters --->
+	<cffunction name="trimChar" access="public" returntype="string" hint="">
+		<cfargument name="str" type="string" required="yes" hint="The text to be trimmed">
+		<cfargument name="char" type="string" required="yes" hint="The char to be trimmed">
+		<cfset var result = "">
+		
+		<!--- Trim left --->
+		<cfset result = arguments.str>
+		<cfset result = reReplaceNoCase(result, "^(#arguments.char#)+", "", "ALL")>
+		<cfset result = reReplaceNoCase(result, "(#arguments.char#)+$", "", "ALL")>
+
+		<cfreturn result>
+
+	</cffunction>
+
+
 	<!--- ============================================= LIST ============================================ --->
 
 	<!--- Remove duplicates from a list --->
