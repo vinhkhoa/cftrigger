@@ -115,6 +115,7 @@
 		
 		<!--- Maintenance mode? Redirect user to the maintenance page on LIVE except for the development computers --->
 		<cfif application.serverType eq 'LIVE' AND underMaintenaince>
+			<cfset result.foundController = true>
 			<cfset result.controller = application.maintenancePage>
 			<cfset result.view = application.defaultView>
 			<cfreturn result>

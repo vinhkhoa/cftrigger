@@ -24,7 +24,7 @@
 		
 		<!--- Authenticated? --->
 		<cfif NOT authenticated>
-			<cfset session.redirectURL = CGI.PATH_INFO>
+			<cfset session.redirectURL = replaceNoCase(request.currentPage, application.baseURL & "/", "")>
 
 			<!--- Do not show error on the first page open --->
 			<cfif session.redirectURL eq "" OR session.redirectURL eq "/" OR session.redirectURL eq application.appLogicalPath>
