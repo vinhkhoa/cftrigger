@@ -108,8 +108,13 @@
 		<cfset result.controller = "">
 		<cfset result.view = "">
 		
-		<!--- Maintenance mode? Redirect user to the maintenance page on LIVE --->
-		<cfif application.maintenanceMode AND application.serverType eq 'LIVE'>
+		<!--- Is this a development computer? --->
+		<cfset fromDevComputer = StructKeyExists(application, "devIPAddresses") AND
+										 listFind(application.devIPAddresses, CGI.REMOTE_ADDR) gt 0>
+		<cfset underMaintenaince = application.maintenanceMode AND NOT fromDevComputer>
+		
+		<!--- Maintenance mode? Redirect user to the maintenance page on LIVE except for the development computers --->
+		<cfif application.serverType eq 'LIVE' AND underMaintenaince>
 			<cfset result.controller = application.maintenancePage>
 			<cfset result.view = application.defaultView>
 			<cfreturn result>
@@ -228,7 +233,7 @@
 		</cfif>
 		
 		<!--- Not maintenance mode and user attempts to visit the maintenance page on LIVE? Disable it --->
-		<cfif NOT application.maintenanceMode AND application.serverType eq 'LIVE'
+		<cfif application.serverType eq 'LIVE' AND underMaintenaince
 				AND result.controller eq application.maintenancePage>
 			<cfset application.url.redirect()>
 		</cfif>
