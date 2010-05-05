@@ -341,6 +341,7 @@
 			<!--- Load the view --->
 			<cfif StructKeyExists(controller, form.view)>
 				<cfinvoke component="#controller#" method="#form.view#" />
+				<cfabort>
 			<cfelse>
 				<cfset errorHeading = "Method not found">
 				<cfset errorMessage = "The system could not find the method '#form.view#' inside the controller '#form.controller#.cfc'">

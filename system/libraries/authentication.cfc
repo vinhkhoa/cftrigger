@@ -24,10 +24,11 @@
 		
 		<!--- Authenticated? --->
 		<cfif NOT authenticated>
-			<cfset session.redirectURL = replaceNoCase(request.currentPage, application.baseURL & "/", "")>
+			<cfset session.redirectURL = replaceNoCase(request.currentPage, application.baseURL, "")>
 
 			<!--- Do not show error on the first page open --->
-			<cfif session.redirectURL eq "" OR session.redirectURL eq "/" OR session.redirectURL eq application.appLogicalPath>
+			<cfif session.redirectURL eq "" OR session.redirectURL eq "/" OR
+					session.redirectURL eq application.appLogicalPath>
 				<cfset application.url.redirect("login")>
 			<cfelse>
 				<cfset application.url.redirectError("login", application.lang.get("loginRequired"))>
