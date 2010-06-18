@@ -82,10 +82,16 @@
 			<cfabort>
 		</cfif>
 		
-		<!--- Logical Paths --->
-		<cfinclude template="#application.appLogicalPath#application/config/database.cfm">
-		<cfinclude template="#application.appLogicalPath#application/config/route.cfm">
-		<cfinclude template="#application.appLogicalPath#application/config/lang.cfm">
+		<!--- Include config files --->
+		<cfif fileExists(expandPath("#application.appLogicalPath#application/config/database.cfm"))>
+			<cfinclude template="#application.appLogicalPath#application/config/database.cfm">
+		</cfif>
+		<cfif fileExists(expandPath("#application.appLogicalPath#application/config/route.cfm"))>
+			<cfinclude template="#application.appLogicalPath#application/config/route.cfm">
+		</cfif>
+		<cfif fileExists(expandPath("#application.appLogicalPath#application/config/lang.cfm"))>
+			<cfinclude template="#application.appLogicalPath#application/config/lang.cfm">
+		</cfif>
 		<cfinclude template="/cft/config/config.cfm">
 		<cfinclude template="/cft/config/lang.cfm">
 		
@@ -140,9 +146,18 @@
 			/* =========================================== APPLICATION SETTINGS =========================================== */
 			
 			// Get the application DB settings
-			application.dbname = databases[application.applicationDBType]["dbname"];
-			application.dbuser = databases[application.applicationDBType]["dbuser"];
-			application.dbpassword = databases[application.applicationDBType]["dbpassword"];
+			if (isDefined("databases"))
+			{
+				application.dbname = databases[application.applicationDBType]["dbname"];
+				application.dbuser = databases[application.applicationDBType]["dbuser"];
+				application.dbpassword = databases[application.applicationDBType]["dbpassword"];
+			}
+			else
+			{
+				application.dbname = "";
+				application.dbuser = "";
+				application.dbpassword = "";
+			}
 			
 			application.separator = createObject("java", "java.io.File").separator;
 			
@@ -341,6 +356,7 @@
 			<!--- Load the view --->
 			<cfif StructKeyExists(controller, form.view)>
 				<cfinvoke component="#controller#" method="#form.view#" />
+				<cfset this.onRequestEnd("")>
 				<cfabort>
 			<cfelse>
 				<cfset errorHeading = "Method not found">
