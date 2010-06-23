@@ -126,8 +126,9 @@
 		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">
 		<cfset var error = "">
 		
-		<cfif (listFindNoCase("varchar", arguments.field.type) AND NOT len(trim(arguments.value))) OR 
-				 (listFindNoCase("integer", arguments.field.type) AND NOT val(arguments.value))>
+		<!--- <cfif (listFindNoCase("varchar", arguments.field.type) AND NOT len(trim(arguments.value))) OR 
+				 (listFindNoCase("integer,decimal,float", arguments.field.type) AND NOT val(arguments.value))> --->
+		<cfif NOT len(trim(arguments.value))>
 			<cfset error = application.lang.getValidationLang(this.modelName, arguments.field, arguments.value, "required")>
 		</cfif>
 			
@@ -217,7 +218,7 @@
 		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">
 		<cfset var error = "">
 
-		<cfif arguments.value neq "" AND NOT isValid("number", arguments.value)>
+		<cfif arguments.value neq "" AND NOT isValid("numeric", arguments.value)>
 			<cfset error = application.lang.getValidationLang(this.modelName, arguments.field, arguments.value, "numeric")>
 		</cfif>
 			

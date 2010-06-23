@@ -158,7 +158,23 @@
 				application.dbuser = "";
 				application.dbpassword = "";
 			}
-			
+		</cfscript>
+		
+		<!--- Get database driver info --->	
+		<cfif application.dbname neq "">
+			<cfdbinfo type="version" datasource="#application.dbname#" username="#application.dbuser#" password="#application.dbpassword#" name="dbInfo">
+			<cfset application.dbDriver = dbInfo.driver_name>
+			<cfset application.dbIsMSSQL = application.dbDriver eq "SQLServer">
+			<cfset application.dbIsOracle = application.dbDriver eq "Oracle">
+			<cfset application.dbIsMySQL = application.dbDriver eq "MySQL">
+		<cfelse>
+			<cfset application.dbDriver = "">
+			<cfset application.dbIsMSSQL = false>
+			<cfset application.dbIsOracle = false>
+			<cfset application.dbIsMySQL = false>
+		</cfif>
+		
+		<cfscript>
 			application.separator = createObject("java", "java.io.File").separator;
 			
 			// Keep or remove the index.cfm page

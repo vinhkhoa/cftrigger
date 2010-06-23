@@ -92,20 +92,28 @@
 	
 	<!--- Add/update model --->
 	<cffunction name="save" displayname="save" access="public" returntype="struct" hint="Add/update model">
-		
+	
+		<cfargument name="fieldCollection" type="struct" required="no" hint="Collection of fields">		
 		<cfset var result = StructNew()>
 		<cfset result.errorList = ArrayNew(1)>
 		<cfset result.newId = "">
 		<cfset result.newTextId = "">
+		
+		<!--- Passing a whole field collection or individual fields? --->
+		<cfif StructKeyExists(arguments, "fieldCollection")>
+			<cfset fieldValues = arguments.fieldCollection>
+		<cfelse>
+			<cfset fieldValues = arguments>
+		</cfif>
 		
 		<!--- Validate the values --->
 		<cfif This.ranValidation>
 			<cfset validateResult.errorList = this.validationResult.errorList>
 		<cfelse>
 			<cfset objValidation = application.load.library('validation').init(this)>
-			<cfset validateResult = objValidation.run(arguments)>
+			<cfset validateResult = objValidation.run(fieldValues)>
 		</cfif>
-				
+		
 		<cfif ArrayLen(validateResult.errorList)>
 			<cfset result.errorList = validateResult.errorList>
 		<cfelse>
@@ -115,11 +123,11 @@
 					UPDATE #this.tableName#
 					SET
 						<cfloop array="#this.fields#" index="field">
-							<cfif StructKeyExists(arguments, field.name)>
+							<cfif StructKeyExists(fieldValues, field.name)>
 								<cfif listFindNoCase("bigint,bit,decimal,double,float,integer,numeric,real,smallint", field.type)>
-									#field.name# = <cfqueryparam value="#val(arguments[field.name])#" cfsqltype="cf_sql_#field.type#">, 
+									#field.name# = <cfqueryparam value="#val(fieldValues[field.name])#" cfsqltype="cf_sql_#field.type#">, 
 								<cfelse>
-									#field.name# = <cfqueryparam value="#arguments[field.name]#" cfsqltype="cf_sql_#field.type#">, 
+									#field.name# = <cfqueryparam value="#fieldValues[field.name]#" cfsqltype="cf_sql_#field.type#">, 
 								</cfif>
 							</cfif>
 						</cfloop>
@@ -142,7 +150,7 @@
 				<cfquery name="qAdd" datasource="#application.dbname#" username="#application.dbuser#" password="#application.dbpassword#">
 					INSERT INTO #this.tableName# (
 						<cfloop array="#this.fields#" index="field">
-							<cfif StructKeyExists(arguments, field.name)>
+							<cfif StructKeyExists(fieldValues, field.name)>
 								#field.name#, 
 							</cfif>
 						</cfloop>
@@ -156,11 +164,11 @@
 					VALUES
 					(
 						<cfloop array="#this.fields#" index="field">
-							<cfif StructKeyExists(arguments, field.name)>
+							<cfif StructKeyExists(fieldValues, field.name)>
 								<cfif listFindNoCase("bigint,bit,decimal,double,float,integer,numeric,real,smallint", field.type)>
-									<cfqueryparam value="#val(arguments[field.name])#" cfsqltype="cf_sql_#field.type#">, 
+									<cfqueryparam value="#val(fieldValues[field.name])#" cfsqltype="cf_sql_#field.type#">, 
 								<cfelse>
-									<cfqueryparam value="#arguments[field.name]#" cfsqltype="cf_sql_#field.type#">, 
+									<cfqueryparam value="#fieldValues[field.name]#" cfsqltype="cf_sql_#field.type#">, 
 								</cfif>
 							</cfif>
 						</cfloop>
@@ -172,18 +180,22 @@
 						</cfif>
 					)
 					
-					<!--- MS SQL VERSION TO GET THE LAST INSERTED ID --->
-					<!---SELECT LAST_INSERT_ID() AS 'newId'--->
+					<!--- Get the latest insert id for MS SQL --->
+					<cfif application.dbIsMSSQL>
+						SELECT @@IDENTITY AS 'newId'
+					</cfif>
 				</cfquery>
 				
-				<!--- MYSQL VERSION TO GET THE LAST INSERTED ID --->
-				<cfquery name="qAdd" datasource="#application.dbname#" username="#application.dbuser#" password="#application.dbpassword#">
-					SELECT LAST_INSERT_ID() AS 'newId'
-				</cfquery>
+				<!--- GET THE LAST INSERTED ID FOR MY SQL AND ORACLE --->
+				<cfif application.dbIsMySQL OR application.dbIsOracle>
+					<cfquery name="qAdd" datasource="#application.dbname#" username="#application.dbuser#" password="#application.dbpassword#">
+						SELECT LAST_INSERT_ID() AS 'newId'
+					</cfquery>
+				</cfif>
 				
 				<cfset result.newId = qAdd.newId>
-				<cfif StructKeyExists(arguments, This.textIdField)>
-					<cfset result.newTextId = arguments[This.textIdField]>
+				<cfif StructKeyExists(fieldValues, This.textIdField)>
+					<cfset result.newTextId = fieldValues[This.textIdField]>
 				</cfif>
 			</cfif>
 		</cfif>
