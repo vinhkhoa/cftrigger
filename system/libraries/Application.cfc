@@ -175,8 +175,18 @@
 		</cfif>
 		
 		<cfscript>
+			// Get the separator & opposite separator
 			application.separator = createObject("java", "java.io.File").separator;
 			
+			if (application.separator eq "/")
+			{
+				application.oppSeparator = "\";
+			}
+			else
+			{
+				application.oppSeparator = "/";
+			}
+		
 			// Keep or remove the index.cfm page
 			if (StructKeyExists(application, "removeIndexPage") AND application.removeIndexPage)
 			{

@@ -301,7 +301,7 @@
 	<cffunction name="QuerySort" displayname="QuerySort" access="public" hint="Sort a query based on a custom list" returntype="query">
 		<cfargument name="query" type="query" required="yes" hint="The query to be sorted">
 		<cfargument name="columnName" type="string" required="yes" hint="The name of the column to be sorted">
-		<cfargument name="columnType" type="string" required="yes" default="numeric" hint="The column type. Possible values: numeric, varchar">
+		<cfargument name="columnType" type="string" required="no" default="numeric" hint="The column type. Possible values: numeric, varchar">
 		<cfargument name="orderList" type="string" required="yes" hint="The lsit used to sort the query">
 		<cfargument name="otherOrders" type="string" required="no" default="" hint="After order by the value list, also order by these criteria">
 		<cfargument name="orderColumnName" type="string" required="no" default="orderNo" hint="The name of the column containing the order number">
@@ -333,4 +333,40 @@
 	</cffunction>
 	
 
+	<!--- Group query records --->
+	<cffunction name="QueryGroup" displayname="QueryGroup" access="public" hint="Group query records" returntype="query">
+		<cfargument name="query" type="query" required="yes" hint="The query to be sorted">
+		<cfargument name="groupBy" type="string" required="yes" hint="The name of the column to be grouped by">
+		<cfargument name="groupColumns" type="string" required="yes" hint="The columns to be combined/group">
+		
+		<cfset qGrouped = QueryNew(arguments.query.columnList,repeatString("varchar,", listLen(arguments.query.columnList) - 1) & "varchar")>
+		<cfoutput query="arguments.query" group="#arguments.groupBy#">
+			<!--- Create empty groups --->
+			<cfset grouped = StructNew()>
+			<cfloop list="#arguments.groupColumns#" index="col">
+				<cfset grouped[col] = "">
+			</cfloop>
+			
+			<!--- Group the rows --->
+			<cfoutput>
+				<cfloop list="#arguments.groupColumns#" index="col">
+					<cfset grouped[col] = listAppend(grouped[col], arguments.query[col][arguments.query.currentRow])>
+				</cfloop>
+			</cfoutput>
+			
+			<!--- Add these groups of rows into the new query --->
+			<cfset queryAddRow(qGrouped)>
+			<cfloop list="#arguments.query.columnList#" index="col">
+				<cfif listFindNoCase(arguments.groupColumns, col)>
+					<cfset querySetCell(qGrouped, col, application.core.listUnique(grouped[col]), qGrouped.recordCount)>
+				<cfelse>
+					<cfset querySetCell(qGrouped, col, arguments.query[col][arguments.query.currentRow], qGrouped.recordCount)>
+				</cfif>
+			</cfloop>
+		</cfoutput>
+		
+		<cfreturn qGrouped>	
+		
+	</cffunction>
+			
 </cfcomponent>

@@ -138,7 +138,7 @@
 	
 		<!--- Get the controller name --->
 		<cfset metaData = getMetaData(this)>
-		<cfset modelName = metaData.displayName>
+		<cfset modelName = lcase(metaData.displayName)>
 	
 		<!--- User save? --->
 		<cfif StructKeyExists(form, arguments.saveButton)>
@@ -154,11 +154,6 @@
 			<cfset qModel = objModel.get()>
 			
 			<cfinvoke component="#objModel#" method="save" fieldCollection="#form#" returnvariable="saveResult">
-			
-			<!--- Excute a function after save? --->
-			<cfif isDefined("this._post_save")>
-				<cfset this._post_save(saveResult)>
-			</cfif>
 			
 			<!--- Any error? --->
 			<cfif arrayLen(saveResult.errorList)>
@@ -180,6 +175,11 @@
 				<cfset session.qForm = qForm>
 				<cfset session.errorList = saveResult.errorList>
 				
+				<!--- Excute a function after save? --->
+				<cfif isDefined("this._post_save")>
+					<cfset this._post_save(saveResult)>
+				</cfif>
+			
 				<!--- Add new? --->
 				<cfif addNew>
 					<cfset application.url.redirect("#modelName#/#arguments.addView#")>
@@ -187,6 +187,11 @@
 					<cfset application.url.redirect("#modelName#/#arguments.editView#/#val(qModel.id)#")>
 				</cfif>
 			<cfelse>
+				<!--- Excute a function after save? --->
+				<cfif isDefined("this._post_save")>
+					<cfset this._post_save(saveResult)>
+				</cfif>
+			
 				<!--- Add new? --->
 				<cfif addNew>
 					<cfset application.url.redirectMessage("#modelName#/#arguments.listView#", "New #modelName# added.")>

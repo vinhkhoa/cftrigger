@@ -438,4 +438,73 @@
 	</cffunction>
 	
 
+	<!--- Update relationship with another model --->
+	<cffunction name="updateRelationship" displayname="updateRelationship" access="public" returntype="struct" hint="Update relationship with another model">
+		<cfargument name="relatedTableName" type="string" required="yes" hint="The related table name">
+		<cfargument name="fieldName" type="string" required="yes" hint="The field name of this model inside the related table">
+		<cfargument name="relatedFieldName" type="string" required="yes" hint="The field name of the related model inside the related table">
+		<cfargument name="relatedIds" type="string" required="yes" hint="The related model ids">
+		<cfset var result = StructNew()>
+		<cfset result.error = "">
+		
+		<!--- Remove old relationships --->
+		<cfquery name="qDeleteOld" datasource="#application.dbname#" username="#application.dbuser#" password="#application.dbpassword#">
+			DELETE FROM #arguments.relatedTableName#
+			WHERE #arguments.fieldName# = <cfqueryparam value="#val(variables.id)#" cfsqltype="cf_sql_integer">
+				<cfif listLen(arguments.relatedIds)> 
+					AND #arguments.relatedFieldName# NOT IN (<cfqueryparam value="#arguments.relatedIds#" list="yes" cfsqltype="cf_sql_integer">)
+				</cfif>
+		</cfquery>
+		
+		<!--- Anything to add back in? --->
+		<cfif listLen(arguments.relatedIds)>
+			<!--- Find new relationships --->
+			<cfquery name="qExisting" datasource="#application.dbname#" username="#application.dbuser#" password="#application.dbpassword#">
+				SELECT #arguments.relatedFieldName# AS modelId
+				FROM #arguments.relatedTableName#
+				WHERE #arguments.fieldName# = <cfqueryparam value="#val(variables.id)#" cfsqltype="cf_sql_integer">
+			</cfquery>
+			<cfset newIds = application.core.listMinus(arguments.relatedIds, valueList(qExisting.modelId))>
+			
+			<!--- Insert new relationships --->
+			<cfif listLen(newIds)>
+				<cfset total = listLen(newIds)>
+			
+				<cfquery name="qAddNew" datasource="#application.dbname#" username="#application.dbuser#" password="#application.dbpassword#">
+					INSERT INTO #arguments.relatedTableName# 
+					(
+						#arguments.fieldName#, #arguments.relatedFieldName#, #This.createdField#
+	
+						<!--- Record the person who makes this change? --->
+						<cfif This.recordUpdatorId>
+							, #This.creatorIdField#
+						</cfif>
+					)
+	
+					<!--- Add multiple relationships at once --->
+					<cfloop from="1" to="#total#" index="i">
+						(
+							SELECT
+							
+							<cfqueryparam value="#val(variables.id)#" cfsqltype="cf_sql_integer">,
+							<cfqueryparam value="#val(listGetAt(newIds, i))#" cfsqltype="cf_sql_integer">,
+							<cfqueryparam value="#Now()#" cfsqltype="CF_SQL_TIMESTAMP">
+	
+							<!--- Record the person who makes this change? --->
+							<cfif This.recordUpdatorId>
+								, <cfqueryparam value="#val(variables.userId)#" cfsqltype="CF_SQL_INTEGER">
+							</cfif>
+						)
+						
+						<cfif i lt total>UNION</cfif>
+					</cfloop>
+				</cfquery>
+			</cfif>
+		</cfif>
+		
+		<cfreturn result>
+		
+	
+	</cffunction>
+	
 </cfcomponent>

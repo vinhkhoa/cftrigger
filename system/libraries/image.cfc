@@ -132,6 +132,7 @@
 		<cfargument name="destinationFolder" type="string" required="yes" hint="The path to the folder where the images are uploaded to">
 		<cfargument name="resizeWidth" type="numeric" required="no" hint="The width to resize">
 		<cfargument name="resizeHeight" type="numeric" required="no" hint="The height to resize">
+		<cfargument name="fileName" type="string" required="no" hint="Rename the file to this specific file name">
 		<cfset var result = StructNew()>
 		<cfset result.error = "">
 		<cfset result.clientFile = "">
@@ -142,18 +143,37 @@
 		
 		<!--- Upload the file --->
 		<cfset destinationFolder = application.FilePath & arguments.destinationFolder & application.separator>
+		<cfset destinationFolder = reReplace(destinationFolder, "\#application.oppSeparator#", application.separator, "ALL")>
 		<cfset destinationFolder = reReplace(destinationFolder, "\#application.separator#{2,}", application.separator, "ALL")>
 		
 		<cftry>
+			<cfset application.directory.create(destinationFolder)>
 			<cffile action="upload" fileField="#arguments.formField#" destination="#destinationFolder#" accept="image/jpg,image/gif,image/png,image/jpeg" nameconflict="makeunique" result="uploadResult">
 			<cfset result.uploadedFolder = uploadResult.serverDirectory & application.separator>
 			<cfset result.uploadedLocation = result.uploadedFolder & uploadResult.serverFile>
 			<cfset result.clientFile = uploadResult.clientFile>
 			
-			<!--- Rename the file --->
-			<cfset renameResult = application.file.renameToRandom(result.uploadedLocation)>
-			<cfset result.uploadedFile = renameResult.newFileName>
-			<cfset result.uploadedLocation = renameResult.newFileLocation>
+			<!--- Rename the file to a specified name? --->
+			<cfif StructKeyExists(arguments, "fileName") AND trim(arguments.fileName) neq "">
+				<!--- Does this file name have an extension? --->
+				<cfif listLen(arguments.fileName, ".") ge 2>
+					<cfset newFileName = arguments.fileName>
+				<cfelse>
+					<cfset newFileName = arguments.fileName & "." & listLast(result.clientFile, ".")>
+				</cfif>
+				<cfset newFileLocation = getDirectoryFromPath(result.uploadedLocation) & newFileName>
+			
+				<!--- Rename the file --->
+				<cffile action="rename" source="#result.uploadedLocation#" destination="#newFileLocation#" attributes="normal">
+			
+				<cfset result.uploadedFile = newFileName>
+				<cfset result.uploadedLocation = newFileLocation>
+			<cfelse>
+				<!--- Rename this file to a random name --->
+				<cfset renameResult = application.file.renameToRandom(result.uploadedLocation)>
+				<cfset result.uploadedFile = renameResult.newFileName>
+				<cfset result.uploadedLocation = renameResult.newFileLocation>
+			</cfif>
 			
 			<cfcatch type="application">
 				<!--- File extension not accepted? --->
