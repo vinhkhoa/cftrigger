@@ -24,22 +24,21 @@
 		<cfargument name="template" type="string" required="yes" hint="The path to the controller to be loaded">
 		<cfset var result = "">
 		
-		<cfset arguments.template = replace(arguments.template, "/", ".", "ALL")>
+		<!--- Validate the controller --->
+		<cfset validateResult = this.validateController(arguments.template)>
+		<cfset controllerFile = validateResult.controllerFile>
+		<cfset controllerComponent = validateResult.controllerComponent>
 		
-		<!--- Get the component and file paths --->
-		<cfset templateFile = application.controllerFilePath & lcase(arguments.template) & ".cfc">
-		<cfset templateComponent = application.controllerRoot & "." & lcase(arguments.template)>
-
 		<!--- Get the controller file --->
-		<cfif fileExists(templateFile)>
-			<cfset result = CreateObject("component", templateComponent).init()>
+		<cfif validateResult.exists>
+			<cfset result = CreateObject("component", controllerComponent).init()>
 		<cfelse>
 			<!--- Display friendly error or let Coldfusion blow it up? --->
 			<cfif application.showFriendlyError>
 				<cfset application.error.show_404()>
 			<cfelse>
 				<!--- THIS WILL THROW ERROR!!! LOAD THE LIBRARY TO THROW ERROR ON PURPOSE --->
-				<cfset temp = CreateObject("component", templateComponent)>
+				<cfset temp = CreateObject("component", controllerComponent)>
 			</cfif>
 		</cfif>
 		
@@ -373,6 +372,37 @@
 		</cfif>
 		
 		<cfset result.viewFile = viewFile>
+		
+		<cfreturn result>
+	
+	</cffunction>
+
+	<!--- Validate if a controller exists --->
+	<cffunction name="validateController" access="public" returntype="struct">
+		<cfargument name="template" type="string" required="yes" hint="The path to the controller to be validated">
+		<cfset var result = StructNew()>
+		<cfset result.exists = false>
+		<cfset result.controllerFile = "">
+		<cfset result.controllerComponent = "">
+		
+		<!--- Direct file? --->
+		<cfset controllerFile = "#application.controllerPath#/#arguments.template#.cfc">
+		<cfset controllerComponent = application.controllerRoot & "." & lcase(replace(arguments.template, "/", ".", "ALL"))>
+
+		<cfif fileExists(expandPath(controllerFile))>
+			<cfset result.exists = true>
+		<cfelse>
+			<!--- Index file of a folder? --->
+			<cfset controllerFile = "#application.controllerPath#/#arguments.template#/index.cfc">
+			<cfset controllerComponent = application.controllerRoot & "." & lcase(replace(arguments.template, "/", ".", "ALL")) & ".index">
+
+			<cfif fileExists(expandPath(controllerFile))>
+				<cfset result.exists = true>
+			</cfif>
+		</cfif>
+		
+		<cfset result.controllerFile = controllerFile>
+		<cfset result.controllerComponent = controllerComponent>
 		
 		<cfreturn result>
 	

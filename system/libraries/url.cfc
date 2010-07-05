@@ -106,6 +106,7 @@
 		<cfset var result = StructNew()>
 		<cfset result.foundController = false>
 		<cfset result.controller = "">
+		<cfset result.rootController = "">
 		<cfset result.view = "">
 		
 		<!--- Is this a development computer? --->
@@ -118,6 +119,7 @@
 			<cfset result.foundController = true>
 			<cfset result.controller = application.maintenancePage>
 			<cfset result.view = application.defaultView>
+			<cfset result.rootController = listLast(result.controller, "/")>
 			<cfreturn result>
 		</cfif>
 		
@@ -181,6 +183,7 @@
 				<cfset result.foundController = true>
 				<cfset result.view = application.defaultView>
 				<cfset result.controller = application.hiddenController>
+				<cfset result.rootController = listLast(result.controller, "/")>
 			<cfelse>
 				<cfreturn result>
 			</cfif>
@@ -238,6 +241,8 @@
 				AND result.controller eq application.maintenancePage>
 			<cfset application.url.redirect()>
 		</cfif>
+		
+		<cfset result.rootController = listLast(result.controller, "/")>
 		
 		<cfreturn result>
 		

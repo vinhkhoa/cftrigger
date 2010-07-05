@@ -18,6 +18,7 @@
 	<!--- Authenticate user. Make sure that user has logged in --->
 	<cffunction name="validate" displayname="authenticate" access="public">
 		<cfargument name="sysAdmin" type="boolean" required="no" default="false" hint="Limit to a admin role">
+		<cfargument name="loginController" type="string" required="no" default="login" hint="The login controller">
 		
 		<!--- Authenticate user --->
 		<cfset authenticated = StructKeyExists(session, "userId") AND val(session.userId)>
@@ -29,9 +30,9 @@
 			<!--- Do not show error on the first page open --->
 			<cfif session.redirectURL eq "" OR session.redirectURL eq "/" OR
 					session.redirectURL eq application.appLogicalPath>
-				<cfset application.url.redirect("login")>
+				<cfset application.url.redirect(arguments.loginController)>
 			<cfelse>
-				<cfset application.url.redirectError("login", application.lang.get("loginRequired"))>
+				<cfset application.url.redirectError(arguments.loginController, application.lang.get("loginRequired"))>
 			</cfif>
 		</cfif>
 	

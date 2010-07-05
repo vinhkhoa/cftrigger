@@ -132,13 +132,24 @@
 	<!--- Save a model --->
 	<cffunction name="save" access="private" returntype="any">
 		<cfargument name="saveButton" type="string" required="no" default="save" hint="The name of the save button">
-		<cfargument name="addView" type="string" required="no" default="add" hint="The name of the add view">
-		<cfargument name="editView" type="string" required="no" default="edit" hint="The name of the edit view">
-		<cfargument name="listView" type="string" required="no" default="list" hint="The name of the list view">
-	
+		<cfargument name="addPage" type="string" required="no" hint="The path of the add page">
+		<cfargument name="editPage" type="string" required="no" hint="The path of the edit page">
+		<cfargument name="listPage" type="string" required="no" hint="The path of the list page">
+		
 		<!--- Get the controller name --->
 		<cfset metaData = getMetaData(this)>
 		<cfset modelName = lcase(metaData.displayName)>
+	
+		<!--- Get the default values for pages --->
+		<cfif NOT StructKeyExists(arguments, "addPage") OR trim(arguments.addPage) eq "">
+			<cfset arguments.addPage = "#modelName#/add">
+		</cfif>
+		<cfif NOT StructKeyExists(arguments, "editPage") OR trim(arguments.editPage) eq "">
+			<cfset arguments.editPage = "#modelName#/edit">
+		</cfif>
+		<cfif NOT StructKeyExists(arguments, "listPage") OR trim(arguments.listPage) eq "">
+			<cfset arguments.listPage = "#modelName#/list">
+		</cfif>
 	
 		<!--- User save? --->
 		<cfif StructKeyExists(form, arguments.saveButton)>
@@ -158,7 +169,7 @@
 			<!--- Any error? --->
 			<cfif arrayLen(saveResult.errorList)>
 				<!--- Duplicate this query and change its column types to all be varchar --->
-				<cfset qForm = QueryNew(qModel.columnList, repeatString("varchar,", listLen(qModel.columnList) - 1) & ",varchar")>
+				<cfset qForm = QueryNew(qModel.columnList, repeatString("varchar,", listLen(qModel.columnList) - 1) & "varchar")>
 				<cfset QueryAddRow(qForm)>
 				<cfloop list="#qModel.columnList#" index="field">
 					<cfset QuerySetCell(qForm, field, qModel[field][1], qForm.recordCount)>
@@ -182,9 +193,9 @@
 			
 				<!--- Add new? --->
 				<cfif addNew>
-					<cfset application.url.redirect("#modelName#/#arguments.addView#")>
+					<cfset application.url.redirect("#arguments.addPage#")>
 				<cfelse>
-					<cfset application.url.redirect("#modelName#/#arguments.editView#/#val(qModel.id)#")>
+					<cfset application.url.redirect("#arguments.editPage#/#val(qModel.id)#")>
 				</cfif>
 			<cfelse>
 				<!--- Excute a function after save? --->
@@ -194,13 +205,13 @@
 			
 				<!--- Add new? --->
 				<cfif addNew>
-					<cfset application.url.redirectMessage("#modelName#/#arguments.listView#", "New #modelName# added.")>
+					<cfset application.url.redirectMessage("#arguments.listPage#", "New #modelName# added.")>
 				<cfelse>
-					<cfset application.url.redirectMessage("#modelName#/#arguments.editView#/#val(qModel.id)#", "#modelName# updated")>
+					<cfset application.url.redirectMessage("#arguments.editPage#/#val(qModel.id)#", "#modelName# updated")>
 				</cfif>
 			</cfif>
 		<cfelse>
-			<cfset application.url.redirect("#modelName#/#arguments.listView#")>
+			<cfset application.url.redirect("#arguments.listPage#")>
 		</cfif>
 	
 	</cffunction>
@@ -210,14 +221,23 @@
 	<cffunction name="delete" access="public">
 		<cfargument name="deleteButton" type="string" required="no" default="delete" hint="The name of the delete button">
 		<cfargument name="cancelButton" type="string" required="no" default="cancel" hint="The name of the cancel button">
-		<cfargument name="deleteView" type="string" required="no" default="delete" hint="The name of the delete view">
-		<cfargument name="listView" type="string" required="no" default="list" hint="The name of the list view">
+		<cfargument name="deletePage" type="string" required="no" hint="The path of the delete page">
+		<cfargument name="listPage" type="string" required="no" hint="The path of the list page">
 		<cfargument name="titleField" type="string" required="yes" hint="The name of the title field. Used for display">
+		<cfargument name="displayView" type="string" required="no" default="yes" hint="Display the delete view">
 	
 		<!--- Get the controller name --->
 		<cfset metaData = getMetaData(this)>
 		<cfset modelName = metaData.displayName>
 	
+		<!--- Get the default values for pages --->
+		<cfif NOT StructKeyExists(arguments, "deletePage") OR trim(arguments.deletePage) eq "">
+			<cfset arguments.deletePage = "#modelName#/delete">
+		</cfif>
+		<cfif NOT StructKeyExists(arguments, "listPage") OR trim(arguments.listPage) eq "">
+			<cfset arguments.listPage = "#modelName#/list">
+		</cfif>
+		
 		<!--- Get model --->
 		<cfset objModel = getById()>
 		<cfset qModel = objModel.get()>
@@ -228,21 +248,24 @@
 			
 			<cfif arrayLen(deleteResult.errorList)>
 				<cfset session.errorList = deleteResult.errorList>
-				<cfset application.url.redirect("#modelName#/#arguments.listView#")>
+				<cfset application.url.redirect("#arguments.listPage#")>
 			<cfelse>
-				<cfset application.url.redirectMessage("#modelName#/#arguments.listView#", "#application.output.capFirst(modelName)# '#HTMLEditFormat(qModel[arguments.titleField][1])#' deleted")>
+				<cfset application.url.redirectMessage("#arguments.listPage#", "#application.output.capFirst(modelName)# '#HTMLEditFormat(qModel[arguments.titleField][1])#' deleted")>
 			</cfif>
 		</cfif>
 		
 		<!--- User cancel? --->
 		<cfif StructKeyExists(form, arguments.cancelButton)>
-			<cfset application.url.redirect("#modelName#/#arguments.listView#")>
+			<cfset application.url.redirect("#arguments.listPage#")>
 		</cfif>
 		
-		<cfset data = StructNew()>
-		<cfset data.heading = "Delete #modelName#: #HTMLEditFormat(qModel[arguments.titleField][1])#">
-		<cfset data["q#modelName#"] = qModel>
-		<cfset application.load.viewInTemplate("#modelName#/#arguments.deleteView#", data, objModel.fields)>
+		<!--- Display view? --->
+		<cfif arguments.displayView>
+			<cfset data = StructNew()>
+			<cfset data.heading = "Delete #modelName#: #HTMLEditFormat(qModel[arguments.titleField][1])#">
+			<cfset data["q#modelName#"] = qModel>
+			<cfset application.load.viewInTemplate("#arguments.deletePage#", data, objModel.fields)>
+		</cfif>
 	
 	</cffunction>
 	

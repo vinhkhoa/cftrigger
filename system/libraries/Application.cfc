@@ -164,9 +164,9 @@
 		<cfif application.dbname neq "">
 			<cfdbinfo type="version" datasource="#application.dbname#" username="#application.dbuser#" password="#application.dbpassword#" name="dbInfo">
 			<cfset application.dbDriver = dbInfo.driver_name>
-			<cfset application.dbIsMSSQL = application.dbDriver eq "SQLServer">
-			<cfset application.dbIsOracle = application.dbDriver eq "Oracle">
-			<cfset application.dbIsMySQL = application.dbDriver eq "MySQL">
+			<cfset application.dbIsMSSQL = findNoCase("SQLServer", application.dbDriver)>
+			<cfset application.dbIsOracle = findNoCase("Oracle", application.dbDriver)>
+			<cfset application.dbIsMySQL = findNoCase("MySQL", application.dbDriver)>
 		<cfelse>
 			<cfset application.dbDriver = "">
 			<cfset application.dbIsMSSQL = false>
@@ -315,15 +315,17 @@
 		<cfset getVarsResult = application.url.getPathInfoVariables()>
 		<cfset url.controller = getVarsResult.controller>
 		<cfset form.controller = getVarsResult.controller>
+		<cfset url.rootController = getVarsResult.rootController>
+		<cfset form.rootController = getVarsResult.rootController>
 		<cfset url.view = getVarsResult.view>
 		<cfset form.view = getVarsResult.view>
 		<cfif StructKeyExists(getVarsResult, "id")>
-			<cfset url[controller & "Id"] = getVarsResult.id>
-			<cfset form[controller & "Id"] = getVarsResult.id>
+			<cfset url[url.rootController & "Id"] = getVarsResult.id>
+			<cfset form[form.rootController & "Id"] = getVarsResult.id>
 		</cfif>
 		<cfif StructKeyExists(getVarsResult, "textId")>
-			<cfset url[controller & "TextId"] = getVarsResult.textId>
-			<cfset form[controller & "TextId"] = getVarsResult.textId>
+			<cfset url[url.rootController & "TextId"] = getVarsResult.textId>
+			<cfset form[form.rootController & "TextId"] = getVarsResult.textId>
 		</cfif>
 
 		<!--- Check if user is authenticated and allowed to use the system --->
