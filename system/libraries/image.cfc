@@ -133,6 +133,8 @@
 		<cfargument name="resizeWidth" type="numeric" required="no" hint="The width to resize">
 		<cfargument name="resizeHeight" type="numeric" required="no" hint="The height to resize">
 		<cfargument name="fileName" type="string" required="no" hint="Rename the file to this specific file name">
+		<cfargument name="keepClientFileName" type="string" required="no" default="false" hint="true: keep the client file name">
+		<cfargument name="overwrite" type="string" required="no" default="true" hint="true: overwrite existing file">
 		<cfset var result = StructNew()>
 		<cfset result.error = "">
 		<cfset result.clientFile = "">
@@ -147,14 +149,24 @@
 		<cfset destinationFolder = reReplace(destinationFolder, "\#application.separator#{2,}", application.separator, "ALL")>
 		
 		<cftry>
+			<!--- Overwrite? --->
+			<cfif arguments.overwrite>
+				<cfset nameconflict = "overwrite">
+			<cfelse>
+				<cfset nameconflict = "error">
+			</cfif>
+		
 			<cfset application.directory.create(destinationFolder)>
-			<cffile action="upload" fileField="#arguments.formField#" destination="#destinationFolder#" accept="image/jpg,image/gif,image/png,image/jpeg" nameconflict="makeunique" result="uploadResult">
+			<cffile action="upload" fileField="#arguments.formField#" destination="#destinationFolder#" accept="image/jpg,image/gif,image/png,image/jpeg" nameconflict="#nameconflict#" result="uploadResult">
 			<cfset result.uploadedFolder = uploadResult.serverDirectory & application.separator>
 			<cfset result.uploadedLocation = result.uploadedFolder & uploadResult.serverFile>
 			<cfset result.clientFile = uploadResult.clientFile>
 			
-			<!--- Rename the file to a specified name? --->
-			<cfif StructKeyExists(arguments, "fileName") AND trim(arguments.fileName) neq "">
+			<!--- Keep the client file name? OR Rename the file to a specified name?--->
+			<cfif arguments.keepClientFileName>
+				<cfset result.uploadedFile = result.clientFile>
+				
+			<cfelseif StructKeyExists(arguments, "fileName") AND trim(arguments.fileName) neq "">
 				<!--- Does this file name have an extension? --->
 				<cfif listLen(arguments.fileName, ".") ge 2>
 					<cfset newFileName = arguments.fileName>
@@ -162,14 +174,20 @@
 					<cfset newFileName = arguments.fileName & "." & listLast(result.clientFile, ".")>
 				</cfif>
 				<cfset newFileLocation = getDirectoryFromPath(result.uploadedLocation) & newFileName>
-			
+				
+				<!--- Not overwrite file? Check if the file is there yet --->
+				<cfif NOT arguments.overwrite AND fileExists(newFileLocation)>
+					<cfthrow message="duplicated">
+				</cfif>
+				
 				<!--- Rename the file --->
 				<cffile action="rename" source="#result.uploadedLocation#" destination="#newFileLocation#" attributes="normal">
 			
 				<cfset result.uploadedFile = newFileName>
 				<cfset result.uploadedLocation = newFileLocation>
+				
+			<!--- Rename this file to a random name --->
 			<cfelse>
-				<!--- Rename this file to a random name --->
 				<cfset renameResult = application.file.renameToRandom(result.uploadedLocation)>
 				<cfset result.uploadedFile = renameResult.newFileName>
 				<cfset result.uploadedLocation = renameResult.newFileLocation>
@@ -182,9 +200,15 @@
 				<cfelseif reFindNoCase("doesn't exist or has no content", cfcatch.message)>
 					<cfset result.clientFileExists = false>
 					<cfset result.error = "Please select an image to upload">
+				<cfelseif reFindNoCase("File overwriting is not permitted in this instance of the cffile tag", cfcatch.message) OR
+							reFindNoCase("duplicated", cfcatch.message)>
+					<cfset result.error = "The file already exists">
 				<cfelse>
 					<cfset result.error = cfcatch.message>
 				</cfif>
+				
+				<!--- Delete uploaded file --->
+				<cfset application.file.delete(result.uploadedFolder & result.clientFile)>
 			</cfcatch>
 		</cftry>
 		

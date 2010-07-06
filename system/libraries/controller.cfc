@@ -207,7 +207,7 @@
 				<cfif addNew>
 					<cfset application.url.redirectMessage("#arguments.listPage#", "New #modelName# added.")>
 				<cfelse>
-					<cfset application.url.redirectMessage("#arguments.editPage#/#val(qModel.id)#", "#modelName# updated")>
+					<cfset application.url.redirectMessage("#arguments.editPage#/#val(qModel.id)#", "#application.core.capFirst(modelName)# updated")>
 				</cfif>
 			</cfif>
 		<cfelse>
