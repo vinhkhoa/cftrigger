@@ -94,6 +94,7 @@
 	<cffunction name="save" displayname="save" access="public" returntype="struct" hint="Add/update model">
 	
 		<cfargument name="fieldCollection" type="struct" required="no" hint="Collection of fields">		
+		<cfargument name="ignoreMissingFields" type="boolean" required="no" default="false" hint="true: ignore fields that are not passed in. Only validate those that were passed.">		
 		<cfset var result = StructNew()>
 		<cfset result.errorList = ArrayNew(1)>
 		<cfset result.newId = "">
@@ -106,12 +107,24 @@
 			<cfset fieldValues = arguments>
 		</cfif>
 		
+		<cfif arguments.ignoreMissingFields>
+			<!--- As missing fields are ignored, get the new list of fields that are actually affected this time --->
+			<cfset fieldList = ArrayNew(1)>
+			<cfloop array="#this.fields#" index="field">
+				<cfif StructKeyExists(fieldValues, field.name)>
+					<cfset arrayAppend(fieldList, field)>
+				</cfif>
+			</cfloop>
+		<cfelse>
+			<cfset fieldList = this.fields>
+		</cfif>
+				
 		<!--- Validate the values --->
 		<cfif This.ranValidation>
 			<cfset validateResult.errorList = this.validationResult.errorList>
 		<cfelse>
 			<cfset objValidation = application.load.library('validation').init(this)>
-			<cfset validateResult = objValidation.run(fieldValues)>
+			<cfset validateResult = objValidation.run(fieldValues, fieldList)>
 		</cfif>
 		
 		<cfif ArrayLen(validateResult.errorList)>
@@ -122,7 +135,7 @@
 				<cfquery name="qUpdate" datasource="#application.dbname#" username="#application.dbuser#" password="#application.dbpassword#">
 					UPDATE #this.tableName#
 					SET
-						<cfloop array="#this.fields#" index="field">
+						<cfloop array="#fieldList#" index="field">
 							<cfif StructKeyExists(fieldValues, field.name)>
 								<cfif listFindNoCase("bigint,bit,decimal,double,float,integer,numeric,real,smallint", field.type)>
 									#field.name# = <cfqueryparam value="#val(fieldValues[field.name])#" cfsqltype="cf_sql_#field.type#">, 
@@ -149,7 +162,7 @@
 				<!--- Add the model --->
 				<cfquery name="qAdd" datasource="#application.dbname#" username="#application.dbuser#" password="#application.dbpassword#">
 					INSERT INTO #this.tableName# (
-						<cfloop array="#this.fields#" index="field">
+						<cfloop array="#fieldList#" index="field">
 							<cfif StructKeyExists(fieldValues, field.name)>
 								#field.name#, 
 							</cfif>
@@ -163,7 +176,7 @@
 						)
 					VALUES
 					(
-						<cfloop array="#this.fields#" index="field">
+						<cfloop array="#fieldList#" index="field">
 							<cfif StructKeyExists(fieldValues, field.name)>
 								<cfif listFindNoCase("bigint,bit,decimal,double,float,integer,numeric,real,smallint", field.type)>
 									<cfqueryparam value="#val(fieldValues[field.name])#" cfsqltype="cf_sql_#field.type#">, 

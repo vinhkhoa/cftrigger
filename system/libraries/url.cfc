@@ -155,29 +155,6 @@
 			<!--- Already found the controller, remove it from the path info --->		
 			<cfset pathInfoStr = replace(pathInfoStr, result.controller, "")>
 		<cfelse>		
-			<!--- Anything to route? --->
-			<!---<cfif StructKeyExists(application, "routes") AND StructKeyExists(application.routes, path)>
-				<cfset vals = ArrayNew(1)>
-				<cfset vars = reMatch("{([^}]+)}", application.routes[path])>
-				
-				<!--- Replace each variable with its value --->
-				<cfloop from="1" to="#arrayLen(vars)#" index="i">
-					<cftry>
-						<cfset vals[i] = evaluate(replaceList(vars[i], "{,}", ""))>
-						
-						<cfcatch type="any">
-							<cfset vals[i] = "">
-						</cfcatch>
-					</cftry>
-				</cfloop>
-				
-				<!--- Get the final redirect url --->
-				<cfset redirectURL = replaceList(application.routes[path], arrayToList(vars), arrayToList(vals))>
-				
-				<!---<cfset application.url.redirect(redirectURL)>--->
-				<cfset getPageContext().forward(redirectURL)>
-			</cfif>--->
-			
 			<!--- Is there a hidden controller that is always used? --->
 			<cfif StructKeyExists(application, "hiddenController")>
 				<cfset result.foundController = true>

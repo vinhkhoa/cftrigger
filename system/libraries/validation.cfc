@@ -61,12 +61,13 @@
 	<cffunction name="run" displayname="required" returntype="struct">
 	
 		<cfargument name="values" type="struct" required="yes" hint="The model field values">
+		<cfargument name="fieldList" type="array" required="no" default="#this.fields#" hint="The list of fields to be checked against">
 		<cfset result = StructNew()>
 		<cfset result.errorList = ArrayNew(1)>
 		<cfset result.fields = StructNew()>
 		
 		<!--- Loop through all fields --->
-		<cfloop array="#this.fields#" index="field">
+		<cfloop array="#arguments.fieldList#" index="field">
 			<cfset rules = field.rules>
 			<cfset type = field.type>
 			<cfset name = field.name>

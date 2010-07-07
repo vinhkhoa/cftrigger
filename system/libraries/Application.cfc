@@ -296,7 +296,7 @@
 		<cfif NOT forwarded AND NOT listFindNoCase(application.allowedScripts, logicalScriptName)>
 			<cfset application.url.redirect()>
 		</cfif>
-		
+	
 		<!--- User logout --->
 		<cfif StructKeyExists(url,"logout")>
 			<cfinvoke method="onSessionEnd" sessionScope="#session#">
@@ -327,129 +327,161 @@
 			<cfset url[url.rootController & "TextId"] = getVarsResult.textId>
 			<cfset form[form.rootController & "TextId"] = getVarsResult.textId>
 		</cfif>
-
-		<!--- Check if user is authenticated and allowed to use the system --->
-		<cfset isGuestController = form.controller eq "login" OR
-								   (StructKeyExists(application, "guestControllers") AND
-								   	listFindNoCase(application.guestControllers, form.controller))>
-		<cfset hasAuthentication = StructKeyExists(application, "enableUserAuthentication") AND application.enableUserAuthentication>
-		<cfif NOT isGuestController AND hasAuthentication>
-			<cfset application.authentication.validate()>
+		
+		<!--- Anything to route? --->
+		<cfif StructKeyExists(application, "routes") AND StructKeyExists(application.routes, form.controller)>
+			<cfset vals = ArrayNew(1)>
+			<cfset vars = reMatch("{([^}]+)}", application.routes[form.controller])>
 			
-			<!--- Passed the normal user authentication. Now go on authenticate as admin --->
-			<cfif StructKeyExists(application, "adminAuthentication") AND application.adminAuthentication>
-				<!--- Not admin login? --->
-				<cfif NOT session.sysAdmin>
-					<!--- Logout user --->
-					<cfinvoke method="onSessionEnd" sessionScope="#session#">
-					<cfset StructClear(session)>
-					<cfset session.UserId = "">
+			<!--- Replace each variable with its value --->
+			<cfloop from="1" to="#arrayLen(vars)#" index="i">
+				<cftry>
+					<cfset vals[i] = evaluate(replaceList(vars[i], "{,}", ""))>
 					
-					<cfset application.url.redirectError("login", application.lang.get("adminRequired"))>
+					<cfcatch type="any">
+						<cfset vals[i] = "">
+					</cfcatch>
+				</cftry>
+			</cfloop>
+			
+			<!--- Get the final forward url --->
+			<cfset forwardURL = application.baseURLPath & "/" & replaceList(application.routes[form.controller], arrayToList(vars), arrayToList(vals))>
+			
+			<!--- Forward/route user to this url and stop --->
+			<cfset getPageContext().forward(forwardURL)>
+		<cfelse>
+			<!--- Check if this is a guest controller --->
+			<cfset isGuestController = form.controller eq "login" OR
+									   (StructKeyExists(application, "adminLoginController") AND form.controller eq application.adminLoginController) OR
+									   (StructKeyExists(application, "guestControllers") AND listFindNoCase(application.guestControllers, form.controller))>
+										
+			<!--- Check if this is an admin controller --->
+			<cfset isAdminController = StructKeyExists(application, "adminControllerPattern") AND reFindNoCase(application.adminControllerPattern, form.controller)>
+										
+			<cfset hasAuthentication = StructKeyExists(application, "enableUserAuthentication") AND application.enableUserAuthentication>
+			<cfif NOT isGuestController AND (hasAuthentication OR isAdminController)>
+				<cfinvoke component="#application.authentication#" method="validate">
+					<!--- Get the login controller --->
+					<cfif isAdminController>
+						<cfinvokeargument name="loginController" value="#application.adminLoginController#">
+					</cfif>
+				</cfinvoke>
+				
+				<!--- Passed the normal user authentication. Now go on authenticate as admin --->
+				<cfif StructKeyExists(application, "adminAuthentication") AND application.adminAuthentication>
+					<!--- Not admin login? --->
+					<cfif NOT session.sysAdmin>
+						<!--- Logout user --->
+						<cfinvoke method="onSessionEnd" sessionScope="#session#">
+						<cfset StructClear(session)>
+						<cfset session.UserId = "">
+						
+						<cfset application.url.redirectError("login", application.lang.get("adminRequired"))>
+					</cfif>
 				</cfif>
 			</cfif>
-		</cfif>
-		
-		<!--- Allow the application to dynamically refresh session when necessary --->
-		<cfif isDefined("this.refreshSession")>
-			<cfset this.refreshSession()>
-		</cfif>
-		
-		<!--- Autoload at request level? --->
-		<cfif isDefined("this.autoload_request")>
-			<cfset this.autoload_request()>
-		</cfif>
-		
-		<cfset error404 = false>
-		
-		
-		<!---
-			FIRST TRY: LOAD THE CONTROLLER AND THEN LOAD THE VIEW
-		--->
-		
-		<cfif getVarsResult.foundController>
-			<cfset controller = application.load.controller(form.controller)>
 			
-			<!--- Not found view in controller? Check if the controller has default view specified --->
-			<cfif NOT StructKeyExists(controller, form.view) AND controller.defaultView neq ""
-				  AND StructKeyExists(controller, controller.defaultView)>
-				<!--- We now call the default view/function and set the current view to be the id/textId --->
-				<cfset url[form.controller & "Id"] = val(form.view)>
-				<cfset form[form.controller & "Id"] = val(form.view)>
-				<cfset url[form.controller & "TextId"] = form.view>
-				<cfset form[form.controller & "TextId"] = form.view>				
-				<cfset form.view = controller.defaultView>
+			<!--- Allow the application to dynamically refresh session when necessary --->
+			<cfif isDefined("this.refreshSession")>
+				<cfset this.refreshSession()>
 			</cfif>
 			
-			<!--- Load the view --->
-			<cfif StructKeyExists(controller, form.view)>
-				<cfinvoke component="#controller#" method="#form.view#" />
-				<cfset this.onRequestEnd("")>
-				<cfabort>
+			<!--- Autoload at request level? --->
+			<cfif isDefined("this.autoload_request")>
+				<cfset this.autoload_request()>
+			</cfif>
+			
+			<cfset error404 = false>
+			
+			
+			<!---
+				FIRST TRY: LOAD THE CONTROLLER AND THEN LOAD THE VIEW
+			--->
+			
+			<cfif getVarsResult.foundController>
+				<cfset controller = application.load.controller(form.controller)>
+				
+				<!--- Not found view in controller? Check if the controller has default view specified --->
+				<cfif NOT StructKeyExists(controller, form.view) AND controller.defaultView neq ""
+					  AND StructKeyExists(controller, controller.defaultView)>
+					<!--- We now call the default view/function and set the current view to be the id/textId --->
+					<cfset url[form.controller & "Id"] = val(form.view)>
+					<cfset form[form.controller & "Id"] = val(form.view)>
+					<cfset url[form.controller & "TextId"] = form.view>
+					<cfset form[form.controller & "TextId"] = form.view>				
+					<cfset form.view = controller.defaultView>
+				</cfif>
+				
+				<!--- Load the view --->
+				<cfif StructKeyExists(controller, form.view)>
+					<cfinvoke component="#controller#" method="#form.view#" />
+					<cfset this.onRequestEnd("")>
+					<cfabort>
+				<cfelse>
+					<cfset errorHeading = "Method not found">
+					<cfset errorMessage = "The system could not find the method '#form.view#' inside the controller '#form.controller#.cfc'">
+					<cfset error404 = true>
+				</cfif>
 			<cfelse>
-				<cfset errorHeading = "Method not found">
-				<cfset errorMessage = "The system could not find the method '#form.view#' inside the controller '#form.controller#.cfc'">
+				<cfset errorHeading = "Controller not found">
+				<cfset errorMessage = "The system could not find the controller '#form.controller#.cfc'">
 				<cfset error404 = true>
 			</cfif>
-		<cfelse>
-			<cfset errorHeading = "Controller not found">
-			<cfset errorMessage = "The system could not find the controller '#form.controller#.cfc'">
-			<cfset error404 = true>
-		</cfif>
-		
-		
-		<!---
-			IF THE REQUEST REACHES HERE, WE KNOW THAT WE DIDN'T HAVE A MATCH FOR CONTROLLER & VIEW
 			
-			SECOND TRY: LOOK FOR A MATCH IN THE DIRECT VIEW TO SEE IF THERE IS ANY FOR THIS REQUEST
-		--->
-
-		<cfif StructKeyExists(application, "directView") AND trim(application.directView) neq "">
-			<cfset directViewPath = replace(pathInfoStr, '/', '')>
-			<cfif right(directViewPath, 1) eq "/">
-				<cfset directViewPath = left(directViewPath, len(directViewPath) - 1)>
-			</cfif>
 			
-			<cfif reFindNoCase(application.directView, directViewPath)>
-				<!--- Validate this view --->
-				<cfset validateResult = application.load.validateView(directViewPath)>
-			
-				<!--- Does the view exist? If yes, load it --->
-				<cfif validateResult.exists>
-					<cfset error404 = false>
-					
-					<cfset directData = StructNew()>
-
-					<!--- Load the direct view variables --->
-					<cfif StructKeyExists(application, "directViewVariables") AND
-						  StructKeyExists(application.directViewVariables, directViewPath)>
-						<cfloop collection="#application.directViewVariables[directViewPath]#" item="varName">
-							<cfset directData[varName] = application.directViewVariables[directViewPath][varName]>
-						</cfloop>
+			<!---
+				IF THE REQUEST REACHES HERE, WE KNOW THAT WE DIDN'T HAVE A MATCH FOR CONTROLLER & VIEW
+				
+				SECOND TRY: LOOK FOR A MATCH IN THE DIRECT VIEW TO SEE IF THERE IS ANY FOR THIS REQUEST
+			--->
+	
+			<cfif StructKeyExists(application, "directView") AND trim(application.directView) neq "">
+				<cfset directViewPath = replace(pathInfoStr, '/', '')>
+				<cfif right(directViewPath, 1) eq "/">
+					<cfset directViewPath = left(directViewPath, len(directViewPath) - 1)>
+				</cfif>
+				
+				<cfif reFindNoCase(application.directView, directViewPath)>
+					<!--- Validate this view --->
+					<cfset validateResult = application.load.validateView(directViewPath)>
+				
+					<!--- Does the view exist? If yes, load it --->
+					<cfif validateResult.exists>
+						<cfset error404 = false>
+						
+						<cfset directData = StructNew()>
+	
+						<!--- Load the direct view variables --->
+						<cfif StructKeyExists(application, "directViewVariables") AND
+							  StructKeyExists(application.directViewVariables, directViewPath)>
+							<cfloop collection="#application.directViewVariables[directViewPath]#" item="varName">
+								<cfset directData[varName] = application.directViewVariables[directViewPath][varName]>
+							</cfloop>
+						</cfif>
+						
+						<cfset application.load.viewInTemplate(directViewPath, directData)>
 					</cfif>
-					
-					<cfset application.load.viewInTemplate(directViewPath, directData)>
 				</cfif>
 			</cfif>
-		</cfif>
-		
-		
-		<!---
-			IF THE REQUEST REACHES HERE, THE DIRECT VIEW SEARCH FOUND NO MATCH
-			AND THIS SHOULD BE A 404 ERROR. BUT STILL PUT THE CHECKING HERE JUST IN CASE ANYWAY
-		--->
-		
-		<cfif error404>
-			<!--- Show friendy error? --->
-			<cfif application.showFriendlyError>
-				<cfif application.show404OnMissingController>
-					<cfset application.error.show_404()>
+			
+			
+			<!---
+				IF THE REQUEST REACHES HERE, THE DIRECT VIEW SEARCH FOUND NO MATCH
+				AND THIS SHOULD BE A 404 ERROR. BUT STILL PUT THE CHECKING HERE JUST IN CASE ANYWAY
+			--->
+			
+			<cfif error404>
+				<!--- Show friendy error? --->
+				<cfif application.showFriendlyError>
+					<cfif application.show404OnMissingController>
+						<cfset application.error.show_404()>
+					<cfelse>
+						<cfset application.error.show_error(errorHeading, errorMessage)>
+					</cfif>
 				<cfelse>
-					<cfset application.error.show_error(errorHeading, errorMessage)>
+					<!--- Load the controller to throw error --->
+					<cfinvoke component="#controller#" method="#form.view#" />
 				</cfif>
-			<cfelse>
-				<!--- Load the controller to throw error --->
-				<cfinvoke component="#controller#" method="#form.view#" />
 			</cfif>
 		</cfif>
 	</cffunction>
