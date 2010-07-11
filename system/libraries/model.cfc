@@ -24,6 +24,7 @@
 		This.recordUpdatorId = true;
 		This.ranValidation = false;
 		This.validationResult = "";
+		This.properties = StructNew();
 		
 		// Fields
 		This.createdField = "created";
@@ -48,6 +49,7 @@
 		<cfargument name="id" type="numeric" required="no" hint="ID of the model object">
 		<cfargument name="textId" type="string" required="no" hint="text ID of the model object">
 		<cfargument name="getArchived" type="boolean" required="no" default="false" hint="true: get archived model">
+		<cfargument name="properties" type="struct" required="no" default="#StructNew()#" hint="Pass in some extra properties for this model">
 		
 		<cfset variables.userId = val(arguments.userId)>
 		<cfset variables.getArchived = arguments.getArchived>
@@ -71,6 +73,11 @@
 		<cfif NOT len(trim(this.tableName))>
 			<cfset This.tableName = application.utils.plural(this.modelName)>
 		</cfif>
+		
+		<!--- Some extra properties for this model --->
+		<cfloop collection="#arguments.properties#" item="i">
+			<cfset this.properties[i] = arguments.properties[i]>
+		</cfloop>
 
 		<cfif (StructKeyExists(arguments, "id") OR StructKeyExists(arguments, "textId"))>
 			<!--- Get the model details and force it to refresh as user initializes the model --->

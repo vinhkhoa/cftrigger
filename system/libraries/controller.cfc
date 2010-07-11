@@ -67,6 +67,7 @@
 	
 		<cfargument name="modelName" type="string" required="no" hint="When passed in: get this model instead of the current one">
 		<cfargument name="getArchived" type="boolean" required="no" default="false" hint="true: get archived model">
+		<cfargument name="redirectOnNotFound" type="boolean" required="no" default="true" hint="true: redirect to the list page if the model is not found">
 	
 		<!--- Get the model name --->
 		<cfif StructKeyExists(arguments, "modelName")>
@@ -89,7 +90,7 @@
 		</cfinvoke>
 		
 		<!--- Any error in getting the model?--->
-		<cfif objModel.error neq "">
+		<cfif objModel.error neq "" AND arguments.redirectOnNotFound>
 			<cfset application.url.redirectError(lcase(modelName), objModel.error)>
 		</cfif>
 		
@@ -101,11 +102,17 @@
 	<!--- Get a model by text id --->
 	<cffunction name="getByTextId" access="private" returntype="any">
 		
+		<cfargument name="modelName" type="string" required="no" hint="When passed in: get this model instead of the current one">
 		<cfargument name="getArchived" type="boolean" required="no" default="false" hint="true: get archived model">
+		<cfargument name="redirectOnNotFound" type="boolean" required="no" default="true" hint="true: redirect to the list page if the model is not found">
 
-		<!--- Get the controller name --->
-		<cfset metaData = getMetaData(this)>
-		<cfset modelName = metaData.displayName>
+		<!--- Get the model name --->
+		<cfif StructKeyExists(arguments, "modelName")>
+			<cfset modelName = arguments.modelName>
+		<cfelse>
+			<cfset metaData = getMetaData(this)>
+			<cfset modelName = metaData.displayName>
+		</cfif>
 		
 		<!--- Has text id? --->
 		<cfif NOT StructKeyExists(form, modelName & "TextId") OR form[modelName & "TextId"] eq "">
@@ -120,7 +127,7 @@
 		</cfinvoke>
 		
 		<!--- Any error in getting the model? --->
-		<cfif objModel.error neq "">
+		<cfif objModel.error neq "" AND arguments.redirectOnNotFound>
 			<cfset application.url.redirectError(lcase(modelName), objModel.error)>
 		</cfif>
 		
@@ -184,6 +191,7 @@
 				
 				<!--- Return this query back to user --->
 				<cfset session.qForm = qForm>
+				<cfset session.submittedForm = StructCopy(form)>
 				<cfset session.errorList = saveResult.errorList>
 				
 				<!--- Excute a function after save? --->

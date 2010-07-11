@@ -105,6 +105,7 @@
 		
 		<cfset word = lcase(trim(arguments.word))>
 		<cfset end = right(word, 1)>
+		<cfset end2 = right(word, 2)>
 		
 		<!--- End with a "y"? --->
 		<cfif end eq "y">
@@ -112,11 +113,11 @@
 			<cfif listFind("a,e,i,o,u", left(right(word, 2), 1))>
 				<cfset result = word & "s">
 			<cfelse>
-				<cfset result = word & "ies">
+				<cfset result = mid(word, 1, len(word) - 1) & "ies">
 			</cfif>
 		
 		<!--- End with s? --->
-		<cfelseif end eq "s">
+		<cfelseif end eq "s" OR end2 eq "sh">
 			<cfset result = word & "es">
 			
 		<!--- Normal --->

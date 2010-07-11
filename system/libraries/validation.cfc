@@ -200,7 +200,7 @@
 	
 		<cfargument name="field" type="struct" required="yes" hint="The field being checked">
 		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">
-		<cfargument name="args" type="string" required="no" default="" hint="The minimum length value">
+		<cfargument name="args" type="string" required="no" default="" hint="The maximum length value">
 		<cfset var error = "">
 
 		<cfif len(arguments.value) gt val(arguments.args)>
