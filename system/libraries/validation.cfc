@@ -376,4 +376,21 @@
 	
 	</cffunction>
 	
+
+	<!--- Valid URL characters --->
+	<cffunction name="_validURLChars" displayname="_validURLChars" returntype="string">
+	
+		<cfargument name="field" type="struct" required="yes" hint="The field being checked">
+		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">
+		<cfset var error = "">
+
+		<cfif reFindNoCase("[^a-zA-Z0-9_\-]", arguments.value)>
+			<cfset error = application.lang.getValidationLang(this.modelName, arguments.field, arguments.value, "validURLChars")>
+		</cfif>
+			
+		<cfreturn error>
+	
+	</cffunction>
+
+
 </cfcomponent>
