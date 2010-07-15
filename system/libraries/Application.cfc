@@ -528,7 +528,7 @@
 			<cfmail from="#application.fromEmail#" to="#application.errorEmail#" subject="[#appTitle# Error] An error has occurred" type="html">
 				<p>An unexpected error has occurred in the <strong>#application.name#</strong> application.</p>
 				
-				<p>ERROR MESSAGE: #arguments.Exception.message#</p>
+				<p><strong>ERROR MESSAGE</strong>: #arguments.Exception.message#</p>
 								
 				<table>
 				<tr>
