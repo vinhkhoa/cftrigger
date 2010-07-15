@@ -23,7 +23,11 @@
 		<cfargument name="str" type="string" required="yes" hint="The text to be capitalized">
 		<cfset var result = "">
 		
-		<cfset result = ucase(left(arguments.str, 1)) & right(arguments.str, len(arguments.str) - 1)>
+		<cfif len(arguments.str) eq 1>
+			<cfset result = ucase(arguments.str)>
+		<cfelseif len(arguments.str) gt 1>
+			<cfset result = ucase(left(arguments.str, 1)) & right(arguments.str, len(arguments.str) - 1)>
+		</cfif>
 
 		<cfreturn result>
 

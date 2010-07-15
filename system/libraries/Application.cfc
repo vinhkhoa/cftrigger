@@ -107,6 +107,17 @@
 					application.applicationDBType = "live";
 					application.alwaysRefreshSettings = false;
 					application.onLiveServer = true;
+					
+					// Allow hideColdfusionError to be overwritten per application
+					if (StructKeyExists(application, "hideColdfusionError"))
+					{					
+						application.hideColdfusionError = application.hideColdfusionError;
+					}
+					else
+					{
+						application.hideColdfusionError = true;
+					}
+
 					break;						
 		
 				case "STAGING":
@@ -505,9 +516,16 @@
 		<cfargument name="Exception" required="yes" />
 		<cfargument name="EventName" type="string" required="yes" />
 		
+		<!--- Get the application title --->
+		<cfif StructKeyExists(application, "title")>
+			<cfset appTitle = application.title>
+		<cfelse>
+			<cfset appTitle = application.name>
+		</cfif>
+		
 		<!--- Send error email to admin? --->
 		<cfif StructKeyExists(application, "sendEmailOnError") AND application.sendEmailOnError>
-			<cfmail from="#application.fromEmail#" to="#application.errorEmail#" subject="[Treegr Error] An error has occurred" type="html">
+			<cfmail from="#application.fromEmail#" to="#application.errorEmail#" subject="[#appTitle# Error] An error has occurred" type="html">
 				<p>An unexpected error has occurred in the <strong>#application.name#</strong> application.</p>
 				
 				<p>ERROR MESSAGE: #arguments.Exception.message#</p>
