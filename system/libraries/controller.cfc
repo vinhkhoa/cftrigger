@@ -51,7 +51,7 @@
 		
 		<!--- Get the controller name --->
 		<cfset metaData = getMetaData(this)>
-		<cfset modelName = metaData.displayName>
+		<cfset modelName = lcase(listLast(metaData.name, '.'))>
 		
 		<cfset application.error.show_error("Missing index function", "You need to have an index function for controller: #modelName#")>
 		
@@ -74,7 +74,7 @@
 			<cfset modelName = arguments.modelName>
 		<cfelse>
 			<cfset metaData = getMetaData(this)>
-			<cfset modelName = metaData.displayName>
+			<cfset modelName = lcase(listLast(metaData.name, '.'))>
 		</cfif>
 		
 		<!--- Has id? --->
@@ -111,7 +111,7 @@
 			<cfset modelName = arguments.modelName>
 		<cfelse>
 			<cfset metaData = getMetaData(this)>
-			<cfset modelName = metaData.displayName>
+			<cfset modelName = lcase(listLast(metaData.name, '.'))>
 		</cfif>
 		
 		<!--- Has text id? --->
@@ -145,7 +145,8 @@
 		
 		<!--- Get the controller name --->
 		<cfset metaData = getMetaData(this)>
-		<cfset modelName = lcase(metaData.displayName)>
+		<cfset modelName = lcase(listLast(metaData.name, '.'))>
+		<cfset displayName = metaData.displayName>
 	
 		<!--- Get the default values for pages --->
 		<cfif NOT StructKeyExists(arguments, "addPage") OR trim(arguments.addPage) eq "">
@@ -213,9 +214,9 @@
 			
 				<!--- Add new? --->
 				<cfif addNew>
-					<cfset application.url.redirectMessage("#arguments.listPage#", "New #modelName# added.")>
+					<cfset application.url.redirectMessage("#arguments.listPage#", "New #displayName# added.")>
 				<cfelse>
-					<cfset application.url.redirectMessage("#arguments.editPage#/#val(qModel.id)#", "#application.core.capFirst(modelName)# updated")>
+					<cfset application.url.redirectMessage("#arguments.editPage#/#val(qModel.id)#", "#application.core.capFirst(displayName)# updated")>
 				</cfif>
 			</cfif>
 		<cfelse>
@@ -236,7 +237,8 @@
 	
 		<!--- Get the controller name --->
 		<cfset metaData = getMetaData(this)>
-		<cfset modelName = metaData.displayName>
+		<cfset modelName = lcase(listLast(metaData.name, '.'))>
+		<cfset displayName = metaData.displayName>
 	
 		<!--- Get the default values for pages --->
 		<cfif NOT StructKeyExists(arguments, "deletePage") OR trim(arguments.deletePage) eq "">
@@ -258,7 +260,7 @@
 				<cfset session.errorList = deleteResult.errorList>
 				<cfset application.url.redirect("#arguments.listPage#")>
 			<cfelse>
-				<cfset application.url.redirectMessage("#arguments.listPage#", "#application.output.capFirst(modelName)# '#HTMLEditFormat(qModel[arguments.titleField][1])#' deleted")>
+				<cfset application.url.redirectMessage("#arguments.listPage#", "#application.output.capFirst(displayName)# '#HTMLEditFormat(qModel[arguments.titleField][1])#' deleted")>
 			</cfif>
 		</cfif>
 		
@@ -270,7 +272,7 @@
 		<!--- Display view? --->
 		<cfif arguments.displayView>
 			<cfset data = StructNew()>
-			<cfset data.heading = "Delete #modelName#: #HTMLEditFormat(qModel[arguments.titleField][1])#">
+			<cfset data.heading = "Delete #displayName#: #HTMLEditFormat(qModel[arguments.titleField][1])#">
 			<cfset data["q#modelName#"] = qModel>
 			<cfset application.load.viewInTemplate("#arguments.deletePage#", data, objModel.fields)>
 		</cfif>

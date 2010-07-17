@@ -280,4 +280,25 @@
 	
 	</cffunction>
 
+
+	<!--- Extract tags --->
+	<cffunction name="extractTags" access="public" returntype="array">
+		<cfargument name="string" type="string" required="yes" hint="The string to search in" />
+		<cfargument name="tagName" type="string" required="yes" hint="The tag name" />
+		<cfset var result = ArrayNew(1)>
+		
+		<!--- Get tags and attributes --->
+		<cfset tags = application.utils.extract(arguments.string, '(<#arguments.tagName# [^>]+>)')>
+		<cfloop array="#tags#" index="t">
+			<cfset thisTag = StructNew()>
+			<cfset thisTag.tag = t>
+			<cfset thisTag.attributes = application.utils.getTagAttributes(t[1])>
+			
+			<cfset arrayAppend(result, thisTag)>
+		</cfloop>
+		
+		<cfreturn result>
+	
+	</cffunction>
+	
 </cfcomponent>

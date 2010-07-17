@@ -31,7 +31,8 @@
 		<cfif StructKeyExists(arguments, "model")>
 			<cfset this.hasModel = true>
 			<cfset this.model = arguments.model>
-			<cfset this.modelName = getMetaData(this.model).displayName>
+			<cfset metaData = getMetaData(this.model)>
+			<cfset this.modelName = lcase(listLast(metaData.name, '.'))>
 			
 			<!--- Model id --->
 			<cfif isDefined("this.model.id")>

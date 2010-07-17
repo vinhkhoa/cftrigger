@@ -92,4 +92,27 @@
 	
 	</cffunction>
 	
+
+	<!--- Copy a file. Create missing directories --->
+	<cffunction name="copy" returntype="struct" access="public">
+		<cfargument name="fileLocation" type="string" required="yes" hint="Location of the file to be copied">
+		<cfargument name="fileDestination" type="string" required="yes" hint="Copy file to this location">
+		<cfset var result = StructNew()>
+		<cfset result.error = "">
+		
+		<!--- File exists? --->
+		<cfif fileExists(arguments.fileLocation)>
+			<!--- Create destination file directory --->
+			<cfset fileDestinationDirectory = application.core.listDeleteLast(arguments.fileDestination, application.separator)>
+			<cfset application.directory.create(fileDestinationDirectory)>
+			
+			<!--- Copy file --->
+			<cffile action="copy" source="#arguments.fileLocation#" destination="#arguments.fileDestination#" nameconflict="overwrite">
+		<cfelse>
+			<cfset result.error = "The file does not exist.">
+		</cfif>
+		
+		<cfreturn result>
+		
+	</cffunction>
 </cfcomponent>

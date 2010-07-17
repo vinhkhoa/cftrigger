@@ -67,7 +67,7 @@
 		
 		<!--- Model metadata --->
 		<cfset this.metaData = getMetaData(this)>
-		<cfset this.modelName = this.metaData.displayName>
+		<cfset this.modelName = lcase(listLast(this.metaData.name, '.'))>
 				
 		<!--- Table name for this model --->
 		<cfif NOT len(trim(this.tableName))>
@@ -295,7 +295,7 @@
 		<cfargument name="getArchived" type="boolean" required="no" default="false" hint="true: get archived model">
 		
 		<cfset metaData = getMetaData(this)>
-		<cfset thisModelName = metaData.displayName>
+		<cfset thisModelName = lcase(listLast(metaData.name, '.'))>
 		
 		<!--- Get the list of models --->
 		<cfquery name="qList" datasource="#application.dbname#" username="#application.dbuser#" password="#application.dbpassword#">
