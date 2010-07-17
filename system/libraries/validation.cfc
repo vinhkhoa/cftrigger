@@ -80,12 +80,24 @@
 			
 			<cfset thisError = "">
 			<cfset ruleIndex = 0>
-			<cfset ruleTotal = listLen(field.rules)>
+			
+			<!--- Rules defined as array? --->
+			<cfif isArray(rules)>
+				<cfset ruleTotal = arrayLen(rules)>
+			<cfelse>
+				<cfset ruleTotal = listLen(field.rules)>
+			</cfif>
 			
 			<!--- Loop through all rules until no rule left or an error has been encountered --->
 			<cfloop condition="ruleIndex lt ruleTotal AND thisError eq ''">
 				<cfset ruleIndex++>
-				<cfset thisRule = listGetAt(field.rules, ruleIndex)>
+				
+				<!--- Rules defined as array? --->
+				<cfif isArray(rules)>
+					<cfset thisRule = rules[ruleIndex]>
+				<cfelse>
+					<cfset thisRule = listGetAt(field.rules, ruleIndex)>
+				</cfif>
 				
 				<!--- Extract the function name and argument(s) from the rule --->
 				<cfset extractResult = application.utils.extract(thisRule, "([a-zA-Z]+)\[?([^\]]*)\]?")>

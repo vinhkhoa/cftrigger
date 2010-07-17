@@ -260,7 +260,7 @@
 				<cfset session.errorList = deleteResult.errorList>
 				<cfset application.url.redirect("#arguments.listPage#")>
 			<cfelse>
-				<cfset application.url.redirectMessage("#arguments.listPage#", "#application.output.capFirst(displayName)# '#HTMLEditFormat(qModel[arguments.titleField][1])#' deleted")>
+				<cfset application.url.redirectMessage("#arguments.listPage#", "#application.output.capFirst(displayName)# '#qModel[arguments.titleField][1]#' deleted")>
 			</cfif>
 		</cfif>
 		
@@ -272,7 +272,7 @@
 		<!--- Display view? --->
 		<cfif arguments.displayView>
 			<cfset data = StructNew()>
-			<cfset data.heading = "Delete #displayName#: #HTMLEditFormat(qModel[arguments.titleField][1])#">
+			<cfset data.heading = "Delete #displayName#: #qModel[arguments.titleField][1]#">
 			<cfset data["q#modelName#"] = qModel>
 			<cfset application.load.viewInTemplate("#arguments.deletePage#", data, objModel.fields)>
 		</cfif>
