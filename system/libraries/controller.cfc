@@ -256,6 +256,11 @@
 		<cfif StructKeyExists(form, arguments.deleteButton)>
 			<cfinvoke component="#objModel#" method="delete" returnvariable="deleteResult">
 			
+			<!--- Excute a function after delete? --->
+			<cfif isDefined("this._post_delete")>
+				<cfset this._post_delete(deleteResult)>
+			</cfif>
+			
 			<cfif arrayLen(deleteResult.errorList)>
 				<cfset session.errorList = deleteResult.errorList>
 				<cfset application.url.redirect("#arguments.listPage#")>
