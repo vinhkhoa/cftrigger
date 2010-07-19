@@ -19,7 +19,9 @@
 	<cffunction name="simpleAppVariables" displayname="simpleAppVariables" access="public" hint="Print application simple variables">
 		
 		<cfoutput>
-			<table border="1">
+			#getStyle()#
+		
+			<table class="scopeDump">
 				<tr>
 					<th>Variable</th>
 					<th>Value</th>
@@ -155,6 +157,59 @@
 				</tr>
 			</table>
 		</cfoutput>
+		
+	</cffunction>
+	
+
+	<!--- Print session simple variables --->
+	<cffunction name="simpleSessionVariables" displayname="simpleSessionVariables" access="public" hint="Print application session variables">
+	
+		<cfoutput>
+			#getStyle()#
+			
+			<table class="scopeDump">
+				<tr>
+					<th>Variable</th>
+					<th>Value</th>
+				</tr>
+				
+				<cfloop collection="#session#" item="thisVariable">
+					<cfif isSimpleValue(session[thisVariable])>
+						<tr>
+							<td>#thisVariable#</td>
+							<td>#session[thisVariable]#</td>
+						</tr>
+					</cfif>
+				</cfloop>
+			</table>
+		</cfoutput>
+
+	</cffunction>
+	
+	
+	<!--- Get debug style --->
+	<cffunction name="getStyle" displayname="getStyle" access="private" returntype="string" hint="Get debug style">
+		<cfset var result = "">
+		
+		<cfsavecontent variable="result">
+			<cfoutput>	
+				<style>
+					table.scopeDump
+					{
+						border: 1px solid ##000;
+						border-collapse: collapse;
+					}
+					
+					table.scopeDump td, table.scopeDump th
+					{
+						border: 1px solid ##000;
+						padding: 4px;
+					}
+				</style>
+			</cfoutput>
+		</cfsavecontent>
+		
+		<cfreturn result>
 		
 	</cffunction>
 	

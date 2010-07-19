@@ -523,52 +523,156 @@
 			<cfset appTitle = application.name>
 		</cfif>
 		
+		<!--- Get error message --->
+		<cfset errorMsg = arguments.Exception.cause.message>
+		<cfset errorMsgDetails = arguments.Exception.cause.detail>
+		
+		<!--- Get stack trace --->
+		<cfsavecontent variable="stackTrace">
+			<cfoutput>
+				<cfif ArrayLen(arguments.Exception.TagContext)>
+					 The error occurred in <strong>#arguments.Exception.TagContext[1]["template"]#: line #arguments.Exception.TagContext[1]["line"]#</strong><br />
+					<cfloop from="2" to="#ArrayLen(arguments.Exception.TagContext)#" index="i">
+						<strong>Called from</strong> #arguments.Exception.TagContext[i]["template"]#: line #arguments.Exception.TagContext[i]["line"]#<br />
+					</cfloop>
+				<cfelse>
+					No stack trace available
+				</cfif>
+			</cfoutput>
+		</cfsavecontent>
+		
+		<!--- Get content of the file where the error occurs --->
+		<cfset errorFilePath = arguments.Exception.TagContext[1]["template"]>
+		<cfset errorLineNumber = arguments.Exception.TagContext[1]["line"]>
+		<cffile action="read" file="#errorFilePath#" variable="errorContent">
+		<cfset codeLines = listToArray(errorContent, "#chr(10)#")>
+		
+		<!--- Display code from this line --->
+		<cfset codeFromLine = max(errorLineNumber - application.linesBeforeError, 1)>
+
+		<!--- Display code up to this line --->
+		<cfset codeToLine = min(codeFromLine + application.totalErrorLines - 1, arrayLen(codeLines))>
+		
+		<!--- Get code display --->
+		<cfsavecontent variable="codeContent">
+			<cfoutput>
+				<cfloop from="#codeFromLine#" to="#codeToLine#" index="lineNumber">
+					<cfset thisLine = '<span class="lineNumber">#lineNumber#</span>' & application.output.pre(codeLines[lineNumber])>
+					
+					<!--- The actual line that caused error? --->
+					<cfif lineNumber eq errorLineNumber>
+						<strong>#thisLine#</strong><br />
+					<cfelse>
+						#thisLine#<br />
+					</cfif>
+				</cfloop>
+			</cfoutput>
+		</cfsavecontent>
+		
+		<!--- Cosntruct the email content --->
+		<cfsavecontent variable="emailContent">
+			<cfoutput>
+			<!--- ERROR STYLES --->
+			<style>
+				##errorTable td
+				{
+					vertical-align: top;
+				}
+				##errorTable th
+				{
+					vertical-align: top;
+					text-align: left;
+				}
+				##errorTable .minimized
+				{
+					width: 1%;
+					white-space: nowrap;
+				}
+				
+				.heading th
+				{
+					background: ##CFCFCF;
+					color: ##000;
+				}
+				
+				.lineNumber
+				{
+					display: block;
+					width: 2.5em;
+					font-size: 0.9em;
+					float: left;
+					text-align: right;
+					font-family: "Courier New", Courier, monospace;
+					background: ##eee;
+				}
+				
+				##mainErrorMsg
+				{
+					font-size: 1.2em;
+				}
+			</style>
+			
+			<!--- ERROR DETAILS --->
+			<p>An error has occurred in the <strong>#application.name#</strong> application.</p>
+			
+			<div id="errorMsg">
+				<p id="mainErrorMsg"><strong>#errorMsg#</strong></p>
+				<cfif trim(errorMsgDetails) neq ""><p>#errorMsgDetails#</p></cfif>
+			</div>
+			<p>#stackTrace#</p>
+			<p>#trim(codeContent)#</p>
+			
+			<table id="errorTable">
+			
+			<!--- CLIENT DETAILS --->
+			<tr class="heading">
+				<th colspan="2">CLIENT:</th>
+			</tr>
+			<tr>
+				<th class="minimized">Page:</th>
+				<td>#request.currentPage#</td>
+			</tr>
+			<tr>
+				<th class="minimized">Date/Time:</th>
+				<td>#DateFormat(now(), "d mmmm, yyyy")# #TimeFormat(now(), "h:mm tt")#</td>
+			</tr>
+			<tr>
+				<th class="minimized">IP address:</th>
+				<td>#CGI.REMOTE_ADDR#</td>
+			</tr>
+			<tr>
+				<th class="minimized">Browser:</th>
+				<td>#CGI.HTTP_USER_AGENT#</td>
+			</tr>
+			
+			<!--- SCOPE VARIABLES DETAILS --->
+			<tr class="heading">
+				<th colspan="2">SCOPE VARIABLES:</th>
+			</tr>
+			<tr>
+				<th class="minimized">Form:</th>
+				<td><cfdump var="#form#" label="Form"></td>
+			</tr>
+			<tr>
+				<th class="minimized">URL:</th>
+				<td><cfdump var="#url#" label="URL"></td>
+			</tr>
+			<tr>
+				<th class="minimized">Session</th>
+				<td><cfset application.debug.simpleSessionVariables()></td>
+			</tr>
+			<tr>
+				<th class="minimized">Application</th>
+				<td><cfset application.debug.simpleAppVariables()></td>
+			</tr>
+			</table>
+			</cfoutput>
+		</cfsavecontent>
+		
 		<!--- Send error email to admin? --->
 		<cfif StructKeyExists(application, "sendEmailOnError") AND application.sendEmailOnError>
 			<cfmail from="#application.fromEmail#" to="#application.errorEmail#" subject="[#appTitle# Error] An error has occurred" type="html">
-				<p>An unexpected error has occurred in the <strong>#application.name#</strong> application.</p>
-				
-				<p><strong>ERROR MESSAGE</strong>: #arguments.Exception.message#</p>
-								
-				<table>
-				<tr>
-					<td valign="top"><strong>Current page:</strong></td>
-					<td valign="top">#request.currentPage#</td>
-				</tr>
-				<tr>
-					<td valign="top"><strong>Date/Time:</strong></td>
-					<td valign="top">#DateFormat(now(), "d mmmm, yyyy")# #TimeFormat(now(), "h:mm tt")#</td>
-				</tr>
-				<tr>
-					<td valign="top"><strong>Stack Trace:</strong></td>
-					<td valign="top">
-						<cfif ArrayLen(arguments.Exception.TagContext)>
-							 The error occurred in <strong>#arguments.Exception.TagContext[1]["template"]#: line #arguments.Exception.TagContext[1]["line"]#</strong><br />
-							<cfloop from="2" to="#ArrayLen(arguments.Exception.TagContext)#" index="i">
-								<strong>Called from</strong> #arguments.Exception.TagContext[i]["template"]#: line #arguments.Exception.TagContext[i]["line"]#<br />
-							</cfloop>
-						<cfelse>
-							No stack trace available
-						</cfif>
-					</td>
-				</tr>
-				<tr>
-					<td valign="top"><strong>Application varibles debug</strong></td>
-					<td><cfset application.debug.simpleAppVariables()></td>
-				</tr>
-				<tr>
-					<td valign="top"><strong>Form variables:</strong></td>
-					<td valign="top"><cfdump var="#form#" label="Form"></td>
-				</tr>
-				<tr>
-					<td valign="top"><strong>URL variables:</strong></td>
-					<td valign="top"><cfdump var="#url#" label="URL"></td>
-				</tr>
-				<!--- <tr>
-					<td valign="top"><strong>CGI variables:</strong></td>
-					<td valign="top"><cfdump var="#CGI#" label="CGI"></td>
-				</tr> --->
-				</table>
+				#emailContent#
 			</cfmail>
 		</cfif>
 
