@@ -643,9 +643,6 @@
 			</cfoutput>
 		</cfsavecontent>
 		
-		<cfoutput>#emailContent#</cfoutput>
-		<cfabort>
-
 		<!--- Send error email to admin? --->
 		<cfif StructKeyExists(application, "sendEmailOnError") AND application.sendEmailOnError>
 			<cfmail from="#application.fromEmail#" to="#application.errorEmail#" subject="[#appTitle# Error] An error has occurred" type="html">
