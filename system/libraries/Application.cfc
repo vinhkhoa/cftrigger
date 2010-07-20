@@ -172,17 +172,22 @@
 		</cfscript>
 		
 		<!--- Get database driver info --->	
+		<cfset application.dbDriver = "">
+		<cfset application.dbIsMSSQL = false>
+		<cfset application.dbIsOracle = false>
+		<cfset application.dbIsMySQL = false>
 		<cfif application.dbname neq "">
-			<cfdbinfo type="version" datasource="#application.dbname#" username="#application.dbuser#" password="#application.dbpassword#" name="dbInfo">
-			<cfset application.dbDriver = dbInfo.driver_name>
-			<cfset application.dbIsMSSQL = findNoCase("SQLServer", application.dbDriver)>
-			<cfset application.dbIsOracle = findNoCase("Oracle", application.dbDriver)>
-			<cfset application.dbIsMySQL = findNoCase("MySQL", application.dbDriver)>
-		<cfelse>
-			<cfset application.dbDriver = "">
-			<cfset application.dbIsMSSQL = false>
-			<cfset application.dbIsOracle = false>
-			<cfset application.dbIsMySQL = false>
+			<cftry>
+				<cfdbinfo type="version" datasource="#application.dbname#" username="#application.dbuser#" password="#application.dbpassword#" name="dbInfo">
+				<cfset application.dbDriver = dbInfo.driver_name>
+				<cfset application.dbIsMSSQL = findNoCase("SQLServer", application.dbDriver)>
+				<cfset application.dbIsOracle = findNoCase("Oracle", application.dbDriver)>
+				<cfset application.dbIsMySQL = findNoCase("MySQL", application.dbDriver)>
+				
+				<cfcatch type="any">
+					<!--- Cannot get version from database? Don't worry, keep move on --->
+				</cfcatch>
+			</cftry>
 		</cfif>
 		
 		<cfscript>
