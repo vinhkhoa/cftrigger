@@ -528,6 +528,14 @@
 			<cfset appTitle = application.name>
 		</cfif>
 		
+		<!--- Get error css styles --->
+		<cfset css_td = "vertical-align: top;">
+		<cfset css_th = "vertical-align: top; text-align: left;">
+		<cfset css_minimized = "width: 1%; white-space: nowrap;">
+		<cfset css_heading_th = "background: ##CFCFCF; color: ##000;">
+		<cfset css_lineNumber = "display: block; width: 2.5em; font-size: 0.9em; float: left; text-align: right; font-family: 'Courier New'; background: ##eee; padding-right: 10px; margin-right: 10px;">
+		<cfset css_mainErrorMsg = "font-size: 1.2em;">
+
 		<!--- Get error message --->
 		<cfset errorMsg = arguments.Exception.cause.message>
 		<cfset errorMsgDetails = arguments.Exception.cause.detail>
@@ -562,7 +570,7 @@
 		<cfsavecontent variable="codeContent">
 			<cfoutput>
 				<cfloop from="#codeFromLine#" to="#codeToLine#" index="lineNumber">
-					<cfset thisLine = '<span class="lineNumber">#lineNumber#</span>' & application.output.pre(codeLines[lineNumber])>
+					<cfset thisLine = '<span style="#css_lineNumber#">#lineNumber#</span>' & application.output.pre(codeLines[lineNumber])>
 					
 					<!--- The actual line that caused error? --->
 					<cfif lineNumber eq errorLineNumber>
@@ -577,51 +585,12 @@
 		<!--- Cosntruct the email content --->
 		<cfsavecontent variable="emailContent">
 			<cfoutput>
-			<!--- ERROR STYLES --->
-			<style>
-				##errorTable td
-				{
-					vertical-align: top;
-				}
-				##errorTable th
-				{
-					vertical-align: top;
-					text-align: left;
-				}
-				##errorTable .minimized
-				{
-					width: 1%;
-					white-space: nowrap;
-				}
-				
-				.heading th
-				{
-					background: ##CFCFCF;
-					color: ##000;
-				}
-				
-				.lineNumber
-				{
-					display: block;
-					width: 2.5em;
-					font-size: 0.9em;
-					float: left;
-					text-align: right;
-					font-family: "Courier New", Courier, monospace;
-					background: ##eee;
-				}
-				
-				##mainErrorMsg
-				{
-					font-size: 1.2em;
-				}
-			</style>
 			
 			<!--- ERROR DETAILS --->
 			<p>An error has occurred in the <strong>#application.name#</strong> application.</p>
 			
 			<div id="errorMsg">
-				<p id="mainErrorMsg"><strong>#errorMsg#</strong></p>
+				<p style="#css_mainErrorMsg#"><strong>#errorMsg#</strong></p>
 				<cfif trim(errorMsgDetails) neq ""><p>#errorMsgDetails#</p></cfif>
 			</div>
 			<p>#stackTrace#</p>
@@ -631,56 +600,59 @@
 			
 			<!--- CLIENT DETAILS --->
 			<tr class="heading">
-				<th colspan="2">CLIENT:</th>
+				<th colspan="2" style="#css_th# #css_heading_th#">CLIENT:</th>
 			</tr>
 			<tr>
-				<th class="minimized">Page:</th>
-				<td>#request.currentPage#</td>
+				<th style="#css_th# #css_minimized#">Page:</th>
+				<td style="#css_td#">#request.currentPage#</td>
 			</tr>
 			<tr>
-				<th class="minimized">Date/Time:</th>
-				<td>#DateFormat(now(), "d mmmm, yyyy")# #TimeFormat(now(), "h:mm tt")#</td>
+				<th style="#css_th# #css_minimized#">Date/Time:</th>
+				<td style="#css_td#">#DateFormat(now(), "d mmmm, yyyy")# #TimeFormat(now(), "h:mm tt")#</td>
 			</tr>
 			<tr>
-				<th class="minimized">IP address:</th>
-				<td>#CGI.REMOTE_ADDR#</td>
+				<th style="#css_th# #css_minimized#">IP address:</th>
+				<td style="#css_td#">#CGI.REMOTE_ADDR#</td>
 			</tr>
 			<tr>
-				<th class="minimized">Browser:</th>
-				<td>#CGI.HTTP_USER_AGENT#</td>
+				<th style="#css_th# #css_minimized#">Browser:</th>
+				<td style="#css_td#">#CGI.HTTP_USER_AGENT#</td>
 			</tr>
 			
 			<!--- SCOPE VARIABLES DETAILS --->
 			<tr class="heading">
-				<th colspan="2">SCOPE VARIABLES:</th>
+				<th colspan="2" style="#css_th# #css_heading_th#">SCOPE VARIABLES:</th>
 			</tr>
 			<tr>
-				<th class="minimized">Form:</th>
-				<td><cfdump var="#form#" label="Form"></td>
+				<th style="#css_th# #css_minimized#">Form:</th>
+				<td style="#css_td#"><cfdump var="#form#" label="Form"></td>
 			</tr>
 			<tr>
-				<th class="minimized">URL:</th>
-				<td><cfdump var="#url#" label="URL"></td>
+				<th style="#css_th# #css_minimized#">URL:</th>
+				<td style="#css_td#"><cfdump var="#url#" label="URL"></td>
 			</tr>
 			<tr>
-				<th class="minimized">Session</th>
-				<td><cfset application.debug.simpleSessionVariables()></td>
+				<th style="#css_th# #css_minimized#">Session</th>
+				<td style="#css_td#"><cfset application.debug.simpleSessionVariables()></td>
 			</tr>
 			<tr>
-				<th class="minimized">Application</th>
-				<td><cfset application.debug.simpleAppVariables()></td>
+				<th style="#css_th# #css_minimized#">Application</th>
+				<td style="#css_td#"><cfset application.debug.simpleAppVariables()></td>
 			</tr>
 			</table>
 			</cfoutput>
 		</cfsavecontent>
 		
+		<cfoutput>#emailContent#</cfoutput>
+		<cfabort>
+
 		<!--- Send error email to admin? --->
 		<cfif StructKeyExists(application, "sendEmailOnError") AND application.sendEmailOnError>
 			<cfmail from="#application.fromEmail#" to="#application.errorEmail#" subject="[#appTitle# Error] An error has occurred" type="html">
 				#emailContent#
 			</cfmail>
 		</cfif>
-
+		
 		<!--- Display error message --->
 		<cfif StructKeyExists(application, "hideColdfusionError") AND application.hideColdfusionError>
 			<cfset application.error.show_production_error()>
