@@ -524,7 +524,25 @@
 		
 		<cfreturn result>
 		
-	
 	</cffunction>
 	
+
+	<!--- Clear this model current state --->
+	<cffunction name="clear" displayname="clear" access="public" returntype="struct" hint="Clear this model current state">
+		
+		<cfset var result = StructNew()>
+		<cfset result.errorList = ArrayNew(1)>
+		
+		<cfset this.ranValidation = false>
+		<cfset this.error = "">
+		<cfset StructDelete(variables, "id")>
+		<cfset StructDelete(variables, "textId")>
+		<cfset StructDelete(this, "id")>
+		<cfset StructDelete(this, "textId")>
+		
+		<cfreturn result>
+	
+	</cffunction>
+			
+
 </cfcomponent>

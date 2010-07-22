@@ -55,9 +55,10 @@
 	<!--- Remove duplicates from a list --->
 	<cffunction name="ListUnique" access="public" returntype="string">
 		<cfargument name="ls" type="string" required="yes" hint="The original list" />
+		<cfargument name="delimiter" type="string" required="no" default="," hint="The list delimiter" />
 	
 		<!--- Convert it to array to use the arrayUnique function --->
-		<cfset result = arrayToList(this.ArrayUnique(listToArray(arguments.ls)))>
+		<cfset result = arrayToList(this.ArrayUnique(listToArray(arguments.ls, arguments.delimiter)), arguments.delimiter)>
 		
 		<cfreturn result>
 	
@@ -197,19 +198,20 @@
 		<cfargument name="ls" type="string" required="yes" hint="The original list" />
 		<cfargument name="oldPosition" type="numeric" required="yes" hint="The original item position index" />
 		<cfargument name="newPosition" type="numeric" required="yes" hint="The new item position index" />
+		<cfargument name="delimiter" type="string" required="no" default="," hint="The list delimiter" />
 		<cfset var result = arguments.ls>
 	
 		<!--- Valid index? --->
 		<cfif val(arguments.oldPosition) ge 1 AND val(arguments.oldPosition) le listLen(arguments.ls)>
 			<!--- Extract the item from the list --->
-			<cfset thisItem = listGetAt(arguments.ls, val(arguments.oldPosition))>
-			<cfset result = listDeleteAt(arguments.ls, val(arguments.oldPosition))>
+			<cfset thisItem = listGetAt(arguments.ls, val(arguments.oldPosition), arguments.delimiter)>
+			<cfset result = listDeleteAt(arguments.ls, val(arguments.oldPosition), arguments.delimiter)>
 			
 			<!--- Insert the item into the new position --->
 			<cfif val(arguments.newPosition) le listLen(result)>
-				<cfset result = listInsertAt(result, val(arguments.newPosition), thisItem)>
+				<cfset result = listInsertAt(result, val(arguments.newPosition), thisItem, arguments.delimiter)>
 			<cfelse>
-				<cfset result = listAppend(result, thisItem)>
+				<cfset result = listAppend(result, thisItem, arguments.delimiter)>
 			</cfif>
 		</cfif>
 
@@ -342,6 +344,7 @@
 		<cfargument name="query" type="query" required="yes" hint="The query to be sorted">
 		<cfargument name="groupBy" type="string" required="yes" hint="The name of the column to be grouped by">
 		<cfargument name="groupColumns" type="string" required="yes" hint="The columns to be combined/group">
+		<cfargument name="delimiter" type="string" required="no" default="," hint="The grouped col delimiter">
 		
 		<cfset qGrouped = QueryNew(arguments.query.columnList,repeatString("varchar,", listLen(arguments.query.columnList) - 1) & "varchar")>
 		<cfoutput query="arguments.query" group="#arguments.groupBy#">
@@ -354,7 +357,7 @@
 			<!--- Group the rows --->
 			<cfoutput>
 				<cfloop list="#arguments.groupColumns#" index="col">
-					<cfset grouped[col] = listAppend(grouped[col], arguments.query[col][arguments.query.currentRow])>
+					<cfset grouped[col] = listAppend(grouped[col], arguments.query[col][arguments.query.currentRow], arguments.delimiter)>
 				</cfloop>
 			</cfoutput>
 			
@@ -362,7 +365,7 @@
 			<cfset queryAddRow(qGrouped)>
 			<cfloop list="#arguments.query.columnList#" index="col">
 				<cfif listFindNoCase(arguments.groupColumns, col)>
-					<cfset querySetCell(qGrouped, col, application.core.listUnique(grouped[col]), qGrouped.recordCount)>
+					<cfset querySetCell(qGrouped, col, application.core.listUnique(grouped[col], arguments.delimiter), qGrouped.recordCount)>
 				<cfelse>
 					<cfset querySetCell(qGrouped, col, arguments.query[col][arguments.query.currentRow], qGrouped.recordCount)>
 				</cfif>

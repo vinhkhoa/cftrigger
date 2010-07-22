@@ -134,7 +134,7 @@
 		<cfargument name="resizeHeight" type="numeric" required="no" hint="The height to resize">
 		<cfargument name="fileName" type="string" required="no" hint="Rename the file to this specific file name">
 		<cfargument name="keepClientFileName" type="string" required="no" default="false" hint="true: keep the client file name">
-		<cfargument name="overwrite" type="string" required="no" default="true" hint="true: overwrite existing file">
+		<cfargument name="overwrite" type="boolean" required="no" default="true" hint="true: overwrite existing file">
 		<cfset var result = StructNew()>
 		<cfset result.error = "">
 		<cfset result.clientFile = "">
@@ -142,6 +142,7 @@
 		<cfset result.uploadedFile = "">
 		<cfset result.uploadedLocation = "">
 		<cfset result.clientFileExists = true>
+		<cfset result.fileExisted = false>
 		
 		<!--- Upload the file --->
 		<cfset destinationFolder = application.FilePath & arguments.destinationFolder & application.separator>
@@ -158,6 +159,8 @@
 		
 			<cfset application.directory.create(destinationFolder)>
 			<cffile action="upload" fileField="#arguments.formField#" destination="#destinationFolder#" accept="image/jpg,image/gif,image/png,image/jpeg" nameconflict="#nameconflict#" result="uploadResult">
+			
+			<cfset result.fileExisted = uploadResult.fileExisted>
 			<cfset result.uploadedFolder = uploadResult.serverDirectory & application.separator>
 			<cfset result.uploadedLocation = result.uploadedFolder & uploadResult.serverFile>
 			<cfset result.clientFile = uploadResult.clientFile>
