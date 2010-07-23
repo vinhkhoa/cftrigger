@@ -208,10 +208,12 @@
 			<cfset result = listDeleteAt(arguments.ls, val(arguments.oldPosition), arguments.delimiter)>
 			
 			<!--- Insert the item into the new position --->
-			<cfif val(arguments.newPosition) le listLen(result)>
+			<cfif val(arguments.newPosition) gt listLen(result)> 
+				<cfset result = listAppend(result, thisItem, arguments.delimiter)>
+			<cfelseif val(arguments.newPosition) le listLen(result) AND val(arguments.newPosition) ge 1>
 				<cfset result = listInsertAt(result, val(arguments.newPosition), thisItem, arguments.delimiter)>
 			<cfelse>
-				<cfset result = listAppend(result, thisItem, arguments.delimiter)>
+				<cfset result = listPrepend(result, thisItem, arguments.delimiter)>
 			</cfif>
 		</cfif>
 
