@@ -259,11 +259,9 @@
 		<cfargument name="arr2" type="array" required="yes" hint="The second array" />
 		<cfset var result = ArrayNew(1)>
 		
-		<!--- Add 2 arrays together --->
-		<cfloop array="#arguments.arr2#" index="item">
-			<cfset arrayAppend(arguments.arr1, item)>
-		</cfloop>
-		<cfset result = this.arrayUnique(arr1)>
+		<cfset result.addAll(arguments.arr1)>
+		<cfset result.addAll(arguments.arr2)>
+		<cfset result = this.arrayUnique(result)>
 
 		<cfreturn result>
 	
@@ -273,9 +271,11 @@
 	<!--- Reverse an array --->
 	<cffunction name="ArrayReverse" access="public" returntype="array">
 		<cfargument name="arr" type="array" required="yes" hint="The first array" />
-		<cfset var result = arguments.arr>
+		<cfset var result = ArrayNew(1)>
 		
-		<cfset createObject("java", "java.util.Collections").reverse(result)>
+		<cfloop array="#arguments.arr#" index="i">
+			<cfset arrayPrepend(result, i)>
+		</cfloop>
 		
 		<cfreturn result>
 	

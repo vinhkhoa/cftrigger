@@ -348,7 +348,33 @@
 		<cfset var error = "">
 
 		<cfif reFindNoCase("[^#arguments.args#]", arguments.value)>
-			<cfset error = application.lang.getValidationLang(this.modelName, arguments.field, arguments.value, "limitChars", arguments.args)>
+			<!--- Attempt to get some meanings out of the regular expression --->
+			<cfset regExp = arguments.args>
+			<cfset regExpWords = "">
+			<cfif find("a-z", arguments.args)>
+				<cfset regExpWords = listAppend(regExpWords, " lowercase")>
+			</cfif>
+			<cfif find("A-Z", arguments.args)>
+				<cfset regExpWords = listAppend(regExpWords, " uppercase")>
+			</cfif>
+			<cfif find("0-9", arguments.args)>
+				<cfset regExpWords = listAppend(regExpWords, " digits")>
+			</cfif>
+			<cfif find("_", arguments.args)>
+				<cfset regExpWords = listAppend(regExpWords, " underscore")>
+			</cfif>
+			<cfif find("-", arguments.args)>
+				<cfset regExpWords = listAppend(regExpWords, " hyphen")>
+			</cfif>
+			<cfif find(".", arguments.args)>
+				<cfset regExpWords = listAppend(regExpWords, " dot")>
+			</cfif>
+			<cfif find(" ", arguments.args)>
+				<cfset regExpWords = listAppend(regExpWords, " space")>
+			</cfif>
+			<cfset regExpWords = reverse(replace(reverse(regExpWords), ",", " dna "))>
+		
+			<cfset error = application.lang.getValidationLang(this.modelName, arguments.field, arguments.value, "limitChars", regExpWords)>
 		</cfif>
 			
 		<cfreturn error>

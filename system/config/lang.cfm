@@ -22,7 +22,7 @@
 <cfset application.defaultValidationLang.letters = "The [field] is invalid. It can contain only letters">
 <cfset application.defaultValidationLang.digits = "The [field] is invalid. It can contain only numbers">
 <cfset application.defaultValidationLang.url = "The [field] is not a valid url">
-<cfset application.defaultValidationLang.limitChars = "The [field] contains invalid characters. Only these charactesr are allowed: [args]">
+<cfset application.defaultValidationLang.limitChars = "The [field] is invalid. It can only contain: [args]">
 <cfset application.defaultValidationLang.localDirectory = "The [field] does not exist. It has to be a valid directory path.">
 <cfset application.defaultValidationLang.phoneNumber = "The [field] is not valid. If you use home number, make sure you include the area code.">
 <cfset application.defaultValidationLang.validURLChars = "The [field] is invalid. It can contain only letters, numbers, underscores or hyphens">
