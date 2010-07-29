@@ -62,8 +62,8 @@
 		<!--- Parse the view and save its content --->
 		<cfif validateResult.exists>
 			<!--- Include the template --->
-			<cfset objTemplate = createObject("component", "template").init(viewFile, arguments.data)>
-			<cfsavecontent variable="result"><cfoutput>#objTemplate.includeWithData()#</cfoutput></cfsavecontent>
+			<cfset objTemplate = createObject("component", "template")>
+			<cfsavecontent variable="result"><cfoutput>#objTemplate.includeWithData(viewFile, arguments.data)#</cfoutput></cfsavecontent>
 		<cfelse>
 			<!--- Display friendly error or let Coldfusion blow it up? --->
 			<cfif application.showFriendlyError>
@@ -313,12 +313,12 @@
 		<!--- Parse the error page and save its content --->
 		<cfif fileExists(expandPath(errorFile))>
 			<!--- Include the template --->
-			<cfset objTemplate = createObject("component", "template").init(errorFile, arguments.data)>
-			<cfsavecontent variable="result"><cfoutput>#objTemplate.includeWithData()#</cfoutput></cfsavecontent>
+			<cfset objTemplate = createObject("component", "template")>
+			<cfsavecontent variable="result"><cfoutput>#objTemplate.includeWithData(errorFile, arguments.data)#</cfoutput></cfsavecontent>
 		<cfelse>
 			<!--- Include the template --->
-			<cfset objTemplate = createObject("component", "template").init(CFT_errorFile, arguments.data)>
-			<cfsavecontent variable="result"><cfoutput>#objTemplate.includeWithData()#</cfoutput></cfsavecontent>
+			<cfset objTemplate = createObject("component", "template")>
+			<cfsavecontent variable="result"><cfoutput>#objTemplate.includeWithData(CFT_errorFile, arguments.data)#</cfoutput></cfsavecontent>
 		</cfif>
 
 		<!--- Return the view or display it? --->

@@ -28,32 +28,19 @@
 
 	<cfsetting enablecfoutputonly="yes">
 	
-	<cfset this.template = "">
-	<cfset this.data = StructNew()>
 
-
-	<!--- Initialize the "includer" --->
-	<cffunction name="init" access="public">
-		<cfargument name="template" type="string" required="yes" hint="The path to the template to be included">
-		<cfargument name="data" type="struct" required="no" default="#StructNew()#" hint="Data passed to the template">
-		
-		<cfset this.template = arguments.template>
-		<cfset this.data = arguments.data>
-		
-		<cfreturn this>
-	
-	</cffunction>
-	
-	
 	<!--- Run the include function --->
 	<cffunction name="includeWithData" access="public">
 	
+		<cfargument name="template" type="string" required="yes" hint="The path to the template to be included">
+		<cfargument name="data" type="struct" required="no" default="#StructNew()#" hint="Data passed to the template">
+
 		<!--- Extract the data that is passed in to make it available for "include" statement --->
-		<cfloop collection="#this.data#" item="key">
-			<cfset variables[key] = this.data[key]>
+		<cfloop collection="#arguments.data#" item="key">
+			<cfset variables[key] = arguments.data[key]>
 		</cfloop>
 	
-		<cfinclude template="#this.template#">
+		<cfinclude template="#arguments.template#">
 	
 	</cffunction>
 	
