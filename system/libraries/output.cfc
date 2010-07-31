@@ -26,6 +26,7 @@
 		<cfset result = reReplace(result, "[ ]{2,}", " ", "ALL")>
 		<cfset result = reReplace(result, "(#chr(13)##chr(10)#){2,}", "</p><p>", "ALL")>
 		<cfset result = replace(result, chr(13) & chr(10), "<br />", "ALL")>
+		<cfset result = "<p>#result#</p>">
 
 		<cfreturn result>
 		

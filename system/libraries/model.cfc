@@ -185,7 +185,7 @@
 					(
 						<cfloop array="#fieldList#" index="field">
 							<cfif StructKeyExists(fieldValues, field.name)>
-								<cfif listFindNoCase("bigint,bit,decimal,double,float,integer,numeric,real,smallint", field.type)>
+								<cfif listFindNoCase("bigint,bit,decimal,double,float,integer,numeric,real,smallint,timestamp", field.type)>
 									<cfqueryparam value="#val(fieldValues[field.name])#" cfsqltype="cf_sql_#field.type#">, 
 								<cfelse>
 									<cfqueryparam value="#fieldValues[field.name]#" cfsqltype="cf_sql_#field.type#">, 

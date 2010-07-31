@@ -93,7 +93,16 @@
 			<cfinclude template="#application.appLogicalPath#application/config/lang.cfm">
 		</cfif>
 		<cfinclude template="/cft/config/config.cfm">
-		<cfinclude template="/cft/config/lang.cfm">
+		
+		<!--- Include language files --->
+		<cfif NOT StructKeyExists(application, "language")>
+			<cfset application.language = "en">
+		</cfif>
+		
+		<cfif directoryExists(expandPath("/cft/lang/#lcase(application.language)#"))>
+			<cfinclude template="/cft/lang/#lcase(application.language)#/validation.cfm">
+			<cfinclude template="/cft/lang/#lcase(application.language)#/message.cfm">
+		</cfif>
 		
 		<cfscript>
 			application.onLiveServer = false;

@@ -330,7 +330,7 @@
 		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">
 		<cfset var error = "">
 
-		<cfif NOT isValid("url", arguments.value)>
+		<cfif trim(arguments.value) neq "" AND NOT isValid("url", arguments.value)>
 			<cfset error = application.lang.getValidationLang(this.modelName, arguments.field, arguments.value, "url")>
 		</cfif>
 			
