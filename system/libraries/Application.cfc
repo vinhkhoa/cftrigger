@@ -613,7 +613,7 @@
 			</tr>
 			<tr>
 				<th style="#css_th# #css_minimized#">Page:</th>
-				<td style="#css_td#">#request.currentPage#</td>
+				<td style="#css_td#"><cfif StructKeyExists(request, "currentPage")>#request.currentPage#</cfif></td>
 			</tr>
 			<tr>
 				<th style="#css_th# #css_minimized#">Date/Time:</th>

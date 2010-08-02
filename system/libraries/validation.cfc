@@ -282,7 +282,7 @@
 		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">
 		<cfset var error = "">
 
-		<cfif reFindNoCase("[^a-zA-Z0-9_]", arguments.value)>
+		<cfif reFind("[^a-zA-Z0-9_]", arguments.value)>
 			<cfset error = application.lang.getValidationLang(this.modelName, arguments.field, arguments.value, "username")>
 		</cfif>
 			
@@ -298,7 +298,7 @@
 		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">
 		<cfset var error = "">
 
-		<cfif reFindNoCase("[^a-zA-Z]", arguments.value)>
+		<cfif reFind("[^a-zA-Z]", arguments.value)>
 			<cfset error = application.lang.getValidationLang(this.modelName, arguments.field, arguments.value, "letters")>
 		</cfif>
 			
@@ -314,7 +314,7 @@
 		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">
 		<cfset var error = "">
 
-		<cfif reFindNoCase("[^0-9]", arguments.value)>
+		<cfif reFind("[^0-9]", arguments.value)>
 			<cfset error = application.lang.getValidationLang(this.modelName, arguments.field, arguments.value, "digits")>
 		</cfif>
 			
@@ -347,7 +347,7 @@
 		<cfargument name="args" type="string" required="no" default="" hint="The maximum value">
 		<cfset var error = "">
 
-		<cfif reFindNoCase("[^#arguments.args#]", arguments.value)>
+		<cfif reFind("[^#arguments.args#]", arguments.value)>
 			<!--- Attempt to get some meanings out of the regular expression --->
 			<cfset regExp = arguments.args>
 			<cfset regExpWords = "">
@@ -363,7 +363,7 @@
 			<cfif find("_", arguments.args)>
 				<cfset regExpWords = listAppend(regExpWords, " underscore")>
 			</cfif>
-			<cfif find("-", arguments.args)>
+			<cfif find("\-", arguments.args)>
 				<cfset regExpWords = listAppend(regExpWords, " hyphen")>
 			</cfif>
 			<cfif find(".", arguments.args)>
@@ -407,7 +407,7 @@
 		
 		<cfset conciseNumber = reReplace(arguments.value, "[[:space:]]", "", "ALL")>
 
-		<cfif reFindNoCase("[^0-9 ]", arguments.value) OR (conciseNumber neq "" AND len(conciseNumber) neq 10)>
+		<cfif reFind("[^0-9 ]", arguments.value) OR (conciseNumber neq "" AND len(conciseNumber) neq 10)>
 			<cfset error = application.lang.getValidationLang(this.modelName, arguments.field, arguments.value, "phoneNumber")>
 		</cfif>
 			
@@ -423,7 +423,7 @@
 		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">
 		<cfset var error = "">
 
-		<cfif reFindNoCase("[^a-zA-Z0-9_\-]", arguments.value)>
+		<cfif reFind("[^a-zA-Z0-9_\-]", arguments.value)>
 			<cfset error = application.lang.getValidationLang(this.modelName, arguments.field, arguments.value, "validURLChars")>
 		</cfif>
 			
