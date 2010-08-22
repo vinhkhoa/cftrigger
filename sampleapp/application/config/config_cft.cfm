@@ -15,7 +15,8 @@
 	*/
 	application.appName = "sampleApp";
 	
-	// Server settings
+	
+	// =========================== Start of Server settings ===========================
 	application.servers = ArrayNew(1);
 	
 	// Localhost
@@ -33,6 +34,9 @@
 	s.url = "http://sampleapp.com";
 	s.appNameSuffix = 'live';
 	arrayAppend(application.servers, s);
+	
+	// =========================== End of Server settings ===========================
+	
 	
 	application.enableUserAuthentication = false;
 	application.fromEmail = "CFT Simple App <hello@sampleapp.com>";

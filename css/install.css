@@ -1,0 +1,230 @@
+/*
+	PROJECT: 	cfTrigger (http://cftrigger.com/)
+	FILE:		Install CSS
+	FUNCTION: 	Control the cfTrigger install page
+*/
+
+body
+{
+	font-family: Arial, Verdana, Helvetica, sans-serif;
+	font-size: 62.5%;
+	line-height: 1.5em;
+	padding: 0.5em;
+	margin: 0;
+}
+
+
+/* ================================================================================================================= */
+/* ===================================================== GENERAL ===================================================== */
+
+h1
+{
+	font-size: 2.5em;
+	font-family: Georgia, Helvetica, "Times New Roman", Times, serif;
+	margin: 0;
+	line-height: 1.3em;
+}
+* html h1 {margin-top: 0.8em;}
+h2
+{
+	font-size: 2em;
+	font-family: Georgia, "Times New Roman", Times, serif;
+	line-height: 1.2em;
+	margin: 0.5em 0;
+}
+h3 {font-size: 1.6em; margin-top: 2em;}
+h4 {font-size: 1.5em;}
+h5 {font-size: 1.4em;}
+h6 {font-size: 1.2em;}
+p, li, td {font-size: 1.4em; line-height: 1.3em;}
+th {font-size: 1.5em;}
+div.error, div.message, div.warning, div.waiting {font-size: 1.2em;}
+li p, div.error li, li li  {font-size: 1em;}
+legend
+{
+	font-size: 1.5em;
+	color: #00B2D9;
+}
+fieldset
+{
+	padding: 3em 0 1em 2em;
+	margin-bottom: 3em;
+}
+* html fieldset
+{
+	padding-top: 0;
+}
+* html legend
+{
+	margin-bottom: 2em;
+}
+
+/* ===================================================== ERROR / SUCCESS / INFO / etc. MESSAGES ===================================================== */
+
+/* Messages: error messages, success messages, etc. */
+.error, .message, .warning, .waiting
+{
+	font-weight: bold;
+	padding: 1em;
+}
+div.error, div.message, div.warning, div.waiting
+{
+	margin-bottom: 1em;
+}
+
+/* error */
+.error
+{
+	color: #FF0000;
+}
+div.error
+{
+	border: 1px solid #FF3300;
+	background: #FFCACA;
+}
+
+form span.error
+{
+	font-size: 2em;
+}
+
+.topError
+{
+	color: Red;
+	font-size: 1.4em;
+	font-weight: bold;
+	margin-bottom: 2em;
+	padding: 0.5em 1em 0.5em 1em;
+	border: 1px solid #FF3300;
+	background: #FFDFDF;
+	display: block;
+}
+
+
+/* message */
+.message
+{
+	color: #009900;
+}
+div.message
+{
+	border: 1px solid #00CC00;
+	background: #B5FCA0;
+}
+
+/* Warning */
+.warning
+{
+	color: #FF6600;
+}
+div.warning
+{
+	border: 1px solid #FF972F;
+	background: #FFFF9F;
+}
+
+
+/* ===================================================== FORM ===================================================== */
+
+/* Form */
+form
+{
+	margin-top: 3em;
+}
+
+/* Form input row */
+form .row
+{
+	overflow: auto;
+}
+
+/* Label */
+label, div.label
+{
+	font-size: 1.5em;
+	display: block;
+	float: left;
+	width: 8em;
+	margin: 0.5em 1em 0em 0;
+	position: relative;
+	bottom: 0.5em;
+	clear: left;
+}
+
+/* text field and textarea */
+input.text, input.big_text, input.small_text, select, div.staticvalue, 
+textarea.text, textarea.big_text, textarea.mid_text
+{
+	padding: 0.4em;
+	margin-bottom: 0.3em;
+	border: 1px solid #CCCCCC;
+	background: #fff;
+	display: block;
+}
+input.text:focus, textarea.text:focus
+{
+	border: 1px solid #686667;
+}
+
+
+/* Input Sizes */
+input.text, input.small_text, input.big_text {font-size: 1.5em; }
+input.text {width: 15em;}
+input.small_text {width: 3em;}
+input.big_text {width: 75%;}
+
+/* Textarea Sizes */
+textarea.text, textarea.small_text, textarea.big_text {font-size: 1.6em; }
+textarea.text {width: 25em; height: 10em;}
+textarea.small_text {width: 3em;}
+textarea.mid_text {width: 75%; height: 10em;}
+textarea.big_text {width: 75%; height: 20em;}
+
+/* Select */
+select
+{
+	width: auto;
+}
+
+/* Static value */
+div.staticvalue
+{
+	border: 1px solid white;
+	padding: 0;
+	height: 1.08em;
+	width: 20em;
+	margin: 0 auto 0.5em 6em;
+}
+
+/* Radio */
+input.radio
+{
+	margin-bottom: 1em;
+}
+
+/* Notes */
+.form_notes
+{
+	font-size: 1.2em;
+	margin: 0 auto 2em 8.4em;
+}
+
+/* Button */
+input.button, input.subbutton
+{
+	font-size: 1.6em;
+	font-weight: bold;
+	padding: 0.2em 0.6em;
+}
+input.subbutton
+{
+	font-weight: normal;
+}
+/* Error */
+input.error, select.error, textarea.error, input.error:focus, textarea.error:focus
+{
+	border: 1px solid red;
+	color: #000;
+	font-weight: normal;
+}
+
