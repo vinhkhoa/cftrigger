@@ -14,6 +14,7 @@
 		you leave all the variables there. Deleting any of them might cause errors.
 	*/
 	application.appName = "sampleApp";
+	application.name = "CFT Sample App";
 	
 	
 	// =========================== Start of Server settings ===========================

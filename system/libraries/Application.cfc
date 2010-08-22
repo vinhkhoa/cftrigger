@@ -4,9 +4,7 @@
 	Summary:		Main Controller class
 	
 	Log:
-	
 	Created:		05/06/2009
-	
 	Modified:
 	- 
 
