@@ -135,8 +135,16 @@
 					<td style="#css_cell#">#application.errorFilePath#</td>
 				</tr>
 				<tr>
-					<td style="#css_cell#">application.CFT_LibraryFilePath</td>
-					<td style="#css_cell#">#application.CFT_LibraryFilePath#</td>
+					<td style="#css_cell#">application.configFilePath</td>
+					<td style="#css_cell#">#application.configFilePath#</td>
+				</tr>
+				<tr>
+					<td style="#css_cell#">application.CFT_libraryFilePath</td>
+					<td style="#css_cell#">#application.CFT_libraryFilePath#</td>
+				</tr>
+				<tr>
+					<td style="#css_cell#">application.CFT_viewFilePath</td>
+					<td style="#css_cell#">#application.CFT_viewFilePath#</td>
 				</tr>
 
 				<!--- Package paths --->

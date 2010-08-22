@@ -1,0 +1,11 @@
+Options All -Indexes
+
+ErrorDocument 404 /404.shtml
+ErrorDocument 403 /403.shtml
+ErrorDocument 500 /500.shtml
+
+RewriteEngine on
+
+RewriteCond $1 !^(index\.cfm|images|imgs|img|css|js|robots\.txt)
+
+RewriteRule ^(.*)$ /index.cfm/$1 [L]

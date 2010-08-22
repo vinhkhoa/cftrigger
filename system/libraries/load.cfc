@@ -245,7 +245,7 @@
 		<!--- Get the component and file paths --->
 		<cfset templateFile = application.libraryFilePath & lcase(arguments.template) & ".cfc">
 		<cfset templateComponent = application.libraryRoot & "." & lcase(arguments.template)>
-		<cfset CFT_templateFile = application.CFT_LibraryFilePath & lcase(arguments.template) & ".cfc">
+		<cfset CFT_templateFile = application.CFT_libraryFilePath & lcase(arguments.template) & ".cfc">
 		<cfset CFT_templateComponent = "cft.libraries." & lcase(arguments.template)>
 		
 		<!--- load the application library --->
@@ -407,4 +407,5 @@
 		<cfreturn result>
 	
 	</cffunction>
+
 </cfcomponent>

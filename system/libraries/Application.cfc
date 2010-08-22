@@ -240,6 +240,7 @@
 			application.controllerFilePath = application.appFilePath & "controllers" & application.separator;
 			application.libraryFilePath = application.appFilePath & "libraries" & application.separator;
 			application.errorFilePath = application.appFilePath & "errors" & application.separator;
+			application.configFilePath = application.appFilePath & "config" & application.separator;
 		
 			// Get coldfusion admin mappings for cft and makes sure the path ends with a / or \ --->
 			mappings = this.getMappings();
@@ -250,7 +251,8 @@
 			}
 			
 			// CFT file path
-			application.CFT_LibraryFilePath = cftMapping & "libraries" & application.separator;
+			application.CFT_libraryFilePath = cftMapping & "libraries" & application.separator;
+			application.CFT_viewFilePath = cftMapping & "views" & application.separator;
 			
 			// Package paths (roots)
 			application.modelRoot = Replace(Replace(application.appLogicalPath & "application/models", "/", ""), "/", ".", "all");
