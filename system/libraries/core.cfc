@@ -58,7 +58,7 @@
 		<cfargument name="delimiter" type="string" required="no" default="," hint="The list delimiter" />
 	
 		<!--- Convert it to array to use the arrayUnique function --->
-		<cfset result = arrayToList(this.ArrayUnique(listToArray(arguments.ls, arguments.delimiter)), arguments.delimiter)>
+		<cfset var result = arrayToList(this.ArrayUnique(listToArray(arguments.ls, arguments.delimiter)), arguments.delimiter)>
 		
 		<cfreturn result>
 	
@@ -72,7 +72,7 @@
 		<cfargument name="delimiter" type="string" required="no" default="," hint="The list delimiter" />
 		<cfset var result = "">
 		
-		<cfset count = 0>
+		<cfset var count = 0>
 		<cfloop list="#arguments.ls#" index="item" delimiters="#arguments.delimiter#">
 			<cfset count = count + 1>
 			
@@ -109,9 +109,8 @@
 	<cffunction name="ListReverse" access="public" returntype="string">
 		<cfargument name="ls" type="string" required="yes" hint="The original list" />
 		<cfargument name="delimiter" type="string" required="no" default="," hint="The list delimiter" />
-		<cfset var result = "">
 		
-		<cfset result = arrayToList(this.arrayReverse(listToArray(arguments.ls, arguments.delimiter)), arguments.delimiter)>
+		<cfset var result = arrayToList(this.arrayReverse(listToArray(arguments.ls, arguments.delimiter)), arguments.delimiter)>
 		
 		<cfreturn result>
 		
@@ -140,11 +139,11 @@
 		<cfargument name="delimiter" type="string" required="no" default="," hint="The list delimiter" />
 		<cfset var result = "">
 		
-		<cfset ls1 = this.listUnique(arguments.ls1, arguments.delimiter)>
-		<cfset ls2 = this.listUnique(arguments.ls2, arguments.delimiter)>
+		<cfset var list1 = this.listUnique(arguments.ls1, arguments.delimiter)>
+		<cfset var list2 = this.listUnique(arguments.ls2, arguments.delimiter)>
 		
-		<cfloop list="#ls1#" index="item" delimiters="#arguments.delimiter#">
-			<cfif listFindNoCase(ls2, item, arguments.delimiter)>
+		<cfloop list="#list1#" index="item" delimiters="#arguments.delimiter#">
+			<cfif listFindNoCase(list2, item, arguments.delimiter)>
 				<cfset result = listAppend(result, item, arguments.delimiter)>
 			</cfif>
 		</cfloop>
@@ -162,8 +161,8 @@
 		<cfset var result = "">
 		
 		<!--- Convert lists to arrays as arrays are more efficient --->
-		<cfset arr1 = listToArray(arguments.ls1, arguments.delimiter)>
-		<cfset arr2 = listToArray(arguments.ls2, arguments.delimiter)>
+		<cfset var arr1 = listToArray(arguments.ls1, arguments.delimiter)>
+		<cfset var arr2 = listToArray(arguments.ls2, arguments.delimiter)>
 
 		<cfset result = arrayToList(this.ArrayUnion(arr1, arr2), arguments.delimiter)>
 		
@@ -179,11 +178,11 @@
 		<cfargument name="delimiter" type="string" required="no" default="," hint="The list delimiter" />
 		<cfset var result = "">
 		
-		<cfset ls1 = this.listUnique(arguments.ls1, arguments.delimiter)>
-		<cfset ls2 = this.listUnique(arguments.ls2, arguments.delimiter)>
+		<cfset var list1 = this.listUnique(arguments.ls1, arguments.delimiter)>
+		<cfset var list2 = this.listUnique(arguments.ls2, arguments.delimiter)>
 		
-		<cfloop list="#ls1#" index="item" delimiters="#arguments.delimiter#">
-			<cfif NOT listFindNoCase(ls2, item, arguments.delimiter)>
+		<cfloop list="#list1#" index="item" delimiters="#arguments.delimiter#">
+			<cfif NOT listFindNoCase(list2, item, arguments.delimiter)>
 				<cfset result = listAppend(result, item, arguments.delimiter)>
 			</cfif>
 		</cfloop>
@@ -200,6 +199,7 @@
 		<cfargument name="newPosition" type="numeric" required="yes" hint="The new item position index" />
 		<cfargument name="delimiter" type="string" required="no" default="," hint="The list delimiter" />
 		<cfset var result = arguments.ls>
+		<cfset var thisItem = "">
 	
 		<!--- Valid index? --->
 		<cfif val(arguments.oldPosition) ge 1 AND val(arguments.oldPosition) le listLen(arguments.ls)>
@@ -245,7 +245,7 @@
 		<cfset var result = ArrayNew(1)>
 	
 		<!--- Create a linked hashset java object as it has: 1) unique key and 2) order --->
-		<cfset lhs = createObject("java", "java.util.LinkedHashSet").init(arguments.arr)>
+		<cfset var lhs = createObject("java", "java.util.LinkedHashSet").init(arguments.arr)>
 		<cfset result = lhs.toArray()>
 		
 		<cfreturn result>
@@ -253,7 +253,7 @@
 	</cffunction>
 	
 
-	<!--- Get the union of 2 arrays: a new array that contains items from both array --->
+	<!--- Get the union of 2 arrays: a new array that contains items from both arrays --->
 	<cffunction name="ArrayUnion" access="public" returntype="array">
 		<cfargument name="arr1" type="array" required="yes" hint="The first array" />
 		<cfargument name="arr2" type="array" required="yes" hint="The second array" />
@@ -288,6 +288,7 @@
 	<cffunction name="structValueList" access="public" returntype="string" hint="">
 		<cfargument name="struct" type="struct" required="yes" hint="The struct that contains the values">
 		<cfset var result = "">
+		<cfset var v = "">
 		
 		<cfloop collection="#arguments.struct#" item="k">
 			<cfset v = arguments.struct[k]>
@@ -347,8 +348,10 @@
 		<cfargument name="groupBy" type="string" required="yes" hint="The name of the column to be grouped by">
 		<cfargument name="groupColumns" type="string" required="yes" hint="The columns to be combined/group">
 		<cfargument name="delimiter" type="string" required="no" default="," hint="The grouped col delimiter">
+
+		<cfset var qGrouped = QueryNew(arguments.query.columnList,repeatString("varchar,", listLen(arguments.query.columnList) - 1) & "varchar")>
+		<cfset var grouped = "">
 		
-		<cfset qGrouped = QueryNew(arguments.query.columnList,repeatString("varchar,", listLen(arguments.query.columnList) - 1) & "varchar")>
 		<cfoutput query="arguments.query" group="#arguments.groupBy#">
 			<!--- Create empty groups --->
 			<cfset grouped = StructNew()>
@@ -378,4 +381,78 @@
 		
 	</cffunction>
 			
+
+	<!--- ============================================= OBJECT/COMPONENT ============================================ --->
+
+	<!--- Retrieve private variables --->
+	<cffunction name="getPrivate" displayname="getPrivate" access="private" returntype="struct" hint="Retrieve private variables">
+		
+		<cfargument name="group" type="boolean" required="no" default="true" hint="Group the local variables">
+		<cfset var result = StructNew()>
+		<cfset var thisVar = "">
+		
+		<!--- Group the variables? --->
+		<cfif arguments.group>
+			<cfset result.simpleValues = StructNew()>
+			<cfset result.arrays = StructNew()>
+			<cfset result.structs = StructNew()>
+			<cfset result.queries = StructNew()>
+			<cfset result.objects = StructNew()>
+			<cfset result.privateFunctions = StructNew()>
+			
+			<cfloop collection="#variables#" item="thisVar">
+			
+				<!--- Simple values? --->
+				<cfif isSimpleValue(variables[thisVar])>
+					<cfset result.simpleValues[thisVar] = variables[thisVar]>
+				
+				<!--- Array? --->
+				<cfelseif isArray(variables[thisVar])>
+					<cfset result.arrays[thisVar] = variables[thisVar]>
+				
+				<!--- Struct? --->
+				<cfelseif isStruct(variables[thisVar]) AND thisVar neq "this">
+					<cfset result.structs[thisVar] = variables[thisVar]>
+				
+				<!--- Query? --->
+				<cfelseif isQuery(variables[thisVar])>
+					<cfset result.queries[thisVar] = variables[thisVar]>
+				
+				<!--- Object? --->
+				<cfelseif isObject(variables[thisVar]) AND thisVar neq "this">
+					<cfset result.objects[thisVar] = variables[thisVar]>
+				
+				<!--- Private custom functions? --->
+				<cfelseif isCustomFunction(variables[thisVar]) AND variables[thisVar].access eq "private">
+					<cfset result.privateFunctions[thisVar] = variables[thisVar]>
+				</cfif>
+			</cfloop>
+		<cfelse>
+			<cfset result = variables>
+		</cfif>
+		
+		<cfreturn result>
+		
+	</cffunction>
+	
+	
+	<!--- Get private variables inside an object --->
+	<cffunction name="getPrivateVariables" displayname="getPrivateVariables" access="public" hint="Get private variables inside an object">
+	
+		<cfargument name="obj" type="component" required="yes" hint="The object to retrieve the private variables from">
+		<cfargument name="group" type="boolean" required="no" default="true" hint="Group the local variables">
+		<cfset var result = StructNew()>
+		
+		<!--- Create a random function name --->
+		<cfset var funcName = reReplaceNoCase("f_#createUUID()#", "[^a-zA-Z0-9_]", "", "ALL")>
+		<cfset arguments.obj[funcName] = variables.getPrivate>
+		<cfinvoke component="#arguments.obj#" method="#funcName#" group="#arguments.group#" returnvariable="result">
+		
+		<!--- Remove this function --->
+		<cfset StructDelete(arguments.obj, funcName)>
+		
+		<cfreturn result>
+		
+	</cffunction>
+		
 </cfcomponent>

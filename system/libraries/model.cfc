@@ -19,25 +19,25 @@
 
 	<!--- MODEL VARIABLES --->
 	<cfscript>
-		This.wheres = StructNew();
-		This.where_list = StructNew();
-		This.recordUpdatorId = true;
-		This.ranValidation = false;
-		This.validationResult = "";
-		This.properties = StructNew();
+		variables.wheres = StructNew();
+		variables.where_list = StructNew();
+		variables.recordUpdatorId = true;
+		variables.ranValidation = false;
+		variables.validationResult = "";
+		variables.properties = StructNew();
 		
 		// Fields
-		This.createdField = "created";
-		This.creatorIdField = "creatorId";
-		This.modifiedField = "modified";
-		This.modifierIdField = "modifierId";
-		This.archivedField = "archived";
-		This.archiverIdField = "archiverId";
-		This.orderby = "id DESC";
-		This.textIdField = "textId";
-		This.hasOnes = "";
-		This.hasManys = "";
-		This.tableName = "";
+		variables.createdField = "created";
+		variables.creatorIdField = "creatorId";
+		variables.modifiedField = "modified";
+		variables.modifierIdField = "modifierId";
+		variables.archivedField = "archived";
+		variables.archiverIdField = "archiverId";
+		variables.orderby = "id DESC";
+		variables.textIdField = "textId";
+		variables.hasOnes = "";
+		variables.hasManys = "";
+		variables.tableName = "";
 		This.error = "";
 	</cfscript>
 	
@@ -57,7 +57,7 @@
 		<!--- Record this id --->
 		<cfif StructKeyExists(arguments, "id")>
 			<cfset variables.id = val(arguments.id)>
-			<cfset this.id = val(arguments.id)>
+			<cfset This.id = val(arguments.id)>
 		</cfif>
 		
 		<!--- Record this text id --->
@@ -66,29 +66,29 @@
 		</cfif>
 		
 		<!--- Model metadata --->
-		<cfset this.metaData = getMetaData(this)>
-		<cfset this.modelName = lcase(listLast(this.metaData.name, '.'))>
+		<cfset variables.metaData = getMetaData(this)>
+		<cfset variables.modelName = lcase(listLast(variables.metaData.name, '.'))>
 				
 		<!--- Table name for this model --->
-		<cfif NOT len(trim(this.tableName))>
-			<cfset This.tableName = application.utils.plural(this.modelName)>
+		<cfif NOT len(trim(variables.tableName))>
+			<cfset variables.tableName = application.utils.plural(variables.modelName)>
 		</cfif>
 		
 		<!--- Some extra properties for this model --->
 		<cfloop collection="#arguments.properties#" item="i">
-			<cfset this.properties[i] = arguments.properties[i]>
+			<cfset variables.properties[i] = arguments.properties[i]>
 		</cfloop>
 
 		<cfif (StructKeyExists(arguments, "id") OR StructKeyExists(arguments, "textId"))>
 			<!--- Get the model details and force it to refresh as user initializes the model --->
-			<cfset this.query = this.get(true)>
+			<cfset This.query = This.get(true)>
 			
-			<cfif this.query.recordCount>
+			<cfif This.query.recordCount>
 				<!--- A record is found, update this model id --->
-				<cfset variables.id = this.query.id>
-				<cfset this.id = this.query.id>
+				<cfset variables.id = This.query.id>
+				<cfset This.id = This.query.id>
 			<cfelse>
-				<cfset this.error = "The #lcase(this.modelName)# is not found">
+				<cfset This.error = "The #lcase(variables.modelName)# is not found">
 			</cfif>
 		</cfif>
 		
@@ -117,18 +117,18 @@
 		<cfif arguments.ignoreMissingFields>
 			<!--- As missing fields are ignored, get the new list of fields that are actually affected this time --->
 			<cfset fieldList = ArrayNew(1)>
-			<cfloop array="#this.fields#" index="field">
+			<cfloop array="#This.fields#" index="field">
 				<cfif StructKeyExists(fieldValues, field.name)>
 					<cfset arrayAppend(fieldList, field)>
 				</cfif>
 			</cfloop>
 		<cfelse>
-			<cfset fieldList = this.fields>
+			<cfset fieldList = This.fields>
 		</cfif>
 				
 		<!--- Validate the values --->
-		<cfif This.ranValidation>
-			<cfset validateResult.errorList = this.validationResult.errorList>
+		<cfif variables.ranValidation>
+			<cfset validateResult.errorList = variables.validationResult.errorList>
 		<cfelse>
 			<cfset objValidation = application.load.library('validation').init(this)>
 			<cfset validateResult = objValidation.run(fieldValues, fieldList)>
@@ -140,7 +140,7 @@
 			<cfif StructKeyExists(variables, "id")>
 				<!--- Update the model --->
 				<cfquery name="qUpdate" datasource="#application.dbname#" username="#application.dbuser#" password="#application.dbpassword#">
-					UPDATE #this.tableName#
+					UPDATE #variables.tableName#
 					SET
 						<cfloop array="#fieldList#" index="field">
 							<cfif StructKeyExists(fieldValues, field.name)>
@@ -151,11 +151,11 @@
 								</cfif>
 							</cfif>
 						</cfloop>
-						#This.modifiedField# = <cfqueryparam value="#Now()#" cfsqltype="CF_SQL_TIMESTAMP">
+						#variables.modifiedField# = <cfqueryparam value="#Now()#" cfsqltype="CF_SQL_TIMESTAMP">
 						
 						<!--- Record the person who makes this change? --->
-						<cfif This.recordUpdatorId>
-							, #This.modifierIdField# = <cfqueryparam value="#val(variables.userId)#" cfsqltype="CF_SQL_INTEGER">
+						<cfif variables.recordUpdatorId>
+							, #variables.modifierIdField# = <cfqueryparam value="#val(variables.userId)#" cfsqltype="CF_SQL_INTEGER">
 						</cfif>
 					WHERE
 						id = <cfqueryparam value="#val(variables.id)#" cfsqltype="CF_SQL_INTEGER">
@@ -168,17 +168,17 @@
 			<cfelse>
 				<!--- Add the model --->
 				<cfquery name="qAdd" datasource="#application.dbname#" username="#application.dbuser#" password="#application.dbpassword#">
-					INSERT INTO #this.tableName# (
+					INSERT INTO #variables.tableName# (
 						<cfloop array="#fieldList#" index="field">
 							<cfif StructKeyExists(fieldValues, field.name)>
 								#field.name#, 
 							</cfif>
 						</cfloop>
-						#This.createdField#
+						#variables.createdField#
 
 						<!--- Record the person who makes this change? --->
-						<cfif This.recordUpdatorId>
-							, #This.creatorIdField#
+						<cfif variables.recordUpdatorId>
+							, #variables.creatorIdField#
 						</cfif>
 						)
 					VALUES
@@ -195,7 +195,7 @@
 						<cfqueryparam value="#Now()#" cfsqltype="CF_SQL_TIMESTAMP">
 
 						<!--- Record the person who makes this change? --->
-						<cfif This.recordUpdatorId>
+						<cfif variables.recordUpdatorId>
 							, <cfqueryparam value="#val(variables.userId)#" cfsqltype="CF_SQL_INTEGER">
 						</cfif>
 					)
@@ -214,8 +214,8 @@
 				</cfif>
 				
 				<cfset result.newId = qAdd.newId>
-				<cfif StructKeyExists(fieldValues, This.textIdField)>
-					<cfset result.newTextId = fieldValues[This.textIdField]>
+				<cfif StructKeyExists(fieldValues, variables.textIdField)>
+					<cfset result.newTextId = fieldValues[variables.textIdField]>
 				</cfif>
 			</cfif>
 		</cfif>
@@ -234,18 +234,18 @@
 		<!--- Is there any model to delete? --->
 		<cfif StructKeyExists(variables, "id")>
 			<cfquery name="qDelete" datasource="#application.dbname#" username="#application.dbuser#" password="#application.dbpassword#">
-				UPDATE #this.tableName#
+				UPDATE #variables.tableName#
 				SET
-					#this.archivedField# = <cfqueryparam value="#Now()#" cfsqltype="CF_SQL_TIMESTAMP">
+					#variables.archivedField# = <cfqueryparam value="#Now()#" cfsqltype="CF_SQL_TIMESTAMP">
 
 					<!--- Record the person who makes this change? --->
-					<cfif This.recordUpdatorId>
-						, #this.archiverIdField# = <cfqueryparam value="#val(variables.userId)#" cfsqltype="CF_SQL_INTEGER">
+					<cfif variables.recordUpdatorId>
+						, #variables.archiverIdField# = <cfqueryparam value="#val(variables.userId)#" cfsqltype="CF_SQL_INTEGER">
 					</cfif>
 				WHERE id = <cfqueryparam value="#val(variables.id)#" cfsqltype="cf_sql_integer">
 			</cfquery>
 		<cfelse>
-			<cfset ArrayAppend(result.errorList, "There is no #this.modelName# to delete")>
+			<cfset ArrayAppend(result.errorList, "There is no #variables.modelName# to delete")>
 		</cfif>
 		
 		<cfreturn result>
@@ -258,7 +258,7 @@
 		
 		<cfargument name="refresh" type="boolean" required="no" default="false" hint="true: force refresh the query">
 		
-		<cfif NOT isDefined("this.query") OR arguments.refresh>
+		<cfif NOT isDefined("This.query") OR arguments.refresh>
 			<!--- Get this record details --->
 			<cfinvoke method="getAll" returnvariable="qDetails">
 				<!--- No id or text id passed in? => Get a blank record --->
@@ -281,7 +281,7 @@
 			
 			<cfreturn qDetails>		
 		<cfelse>
-			<cfreturn this.query>
+			<cfreturn This.query>
 		</cfif>
 		
 	</cffunction>
@@ -300,22 +300,22 @@
 		<!--- Get the list of models --->
 		<cfquery name="qList" datasource="#application.dbname#" username="#application.dbuser#" password="#application.dbpassword#">
 			SELECT *
-			FROM #this.tableName#
+			FROM #variables.tableName#
 			WHERE 1 = 1
 				
 				<!--- Get archived model? --->
 				<cfif arguments.getArchived>
-					AND #this.archivedField# IS NOT NULL
+					AND #variables.archivedField# IS NOT NULL
 				<cfelse>
-					AND #this.archivedField# IS NULL
+					AND #variables.archivedField# IS NULL
 				</cfif>
 				
-				<cfloop collection="#This.wheres#" item="field">
-					AND #field# = <cfqueryparam value="#This.wheres[field]#" />
+				<cfloop collection="#variables.wheres#" item="field">
+					AND #field# = <cfqueryparam value="#variables.wheres[field]#" />
 				</cfloop>
 			
-				<cfloop collection="#This.where_list#" item="field">
-					AND #field# IN (<cfqueryparam value="#This.where_list[field]#" list="yes" />)
+				<cfloop collection="#variables.where_list#" item="field">
+					AND #field# IN (<cfqueryparam value="#variables.where_list[field]#" list="yes" />)
 				</cfloop>
 			
 				<!--- Limit to a particular record --->
@@ -324,17 +324,17 @@
 				</cfif>
 				
 				<cfif StructKeyExists(arguments, "textId") AND trim(arguments.textId) neq "">
-					AND #this.textIdField# = <cfqueryparam value="#trim(arguments.textId)#" cfsqltype="cf_sql_varchar" />
+					AND #variables.textIdField# = <cfqueryparam value="#trim(arguments.textId)#" cfsqltype="cf_sql_varchar" />
 				</cfif>
 			  
-			<cfif isDefined("this.orderby")>
-				ORDER BY #this.orderby#
+			<cfif isDefined("variables.orderby")>
+				ORDER BY #variables.orderby#
 			</cfif>
 		</cfquery>
 		
 		<!--- Reset the where clauses --->
-		<cfset StructClear(this.wheres)>
-		<cfset StructClear(this.where_list)>
+		<cfset StructClear(variables.wheres)>
+		<cfset StructClear(variables.where_list)>
 
 		<cfreturn qList>
 
@@ -347,7 +347,7 @@
 		<cfargument name="field" type="string" required="yes" hint="The where field">
 		<cfargument name="value" type="string" required="yes" hint="The where value">
 		
-		<cfset this.wheres[arguments.field] = arguments.value>
+		<cfset variables.wheres[arguments.field] = arguments.value>
 		
 		<cfreturn this>
 	
@@ -358,8 +358,8 @@
 	<cffunction name="resetWhere" displayname="resetWhere" access="private" hint="">
 	
 		<!--- Reset the where clauses --->
-		<cfset StructClear(this.wheres)>
-		<cfset StructClear(this.where_list)>
+		<cfset StructClear(variables.wheres)>
+		<cfset StructClear(variables.where_list)>
 	
 	</cffunction>
 	
@@ -400,8 +400,8 @@
 			SELECT *
 			FROM qArchived
 			
-			<cfif isDefined("this.orderby")>
-				ORDER BY #this.orderby#
+			<cfif isDefined("variables.orderby")>
+				ORDER BY #variables.orderby#
 			</cfif>
 		</cfquery>
 		
@@ -418,18 +418,18 @@
 		<!--- Is there any model to undelete? --->
 		<cfif StructKeyExists(variables, "id")>
 			<cfquery name="qDelete" datasource="#application.dbname#" username="#application.dbuser#" password="#application.dbpassword#">
-				UPDATE #this.tableName#
+				UPDATE #variables.tableName#
 				SET
-					#this.archivedField# = NULL
+					#variables.archivedField# = NULL
 
 					<!--- Record the person who makes this change? --->
-					<cfif This.recordUpdatorId>
-						, #this.archiverIdField# = NULL
+					<cfif variables.recordUpdatorId>
+						, #variables.archiverIdField# = NULL
 					</cfif>
 				WHERE id = <cfqueryparam value="#val(variables.id)#" cfsqltype="cf_sql_integer">
 			</cfquery>
 		<cfelse>
-			<cfset ArrayAppend(result.errorList, "There is no #this.modelName# to undelete")>
+			<cfset ArrayAppend(result.errorList, "There is no #variables.modelName# to undelete")>
 		</cfif>
 		
 		<cfreturn result>
@@ -446,11 +446,11 @@
 		<!--- Is there any model to delete? --->
 		<cfif StructKeyExists(variables, "id")>
 			<cfquery name="qDelete" datasource="#application.dbname#" username="#application.dbuser#" password="#application.dbpassword#">
-				DELETE FROM #this.tableName#
+				DELETE FROM #variables.tableName#
 				WHERE id = <cfqueryparam value="#val(variables.id)#" cfsqltype="cf_sql_integer">
 			</cfquery>
 		<cfelse>
-			<cfset ArrayAppend(result.errorList, "There is no #this.modelName# to delete")>
+			<cfset ArrayAppend(result.errorList, "There is no #variables.modelName# to delete")>
 		</cfif>
 		
 		<cfreturn result>
@@ -493,11 +493,11 @@
 				<cfquery name="qAddNew" datasource="#application.dbname#" username="#application.dbuser#" password="#application.dbpassword#">
 					INSERT INTO #arguments.relatedTableName# 
 					(
-						#arguments.fieldName#, #arguments.relatedFieldName#, #This.createdField#
+						#arguments.fieldName#, #arguments.relatedFieldName#, #createdField#
 	
 						<!--- Record the person who makes this change? --->
-						<cfif This.recordUpdatorId>
-							, #This.creatorIdField#
+						<cfif variables.recordUpdatorId>
+							, #variables.creatorIdField#
 						</cfif>
 					)
 	
@@ -511,7 +511,7 @@
 							<cfqueryparam value="#Now()#" cfsqltype="CF_SQL_TIMESTAMP">
 	
 							<!--- Record the person who makes this change? --->
-							<cfif This.recordUpdatorId>
+							<cfif variables.recordUpdatorId>
 								, <cfqueryparam value="#val(variables.userId)#" cfsqltype="CF_SQL_INTEGER">
 							</cfif>
 						)
@@ -533,8 +533,8 @@
 		<cfset var result = StructNew()>
 		<cfset result.errorList = ArrayNew(1)>
 		
-		<cfset this.ranValidation = false>
-		<cfset this.error = "">
+		<cfset variables.ranValidation = false>
+		<cfset This.error = "">
 		<cfset StructDelete(variables, "id")>
 		<cfset StructDelete(variables, "textId")>
 		<cfset StructDelete(this, "id")>

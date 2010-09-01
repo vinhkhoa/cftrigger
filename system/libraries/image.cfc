@@ -25,6 +25,11 @@
 		<cfargument name="resizeHeight" type="numeric" required="no" hint="The height to resize">
 		<cfargument name="forceScaling" type="boolean" required="no" default="false" hint="true: always attempt to scale and throw error when attempting to scale up an image. flase: when the image size is unchanged or smaller than then scale size, just ignore and return no error">
 		<cfset var result = StructNew()>
+		<cfset var imgInfo = "">
+		<cfset var imgRatio = "">
+		<cfset var resizeRatio = "">
+		<cfset var w = "">
+		<cfset var h = "">
 		<cfset result.error = "">
 		
 		<!--- Is there a size passed in? --->
@@ -136,6 +141,12 @@
 		<cfargument name="keepClientFileName" type="string" required="no" default="false" hint="true: keep the client file name">
 		<cfargument name="overwrite" type="boolean" required="no" default="true" hint="true: overwrite existing file">
 		<cfset var result = StructNew()>
+		<cfset var destFolder = "">
+		<cfset var nameconflict = "">
+		<cfset var newFileName = "">
+		<cfset var newFileLocation = "">
+		<cfset var renameResult = "">
+		<cfset var resizeResult = "">
 		<cfset result.error = "">
 		<cfset result.clientFile = "">
 		<cfset result.uploadedFolder = "">
@@ -145,9 +156,9 @@
 		<cfset result.fileExisted = false>
 		
 		<!--- Upload the file --->
-		<cfset destinationFolder = application.FilePath & arguments.destinationFolder & application.separator>
-		<cfset destinationFolder = reReplace(destinationFolder, "\#application.oppSeparator#", application.separator, "ALL")>
-		<cfset destinationFolder = reReplace(destinationFolder, "\#application.separator#{2,}", application.separator, "ALL")>
+		<cfset destFolder = application.FilePath & arguments.destinationFolder & application.separator>
+		<cfset destFolder = reReplace(destFolder, "\#application.oppSeparator#", application.separator, "ALL")>
+		<cfset destFolder = reReplace(destFolder, "\#application.separator#{2,}", application.separator, "ALL")>
 		
 		<cftry>
 			<!--- Overwrite? --->
@@ -157,8 +168,8 @@
 				<cfset nameconflict = "error">
 			</cfif>
 		
-			<cfset application.directory.create(destinationFolder)>
-			<cffile action="upload" fileField="#arguments.formField#" destination="#destinationFolder#" accept="image/jpg,image/gif,image/png,image/jpeg" nameconflict="#nameconflict#" result="uploadResult">
+			<cfset application.directory.create(destFolder)>
+			<cffile action="upload" fileField="#arguments.formField#" destination="#destFolder#" accept="image/jpg,image/gif,image/png,image/jpeg" nameconflict="#nameconflict#" result="uploadResult">
 			
 			<cfset result.fileExisted = uploadResult.fileExisted>
 			<cfset result.uploadedFolder = uploadResult.serverDirectory & application.separator>
@@ -245,17 +256,19 @@
 		<cfargument name="imageSize" type="numeric" required="yes" hint="The width and height of the image">
 		<cfargument name="content" type="string" required="yes" hint="The content to be generated in this qr code">
 		<cfset var result = StructNew()>
+		<cfset var destFolder = "">
+		<cfset var createDirResult = "">
 		<cfset result.error = "">
 
 		<!--- Get the qr code image folder and file name --->
-		<cfset destinationFolder = application.FilePath & arguments.destinationFolder & application.separator>
-		<cfset destinationFolder = reReplace(destinationFolder, "\#application.separator#{2,}", application.separator, "ALL")>
+		<cfset destFolder = application.FilePath & arguments.destinationFolder & application.separator>
+		<cfset destFolder = reReplace(destFolder, "\#application.separator#{2,}", application.separator, "ALL")>
 		
 		<!--- Create the folder --->
-		<cfset createDirResult = application.directory.create(destinationFolder)>
+		<cfset createDirResult = application.directory.create(destFolder)>
 		
 		<!--- Generate and save qr code image --->
-		<cfimage action="write" source="http://chart.apis.google.com/chart?cht=qr&chs=#arguments.imageSize#x#arguments.imageSize#&chl=#URLEncodedFormat(arguments.content)#" destination="#destinationFolder##arguments.fileName#" overwrite="yes">
+		<cfimage action="write" source="http://chart.apis.google.com/chart?cht=qr&chs=#arguments.imageSize#x#arguments.imageSize#&chl=#URLEncodedFormat(arguments.content)#" destination="#destFolder##arguments.fileName#" overwrite="yes">
 		
 		<cfreturn result>
 				

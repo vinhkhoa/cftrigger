@@ -24,21 +24,19 @@
 		<cfargument name="template" type="string" required="yes" hint="The path to the controller to be loaded">
 		<cfset var result = "">
 		
-		<!--- Validate the controller --->
-		<cfset validateResult = this.validateController(arguments.template)>
-		<cfset controllerFile = validateResult.controllerFile>
-		<cfset controllerComponent = validateResult.controllerComponent>
+		<!--- Get and validate the controller --->
+		<cfset var validateResult = this.validateController(arguments.template)>
 		
 		<!--- Get the controller file --->
 		<cfif validateResult.exists>
-			<cfset result = CreateObject("component", controllerComponent).init()>
+			<cfset result = CreateObject("component", validateResult.controllerComponent).init()>
 		<cfelse>
 			<!--- Display friendly error or let Coldfusion blow it up? --->
 			<cfif application.showFriendlyError>
 				<cfset application.error.show_404()>
 			<cfelse>
 				<!--- THIS WILL THROW ERROR!!! LOAD THE LIBRARY TO THROW ERROR ON PURPOSE --->
-				<cfset temp = CreateObject("component", controllerComponent)>
+				<cfset result = CreateObject("component", validateResult.controllerComponent)>
 			</cfif>
 		</cfif>
 		
@@ -54,23 +52,37 @@
 		<cfargument name="saveResult" type="boolean" required="no" default="false" hint="True: save the view and return it. False: display the view.">
 		<cfargument name="fields" type="array" required="no" hint="Pass in the fields to set client side validation on forms">
 		<cfset var result = "">
+		<cfset var objTemplate = "">
+		<cfset var replaceFroms = "">
+		<cfset var replaceTos = "">
+		<cfset var inputRules = "">
+		<cfset var extractInputs = "">
+		<cfset var input = "">
+		<cfset var tag = "">
+		<cfset var name = "">
+		<cfset var thisRule = "">
+		<cfset var replaceTo = "">
+		<cfset var class = "">
+		<cfset var attrs = "">
+		<cfset var extractAttrRules = "">
+		<cfset var counter = "">
+		<cfset var field = "">
 		
-		<!--- Validate the view --->
-		<cfset validateResult = this.validateView(arguments.template)>
-		<cfset viewFile = validateResult.viewFile>
+		<!--- Get and validate the view --->
+		<cfset var validateResult = this.validateView(arguments.template)>
 
 		<!--- Parse the view and save its content --->
 		<cfif validateResult.exists>
 			<!--- Include the template --->
 			<cfset objTemplate = createObject("component", "template")>
-			<cfsavecontent variable="result"><cfoutput>#objTemplate.includeWithData(viewFile, arguments.data)#</cfoutput></cfsavecontent>
+			<cfsavecontent variable="result"><cfoutput>#objTemplate.includeWithData(validateResult.viewFile, arguments.data)#</cfoutput></cfsavecontent>
 		<cfelse>
 			<!--- Display friendly error or let Coldfusion blow it up? --->
 			<cfif application.showFriendlyError>
-				<cfset application.error.show_error("View not found", "The system cannot find the specified view: #viewFile#")>
+				<cfset application.error.show_error("View not found", "The system cannot find the specified view: #validateResult.viewFile#")>
 			<cfelse>
 				<!--- THIS WILL THROW ERROR!!! INCLUDE THE FILE TO THROW ERROR ON PURPOSE --->
-				<cfinclude template="#viewFile#">
+				<cfinclude template="#validateResult.viewFile#">
 			</cfif>
 		</cfif>
 		
@@ -154,8 +166,8 @@
 			</cfloop>
 			
 			<!--- Perform replacement to the entire form --->
-			<cfloop from="1" to="#arrayLen(replaceFroms)#" index="i">
-				<cfset result = replace(result, replaceFroms[i], replaceTos[i], "ALL")>
+			<cfloop from="1" to="#arrayLen(replaceFroms)#" index="counter">
+				<cfset result = replace(result, replaceFroms[counter], replaceTos[counter], "ALL")>
 			</cfloop>
 		</cfif>
 
@@ -179,10 +191,11 @@
 		<cfargument name="data" type="struct" required="no" hint="Data passed to the controller init function">
 		<cfargument name="getArchived" type="boolean" required="no" hint="true: get archived model">
 		<cfset var result = "">
+		<cfset var paramName= "">
 		
 		<!--- Get the component and file paths --->
-		<cfset templateFile = application.modelFilePath & lcase(arguments.template) & ".cfc">
-		<cfset templateComponent = application.modelRoot & "." & lcase(arguments.template)>
+		<cfset var templateFile = application.modelFilePath & lcase(arguments.template) & ".cfc">
+		<cfset var templateComponent = application.modelRoot & "." & lcase(arguments.template)>
 		
 		<!--- load the application model --->
 		<cfif fileExists(templateFile)>
@@ -224,7 +237,7 @@
 				<cfset application.error.show_error("Model not found", "The system cannot find the specified model: #templateComponent#")>
 			<cfelse>
 				<!--- THIS WILL THROW ERROR!!! LOAD THE LIBRARY TO THROW ERROR ON PURPOSE --->
-				<cfset temp = CreateObject("component", templateComponent)>
+				<cfset result = CreateObject("component", templateComponent)>
 			</cfif>
 		</cfif>		
 		
@@ -243,10 +256,10 @@
 		<cfset var result = "">
 		
 		<!--- Get the component and file paths --->
-		<cfset templateFile = application.libraryFilePath & lcase(arguments.template) & ".cfc">
-		<cfset templateComponent = application.libraryRoot & "." & lcase(arguments.template)>
-		<cfset CFT_templateFile = application.CFT_libraryFilePath & lcase(arguments.template) & ".cfc">
-		<cfset CFT_templateComponent = "cft.libraries." & lcase(arguments.template)>
+		<cfset var templateFile = application.libraryFilePath & lcase(arguments.template) & ".cfc">
+		<cfset var templateComponent = application.libraryRoot & "." & lcase(arguments.template)>
+		<cfset var CFT_templateFile = application.CFT_libraryFilePath & lcase(arguments.template) & ".cfc">
+		<cfset var CFT_templateComponent = "cft.libraries." & lcase(arguments.template)>
 		
 		<!--- load the application library --->
 		<cfif fileExists(templateFile)>
@@ -260,7 +273,7 @@
 					<cfset application.error.show_error("Library not found", "The system cannot find the specified library: #templateComponent# OR #CFT_templateComponent#")>
 				<cfelse>
 					<!--- THIS WILL THROW ERROR!!! LOAD THE LIBRARY TO THROW ERROR ON PURPOSE --->
-					<cfset temp = CreateObject("component", CFT_templateComponent)>
+					<cfset result = CreateObject("component", CFT_templateComponent)>
 				</cfif>
 			</cfif>
 		</cfif>		
@@ -282,19 +295,21 @@
 		<cfargument name="fields" type="array" required="no" hint="Pass in the fields to set client side validation on forms">
 		<cfargument name="contentField" type="string" required="no" default="content" hint="Specify the variable name to be returned after loading the view. This variable is put into the struct to be passed to the template.">
 		<cfargument name="useTemplate" type="string" required="no" default="#application.defaultTemplate#" hint="The template to be used. If no passed in, use the default template defined in the config">
+		<cfset var templateData = StructNew()>
+		<cfset var content = "">
 		
-		<cfset data = arguments.data>
+		<cfset templateData = StructCopy(arguments.data)>
 		<cfinvoke method="view" returnvariable="content">
 			<cfinvokeargument name="template" value="#arguments.template#">
-			<cfinvokeargument name="data" value="#data#">
+			<cfinvokeargument name="data" value="#arguments.data#">
 			<cfinvokeargument name="saveResult" value="true">
 			<cfif StructKeyExists(arguments, "fields")>
 				<cfinvokeargument name="fields" value="#arguments.fields#">
 			</cfif>
 		</cfinvoke>
 
-		<cfset data[contentField] = content>
-		<cfset application.load.view(arguments.useTemplate, data)>
+		<cfset templateData[arguments.contentField] = content>
+		<cfset this.view(arguments.useTemplate, templateData)>
 		
 	</cffunction>
 	
@@ -305,10 +320,11 @@
 		<cfargument name="data" type="struct" required="no" default="#StructNew()#" hint="Data passed to the error">
 		<cfargument name="saveResult" type="boolean" required="no" default="false" hint="True: save the error page and return it. False: display the error page.">
 		<cfset var result = "">
+		<cfset var objTemplate = "">
 		
 		<!--- Get the error file --->
-		<cfset errorFile = "#application.errorPath#/#lcase(arguments.template)#.cfm">
-		<cfset CFT_errorFile = "/cft/errors/#lcase(arguments.template)#.cfm">
+		<cfset var errorFile = "#application.errorPath#/#lcase(arguments.template)#.cfm">
+		<cfset var CFT_errorFile = "/cft/errors/#lcase(arguments.template)#.cfm">
 
 		<!--- Parse the error page and save its content --->
 		<cfif fileExists(expandPath(errorFile))>
@@ -338,14 +354,16 @@
 		<cfargument name="data" type="struct" required="no" default="#StructNew()#" hint="Data passed to the errpr">
 		<cfargument name="contentField" type="string" required="no" default="content" hint="Specify the variable name to be returned after loading the view. This variable is put into the struct to be passed to the template.">
 		
-		<cfset data = arguments.data>
+		<cfset var templateData = arguments.data>
+		<cfset var content = "">
+		
 		<cfinvoke method="error" returnvariable="content">
 			<cfinvokeargument name="template" value="#arguments.template#">
 			<cfinvokeargument name="data" value="#data#">
 			<cfinvokeargument name="saveResult" value="true">
 		</cfinvoke>
-		<cfset data[contentField] = content>
-		<cfset application.load.view(application.defaultTemplate, data)>
+		<cfset templateData[contentField] = content>
+		<cfset this.view(application.defaultTemplate, templateData)>
 		
 	</cffunction>
 	
@@ -358,24 +376,23 @@
 		<cfset result.viewFile = "">
 		
 		<!--- Direct file? --->
-		<cfset viewFile = "#application.viewPath#/#arguments.template#.cfm">
+		<cfset result.viewFile = "#application.viewPath#/#arguments.template#.cfm">
 		
-		<cfif fileExists(expandPath(viewFile))>
+		<cfif fileExists(expandPath(result.viewFile))>
 			<cfset result.exists = true>
 		<cfelse>
 			<!--- Index file of a folder? --->
-			<cfset viewFile = "#application.viewPath#/#arguments.template#/index.cfm">
+			<cfset result.viewFile = "#application.viewPath#/#arguments.template#/index.cfm">
 			
-			<cfif fileExists(expandPath(viewFile))>
+			<cfif fileExists(expandPath(result.viewFile))>
 				<cfset result.exists = true>
 			</cfif>
 		</cfif>
 		
-		<cfset result.viewFile = viewFile>
-		
 		<cfreturn result>
 	
 	</cffunction>
+	
 
 	<!--- Validate if a controller exists --->
 	<cffunction name="validateController" access="public" returntype="struct">
@@ -386,23 +403,20 @@
 		<cfset result.controllerComponent = "">
 		
 		<!--- Direct file? --->
-		<cfset controllerFile = "#application.controllerPath#/#arguments.template#.cfc">
-		<cfset controllerComponent = application.controllerRoot & "." & lcase(replace(arguments.template, "/", ".", "ALL"))>
+		<cfset result.controllerFile = "#application.controllerPath#/#arguments.template#.cfc">
+		<cfset result.controllerComponent = application.controllerRoot & "." & lcase(replace(arguments.template, "/", ".", "ALL"))>
 
-		<cfif fileExists(expandPath(controllerFile))>
+		<cfif fileExists(expandPath(result.controllerFile))>
 			<cfset result.exists = true>
 		<cfelse>
 			<!--- Index file of a folder? --->
-			<cfset controllerFile = "#application.controllerPath#/#arguments.template#/index.cfc">
-			<cfset controllerComponent = application.controllerRoot & "." & lcase(replace(arguments.template, "/", ".", "ALL")) & ".index">
+			<cfset result.controllerFile = "#application.controllerPath#/#arguments.template#/index.cfc">
+			<cfset result.controllerComponent = application.controllerRoot & "." & lcase(replace(arguments.template, "/", ".", "ALL")) & ".index">
 
-			<cfif fileExists(expandPath(controllerFile))>
+			<cfif fileExists(expandPath(result.controllerFile))>
 				<cfset result.exists = true>
 			</cfif>
 		</cfif>
-		
-		<cfset result.controllerFile = controllerFile>
-		<cfset result.controllerComponent = controllerComponent>
 		
 		<cfreturn result>
 	

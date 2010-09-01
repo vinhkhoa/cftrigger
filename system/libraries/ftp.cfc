@@ -146,6 +146,8 @@
 	
 		<cfargument name="directoryPath" type="string" required="yes" hint="The directory path">
 		<cfset var result = StructNew()>
+		<cfset var missingDirs = "">
+		<cfset var thisDir = "">
 		<cfset result.error = "">
 		
 		<!--- Keep crawling up the the tree until found a directory that exists --->
@@ -263,6 +265,8 @@
 		<cfargument name="localFilePath" type="string" required="yes" hint="The file path">
 		<cfargument name="remoteFilePath" type="string" required="yes" hint="The file path">
 		<cfset var result = StructNew()>
+		<cfset var parentDirectory = "">
+		<cfset var createDirectoryResult = "">
 		<cfset result.error = "">
 		
 		<!--- Create the parent directory --->

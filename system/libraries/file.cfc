@@ -52,33 +52,53 @@
 	<cffunction name="renameToRandom" access="public" returntype="struct">
 		<cfargument name="fileLocation" type="string" required="yes" hint="Location of the file to be renamed">
 		<cfset var result = StructNew()>
+		<cfset var folderLocation = "">
+		<cfset var fileExt = "">
+		<cfset var newFileName = "">
+		<cfset var newFileLocation = "">
+		<cfset result.error = "">
 		<cfset result.newFileName = "">
 		<cfset result.newFileLocation = "">
 		
-		<!--- Get the file name --->
-		<cfset folderLocation = getDirectoryFromPath(arguments.fileLocation)>
-		<cfset fileExt = listLast(getFileFromPath(arguments.fileLocation), ".")>
-		<cfif fileExt neq "">
-			<cfset fileExt = "." & fileExt>
-		</cfif>
-		
-		<!--- Get a new name --->
-		<cfset newFileName = createUUID() & fileExt>
-		<cfset newFileLocation = folderLocation & newFileName>
-		
-		<!--- This random file name already exists? Get another one --->
-		<cfloop condition="#fileExists(newFileLocation)#">
+		<!--- Does the file exist? --->
+		<cfif fileExists(arguments.fileLocation)>
+			<!--- Get the file name --->
+			<cfset folderLocation = getDirectoryFromPath(arguments.fileLocation)>
+			<cfset fileExt = listLast(getFileFromPath(arguments.fileLocation), ".")>
+			<cfif fileExt neq "">
+				<cfset fileExt = "." & fileExt>
+			</cfif>
+			
+			<!--- Get a new name --->
 			<cfset newFileName = createUUID() & fileExt>
 			<cfset newFileLocation = folderLocation & newFileName>
-		</cfloop>
-		
-		<!--- Rename the file --->
-		<cffile action="rename" source="#fileLocation#" destination="#newFileLocation#" attributes="normal">
-		
-		<cfset result.newFileName = newFileName>
-		<cfset result.newFileLocation = newFileLocation>
+			
+			<!--- This random file name already exists? Get another one --->
+			<cfloop condition="#fileExists(newFileLocation)#">
+				<cfset newFileName = createUUID() & fileExt>
+				<cfset newFileLocation = folderLocation & newFileName>
+			</cfloop>
+			
+			<!--- Rename the file --->
+			<cftry>
+				<cffile action="rename" source="#arguments.fileLocation#" destination="#newFileLocation#" attributes="normal">
+				
+				<cfset result.newFileName = newFileName>
+				<cfset result.newFileLocation = newFileLocation>
+				
+				<cfcatch type="any">
+					<cfset result.error = cfcatch.Message>
+					<cfif StructKeyExists(cfcatch, "detail")>
+						<cfset result.error = result.error & " " & cfcatch.Detail>
+					</cfif>
+				</cfcatch>
+			</cftry>
+		<cfelse>
+			<cfset result.error = "The file does not exist.">
+		</cfif>
 		
 		<cfreturn result>
+		
 	</cffunction>
 	
 	
@@ -86,7 +106,7 @@
 	<cffunction name="isAscii" access="public" returntype="boolean">
 		<cfargument name="fileLocation" type="string" required="yes" hint="Location of the file to be checked">
 		
-		<cfset ext = listLast(getFileFromPath(arguments.fileLocation), ".")>
+		<cfset var ext = listLast(getFileFromPath(arguments.fileLocation), ".")>
 		
 		<cfreturn (listFind(application.asciiExtensions, ext) gt 0)>
 	
@@ -98,6 +118,7 @@
 		<cfargument name="fileLocation" type="string" required="yes" hint="Location of the file to be copied">
 		<cfargument name="fileDestination" type="string" required="yes" hint="Copy file to this location">
 		<cfset var result = StructNew()>
+		<cfset var fileDestinationDirectory = "">
 		<cfset result.error = "">
 		
 		<!--- File exists? --->
@@ -107,7 +128,16 @@
 			<cfset application.directory.create(fileDestinationDirectory)>
 			
 			<!--- Copy file --->
-			<cffile action="copy" source="#arguments.fileLocation#" destination="#arguments.fileDestination#" nameconflict="overwrite">
+			<cftry>
+				<cffile action="copy" source="#arguments.fileLocation#" destination="#arguments.fileDestination#" nameconflict="overwrite">
+				
+				<cfcatch type="any">
+					<cfset result.error = cfcatch.Message>
+					<cfif StructKeyExists(cfcatch, "detail")>
+						<cfset result.error = result.error & " " & cfcatch.Detail>
+					</cfif>
+				</cfcatch>
+			</cftry>
 		<cfelse>
 			<cfset result.error = "The file does not exist.">
 		</cfif>

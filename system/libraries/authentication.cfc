@@ -21,7 +21,7 @@
 		<cfargument name="loginController" type="string" required="no" default="login" hint="The login controller">
 		
 		<!--- Authenticate user --->
-		<cfset authenticated = StructKeyExists(session, "userId") AND val(session.userId)>
+		<cfset var authenticated = StructKeyExists(session, "userId") AND val(session.userId)>
 		
 		<!--- Authenticated? --->
 		<cfif NOT authenticated>
@@ -47,7 +47,7 @@
 	<!--- Validate user as guiest. Make sure that user has NOT logged in yet --->
 	<cffunction name="validateAsGuest" displayname="deauthenticate" access="public">
 		
-		<cfset authenticated = StructKeyExists(session, "userId") AND val(session.userId)>
+		<cfset var authenticated = StructKeyExists(session, "userId") AND val(session.userId)>
 		
 		<cfif authenticated>
 			<cfset application.url.redirect()>
