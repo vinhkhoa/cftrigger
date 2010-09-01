@@ -22,7 +22,7 @@
 		<cfargument name="message" type="string" required="yes" hint="The message to be displayed">
 	
 		<cfset session.message = arguments.message>
-		<cfset this.redirect(arguments.location)>
+		<cfset variables.redirect(arguments.location)>
 	
 	</cffunction>
 
@@ -32,9 +32,9 @@
 	
 		<cfargument name="location" type="string" required="yes" hint="The location to redirect to">
 		<cfargument name="error" type="string" required="yes" hint="The error to be displayed">
-	
+		
 		<cfset session.error = arguments.error>
-		<cfset this.redirect(arguments.location)>
+		<cfset variables.redirect(arguments.location)>
 	
 	</cffunction>
 	
@@ -46,7 +46,7 @@
 		<cfargument name="errorList" type="array" required="yes" hint="The error list to be displayed">
 	
 		<cfset session.errorList = arguments.errorList>
-		<cfset this.redirect(arguments.location)>
+		<cfset variables.redirect(arguments.location)>
 	
 	</cffunction>
 	
@@ -55,6 +55,7 @@
 	<cffunction name="redirect" access="public" output="no">
 
 		<cfargument name="location" type="string" required="no" default="" hint="The location to redirect to">
+		<cfset var location = "">
 		
 		<!--- Remove multi-slash and ending index.cfm to make the url looks nicer --->
 		<cfif isValid("url", arguments.location)>
@@ -73,6 +74,7 @@
 
 		<cfargument name="message" type="string" required="no" hint="The message to be displayed">
 		<cfargument name="error" type="string" required="no" hint="The error to be displayed">
+		<cfset var backURL = "">
 		
 		<cfif StructKeyExists(arguments, "message")>
 			<cfset session.message = arguments.message>
@@ -104,6 +106,16 @@
 	<cffunction name="getPathInfoVariables" access="public" returntype="struct" output="no">
 
 		<cfset var result = StructNew()>
+		<cfset var fromDevComputer = "">
+		<cfset var underMaintenaince = "">
+		<cfset var pathInfoStr = "">
+		<cfset var continueSearching = "">
+		<cfset var counter = "">
+		<cfset var path = "">
+		<cfset var logicalPath = "">
+		<cfset var controllerPath = "">
+		<cfset var pathInfo = "">
+		<cfset var pathInfoLength = "">
 		<cfset result.foundController = false>
 		<cfset result.controller = "">
 		<cfset result.rootController = "">
@@ -123,12 +135,10 @@
 			<cfreturn result>
 		</cfif>
 		
-		<cfset pathInfoStr = this.getPathInfoStr()>
+		<cfset pathInfoStr = variables.getPathInfoStr()>
 		<cfset continueSearching = true>
 		<cfset counter = 1>
-		<cfset path = "">
-		<cfset logicalPath = "">
-		
+				
 		<!--- Root? Load the default controller --->
 		<cfif listLen(pathInfoStr, '/') eq 0>
 			<cfset pathInfoStr = "/" & application.defaultController>
@@ -269,7 +279,7 @@
 		<cfargument name="message" type="string" required="yes" hint="The message to be displayed">
 	
 		<cfset session.message = arguments.message>
-		<cfset this.redirectParent(arguments.location)>
+		<cfset variables.redirectParent(arguments.location)>
 	
 	</cffunction>
 
@@ -281,7 +291,7 @@
 		<cfargument name="error" type="string" required="yes" hint="The error to be displayed">
 	
 		<cfset session.error = arguments.error>
-		<cfset this.redirectParent(arguments.location)>
+		<cfset variables.redirectParent(arguments.location)>
 	
 	</cffunction>
 	
@@ -290,6 +300,7 @@
 	<cffunction name="redirectParent" access="public" output="no">
 
 		<cfargument name="location" type="string" required="no" default="" hint="The location to redirect to">
+		<cfset var location = "">
 		
 		<!--- Remove multi-slash and ending index.cfm to make the url looks nicer --->
 		<cfif isValid("url", arguments.location)>
@@ -298,7 +309,7 @@
 			<cfset location = reReplace(reReplace("#application.baseURL#/#arguments.location#", "([^:])/{2,}", "\1/", "ALL"), "index.cfm/$", "")>
 		</cfif>
 		
-		<cfset this.redirect("redirectparent?parentRedirectURL=#location#")>
+		<cfset variables.redirect("redirectparent?parentRedirectURL=#location#")>
 		
 	</cffunction>
 	

@@ -35,7 +35,7 @@
 	<cffunction name="HtmlCompressFormat" access="public" returntype="string">
 		<cfargument name="sInput" type="string" required="yes">
 		<cfargument name="level" type="numeric" default="2" required="no">		
-		<cfset sInput = trim(arguments.sInput)>
+		<cfset var sInput = trim(arguments.sInput)>
 		
 		<cfswitch expression="#arguments.level#">
 			<cfcase value="3">
@@ -102,10 +102,9 @@
 	<cffunction name="plural" access="public" returntype="string" output="false" hint="Return the plural version of a word">
 		<cfargument name="word" type="string" required="yes" hint="The word to be checked">		
 		<cfset var result = "">
-		
-		<cfset word = lcase(trim(arguments.word))>
-		<cfset end = right(word, 1)>
-		<cfset end2 = right(word, 2)>
+		<cfset var word = lcase(trim(arguments.word))>
+		<cfset var end = right(word, 1)>
+		<cfset var end2 = right(word, 2)>
 		
 		<!--- End with a "y"? --->
 		<cfif end eq "y">
@@ -140,13 +139,20 @@
 		<cfargument name="string" type="string" required="yes" hint="The string to search in" />
 		<cfargument name="endOfContent" type="string" required="no" default="" hint="The string that marks the end of the final content" />
 		<cfset var result = ArrayNew(1)>
-		
-		<cfset matches = REMatch(arguments.regex, arguments.string)>
+		<cfset var matches = REMatch(arguments.regex, arguments.string)>
+		<cfset var startPos = "">
+		<cfset var endPos = "">
+		<cfset var counter = "">
+		<cfset var thisMatch = "">
+		<cfset var thisResult = "">
+		<cfset var content = "">
+		<cfset var contentStartPos = "">
+		<cfset var contentLength = "">
 		
 		<cfif arrayLen(matches)>
 			<cfset startPos = 1>
-			<cfloop from="1" to="#arrayLen(matches)#" index="i">
-				<cfset thisMatch = matches[i]>
+			<cfloop from="1" to="#arrayLen(matches)#" index="counter">
+				<cfset thisMatch = matches[counter]>
 				<cfset startPos = find(thisMatch, arguments.string, startPos)>
 				
 				<!--- Add this to the result array --->
@@ -156,11 +162,11 @@
 				<cfset thisResult.len = len(thisMatch)>
 				
 				<!--- Extract content between this match and the previous match --->
-				<cfif i gt 1>
-					<cfset contentStartPos = result[i - 1].pos + result[i - 1].len>
+				<cfif counter gt 1>
+					<cfset contentStartPos = result[counter - 1].pos + result[counter - 1].len>
 					<cfset contentLength = thisResult.pos - contentStartPos>
 					<cfset content = mid(arguments.string, contentStartPos, contentLength)>
-					<cfset result[i - 1].followingContent = content>
+					<cfset result[counter - 1].followingContent = content>
 				</cfif>
 				
 				<cfset arrayAppend(result, thisResult)>
@@ -185,7 +191,7 @@
 				<cfset contentLength = len(arguments.string)>
 			</cfif>
 			<cfset content = mid(arguments.string, contentStartPos, contentLength)>
-			<cfset result[i - 1].followingContent = content>
+			<cfset result[counter - 1].followingContent = content>
 		</cfif>
 		
 		<cfreturn result>
@@ -201,8 +207,8 @@
 		<cfset var result = ArrayNew(1)>
 		
 		<!--- Find the first instance --->
-		<cfset startPos = 1>
-		<cfset found = reFindNoCase("#arguments.startFlag#(.*?)#arguments.endFlag#", arguments.string, startPos, true)>
+		<cfset var startPos = 1>
+		<cfset var found = reFindNoCase("#arguments.startFlag#(.*?)#arguments.endFlag#", arguments.string, startPos, true)>
 		
 		<cfloop condition="found.pos[1] gt 0">
 			<!--- Extract the content --->
@@ -243,9 +249,15 @@
 		<cfargument name="string" type="string" required="yes" hint="The string to search in" />
 		<cfargument name="regExp" type="string" required="yes" hint="The regular expression used to search" />
 		<cfset var result = ArrayNew(1)>
+		<cfset var substrings = "">
+		<cfset var found = "">
+		<cfset var content = "">
+		<cfset var counter = "">
+		<cfset var thisMatch = "">
+		<cfset var substrings = "">
 
 		<!--- Find all matches --->		
-		<cfset matches = ReMatch(arguments.regExp, arguments.string)>
+		<cfset var matches = ReMatch(arguments.regExp, arguments.string)>
 		
 		<!--- For each match, extract the substring --->
 		<cfloop array="#matches#" index="thisMatch">
@@ -253,8 +265,8 @@
 			<cfset found = reFindNoCase(arguments.regExp, thisMatch, 1, true)>
 
 			<!--- Store the results --->
-			<cfloop from="2" to="#arrayLen(found.pos)#" index="i">
-				<cfset content = mid(thisMatch, found.pos[i], found.len[i])>
+			<cfloop from="2" to="#arrayLen(found.pos)#" index="counter">
+				<cfset content = mid(thisMatch, found.pos[counter], found.len[counter])>
 				<cfset arrayAppend(substrings, content)>
 			</cfloop>
 			
@@ -270,8 +282,9 @@
 	<cffunction name="getTagAttributes" access="public" returntype="struct">
 		<cfargument name="tag" type="string" required="yes" hint="The tag to search in" />
 		<cfset var result = StructNew()>
+		<cfset var pair = "">
 	
-		<cfset attributePairs = This.extract(arguments.tag, '[ |"]([^=]+)="([^"]+)"')>
+		<cfset var attributePairs = This.extract(arguments.tag, '[ |"]([^=]+)="([^"]+)"')>
 		<cfloop array="#attributePairs#" index="pair">
 			<cfset result[pair[1]] = pair[2]>
 		</cfloop>
@@ -286,9 +299,11 @@
 		<cfargument name="string" type="string" required="yes" hint="The string to search in" />
 		<cfargument name="tagName" type="string" required="yes" hint="The tag name" />
 		<cfset var result = ArrayNew(1)>
+		<cfset var t = "">
+		<cfset var thisTag = "">
 		
 		<!--- Get tags and attributes --->
-		<cfset tags = application.utils.extract(arguments.string, '(<#arguments.tagName# [^>]+>)')>
+		<cfset var tags = application.utils.extract(arguments.string, '(<#arguments.tagName# [^>]+>)')>
 		<cfloop array="#tags#" index="t">
 			<cfset thisTag = StructNew()>
 			<cfset thisTag.tag = t>

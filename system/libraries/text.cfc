@@ -23,7 +23,15 @@
 		<cfset var result = "">
 		<cfset var positions = listToArray(reReplace(reverse(arguments.number), "(\d)", "\1,", "ALL"))>
 		<cfset var positionWords = arrayNew(1)>
-		<cfset number = int(val(arguments.number))>
+		<cfset var number = int(val(arguments.number))>
+		<cfset var units = "">
+		<cfset var teens = "">
+		<cfset var ties = "">
+		<cfset var digit = "">
+		<cfset var part1 = "">
+		<cfset var part2 = "">
+		<cfset var part1Value = "">
+		<cfset var pos = "">
 
 		<!--- Units --->
 		<cfset units = arrayNew(1)>

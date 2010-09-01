@@ -14,43 +14,27 @@
 
 <cfcomponent bindingname="Validation" displayname="Validation" hint="Validation class">
 
-	<cfset this.model = "">
-	<cfset this.modelName = "">
-	<cfset this.modelId = "">
-	<cfset this.fields = ArrayNew(1)>
-	<cfset this.current = "">
-	<cfset this.tableName = "">
-	<cfset this.hasModel = false>
+	<cfset variables.model = "">
+	<cfset variables.modelName = "">
+	<cfset variables.fields = ArrayNew(1)>
+	<cfset variables.hasModel = false>
 	
 
 	<!--- Initialize the validation --->
 	<cffunction name="init" displayname="required">
 		<cfargument name="model" type="component" required="no" hint="The model being validated">
 		<cfargument name="fields" type="array" required="no" hint="The fields validated">
+		<cfset var metaData = "">
 		
 		<cfif StructKeyExists(arguments, "model")>
-			<cfset this.hasModel = true>
-			<cfset this.model = arguments.model>
-			<cfset metaData = getMetaData(this.model)>
-			<cfset this.modelName = lcase(listLast(metaData.name, '.'))>
+			<cfset variables.hasModel = true>
+			<cfset variables.model = arguments.model>
+			<cfset metaData = getMetaData(variables.model)>
+			<cfset variables.modelName = lcase(listLast(metaData.name, '.'))>
+			<cfset variables.fields = variables.model.fields>
 			
-			<!--- Model id --->
-			<cfif isDefined("this.model.id")>
-				<cfset this.modelId = val(this.model.id)>
-			<cfelse>
-				<cfset this.modelId = 0>
-			</cfif>
-			<cfset this.fields = this.model.fields>
-			
-			<!--- Model table name --->
-			<cfif isDefined("this.model.tableName")>
-				<cfset this.tableName = this.model.tableName>
-			<cfelse>
-				<cfset this.tableName = application.utils.plural(this.modelName)>
-			</cfif>
-			<cfset this.current = this.model.get()>
 		<cfelseif StructKeyExists(arguments, "fields")>
-			<cfset this.fields = arguments.fields>
+			<cfset variables.fields = arguments.fields>
 		</cfif>
 		
 		<cfreturn this>
@@ -62,18 +46,23 @@
 	<cffunction name="run" displayname="required" returntype="struct">
 	
 		<cfargument name="values" type="struct" required="yes" hint="The model field values">
-		<cfargument name="fieldList" type="array" required="no" default="#this.fields#" hint="The list of fields to be checked against">
-		<cfset result = StructNew()>
+		<cfargument name="fieldList" type="array" required="no" default="#variables.fields#" hint="The list of fields to be checked against">
+		<cfset var result = StructNew()>
+		<cfset var value = "">
+		<cfset var ruleTotal = "">
+		<cfset var thisError = "">
+		<cfset var ruleIndex = "">
+		<cfset var thisRule = "">
+		<cfset var extractResult = "">
+		<cfset var funcName = "">
+		<cfset var funcArgs = "">
 		<cfset result.errorList = ArrayNew(1)>
 		<cfset result.fields = StructNew()>
 		
 		<!--- Loop through all fields --->
 		<cfloop array="#arguments.fieldList#" index="field">
-			<cfset rules = field.rules>
-			<cfset type = field.type>
-			<cfset name = field.name>
-			<cfif StructKeyExists(values, name)>
-				<cfset value = arguments.values[name]>
+			<cfif StructKeyExists(values, field.name)>
+				<cfset value = arguments.values[field.name]>
 			<cfelse>
 				<cfset value = "">
 			</cfif>
@@ -82,8 +71,8 @@
 			<cfset ruleIndex = 0>
 			
 			<!--- Rules defined as array? --->
-			<cfif isArray(rules)>
-				<cfset ruleTotal = arrayLen(rules)>
+			<cfif isArray(field.rules)>
+				<cfset ruleTotal = arrayLen(field.rules)>
 			<cfelse>
 				<cfset ruleTotal = listLen(field.rules)>
 			</cfif>
@@ -93,8 +82,8 @@
 				<cfset ruleIndex++>
 				
 				<!--- Rules defined as array? --->
-				<cfif isArray(rules)>
-					<cfset thisRule = rules[ruleIndex]>
+				<cfif isArray(field.rules)>
+					<cfset thisRule = field.rules[ruleIndex]>
 				<cfelse>
 					<cfset thisRule = listGetAt(field.rules, ruleIndex)>
 				</cfif>
@@ -116,14 +105,14 @@
 			<!--- Any error? --->			
 			<cfif len(thisError)>
 				<cfset ArrayAppend(result.errorList, thisError)>
-				<cfset result.fields[name] = thisError>
+				<cfset result.fields[field.name] = thisError>
 			</cfif>
 		</cfloop>
 		
 		<!--- Mark this model as validated --->
-		<cfif this.hasModel>
-			<cfset this.model.ranValidation = true>
-			<cfset this.model.validationResult = result>
+		<cfif variables.hasModel>
+			<cfset variables.model.ranValidation = true>
+			<cfset variables.model.validationResult = result>
 		</cfif>
 		
 		<cfreturn result>
@@ -143,7 +132,7 @@
 		<!--- <cfif (listFindNoCase("varchar", arguments.field.type) AND NOT len(trim(arguments.value))) OR 
 				 (listFindNoCase("integer,decimal,float", arguments.field.type) AND NOT val(arguments.value))> --->
 		<cfif NOT len(trim(arguments.value))>
-			<cfset error = application.lang.getValidationLang(this.modelName, arguments.field, arguments.value, "required")>
+			<cfset error = application.lang.getValidationLang(variables.modelName, arguments.field, arguments.value, "required")>
 		</cfif>
 			
 		<cfreturn error>
@@ -158,16 +147,8 @@
 		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">
 		<cfset var error = "">
 		
-		<cfquery name="qDuplicated" datasource="#application.dbname#" username="#application.dbuser#" password="#application.dbpassword#">
-			SELECT id
-			FROM #this.tableName#
-			WHERE #this.model.archivedField# IS NULL
-				AND #field.name# = <cfqueryparam value="#arguments.value#" cfsqltype="cf_sql_#arguments.field.type#">		
-				AND id != <cfqueryparam value="#val(this.current.id)#" cfsqltype="cf_sql_integer">
-		</cfquery>
-		
-		<cfif qDuplicated.recordCount>
-			<cfset error = application.lang.getValidationLang(this.modelName, arguments.field, arguments.value, "unique")>
+		<cfif variables.model.hasDuplicates(arguments.field, arguments.value)>
+			<cfset error = application.lang.getValidationLang(variables.modelName, arguments.field, arguments.value, "unique")>
 		</cfif>
 		
 		<cfreturn error>
@@ -183,7 +164,7 @@
 		<cfset var error = "">
 
 		<cfif NOT isValid("email", arguments.value)>
-			<cfset error = application.lang.getValidationLang(this.modelName, arguments.field, arguments.value, "email")>
+			<cfset error = application.lang.getValidationLang(variables.modelName, arguments.field, arguments.value, "email")>
 		</cfif>
 			
 		<cfreturn error>
@@ -200,7 +181,7 @@
 		<cfset var error = "">
 
 		<cfif len(arguments.value) lt val(arguments.args)>
-			<cfset error = application.lang.getValidationLang(this.modelName, arguments.field, arguments.value, "minLen", val(arguments.args))>
+			<cfset error = application.lang.getValidationLang(variables.modelName, arguments.field, arguments.value, "minLen", val(arguments.args))>
 		</cfif>
 			
 		<cfreturn error>
@@ -217,7 +198,7 @@
 		<cfset var error = "">
 
 		<cfif len(arguments.value) gt val(arguments.args)>
-			<cfset error = application.lang.getValidationLang(this.modelName, arguments.field, arguments.value, "maxLen", val(arguments.args))>
+			<cfset error = application.lang.getValidationLang(variables.modelName, arguments.field, arguments.value, "maxLen", val(arguments.args))>
 		</cfif>
 			
 		<cfreturn error>
@@ -233,7 +214,7 @@
 		<cfset var error = "">
 
 		<cfif arguments.value neq "" AND NOT isValid("numeric", arguments.value)>
-			<cfset error = application.lang.getValidationLang(this.modelName, arguments.field, arguments.value, "numeric")>
+			<cfset error = application.lang.getValidationLang(variables.modelName, arguments.field, arguments.value, "numeric")>
 		</cfif>
 			
 		<cfreturn error>
@@ -250,7 +231,7 @@
 		<cfset var error = "">
 
 		<cfif val(arguments.value) lt val(arguments.args)>
-			<cfset error = application.lang.getValidationLang(this.modelName, arguments.field, arguments.value, "minVal", val(arguments.args))>
+			<cfset error = application.lang.getValidationLang(variables.modelName, arguments.field, arguments.value, "minVal", val(arguments.args))>
 		</cfif>
 			
 		<cfreturn error>
@@ -267,7 +248,7 @@
 		<cfset var error = "">
 
 		<cfif val(arguments.value) gt val(arguments.args)>
-			<cfset error = application.lang.getValidationLang(this.modelName, arguments.field, arguments.value, "maxVal", val(arguments.args))>
+			<cfset error = application.lang.getValidationLang(variables.modelName, arguments.field, arguments.value, "maxVal", val(arguments.args))>
 		</cfif>
 			
 		<cfreturn error>
@@ -283,7 +264,7 @@
 		<cfset var error = "">
 
 		<cfif reFind("[^a-zA-Z0-9_]", arguments.value)>
-			<cfset error = application.lang.getValidationLang(this.modelName, arguments.field, arguments.value, "username")>
+			<cfset error = application.lang.getValidationLang(variables.modelName, arguments.field, arguments.value, "username")>
 		</cfif>
 			
 		<cfreturn error>
@@ -299,7 +280,7 @@
 		<cfset var error = "">
 
 		<cfif reFind("[^a-zA-Z]", arguments.value)>
-			<cfset error = application.lang.getValidationLang(this.modelName, arguments.field, arguments.value, "letters")>
+			<cfset error = application.lang.getValidationLang(variables.modelName, arguments.field, arguments.value, "letters")>
 		</cfif>
 			
 		<cfreturn error>
@@ -315,7 +296,7 @@
 		<cfset var error = "">
 
 		<cfif reFind("[^0-9]", arguments.value)>
-			<cfset error = application.lang.getValidationLang(this.modelName, arguments.field, arguments.value, "digits")>
+			<cfset error = application.lang.getValidationLang(variables.modelName, arguments.field, arguments.value, "digits")>
 		</cfif>
 			
 		<cfreturn error>
@@ -331,7 +312,7 @@
 		<cfset var error = "">
 
 		<cfif trim(arguments.value) neq "" AND NOT isValid("url", arguments.value)>
-			<cfset error = application.lang.getValidationLang(this.modelName, arguments.field, arguments.value, "url")>
+			<cfset error = application.lang.getValidationLang(variables.modelName, arguments.field, arguments.value, "url")>
 		</cfif>
 			
 		<cfreturn error>
@@ -346,6 +327,8 @@
 		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">
 		<cfargument name="args" type="string" required="no" default="" hint="The maximum value">
 		<cfset var error = "">
+		<cfset var regExp = "">
+		<cfset var regExpWords = "">
 
 		<cfif reFind("[^#arguments.args#]", arguments.value)>
 			<!--- Attempt to get some meanings out of the regular expression --->
@@ -374,7 +357,7 @@
 			</cfif>
 			<cfset regExpWords = reverse(replace(reverse(regExpWords), ",", " dna "))>
 		
-			<cfset error = application.lang.getValidationLang(this.modelName, arguments.field, arguments.value, "limitChars", regExpWords)>
+			<cfset error = application.lang.getValidationLang(variables.modelName, arguments.field, arguments.value, "limitChars", regExpWords)>
 		</cfif>
 			
 		<cfreturn error>
@@ -390,7 +373,7 @@
 		<cfset var error = "">
 
 		<cfif NOT directoryExists(arguments.value)>
-			<cfset error = application.lang.getValidationLang(this.modelName, arguments.field, arguments.value, "localDirectory")>
+			<cfset error = application.lang.getValidationLang(variables.modelName, arguments.field, arguments.value, "localDirectory")>
 		</cfif>
 			
 		<cfreturn error>
@@ -405,10 +388,10 @@
 		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">
 		<cfset var error = "">
 		
-		<cfset conciseNumber = reReplace(arguments.value, "[[:space:]]", "", "ALL")>
+		<cfset var conciseNumber = reReplace(arguments.value, "[[:space:]]", "", "ALL")>
 
 		<cfif reFind("[^0-9 ]", arguments.value) OR (conciseNumber neq "" AND len(conciseNumber) neq 10)>
-			<cfset error = application.lang.getValidationLang(this.modelName, arguments.field, arguments.value, "phoneNumber")>
+			<cfset error = application.lang.getValidationLang(variables.modelName, arguments.field, arguments.value, "phoneNumber")>
 		</cfif>
 			
 		<cfreturn error>
@@ -424,7 +407,7 @@
 		<cfset var error = "">
 
 		<cfif reFind("[^a-zA-Z0-9_\-]", arguments.value)>
-			<cfset error = application.lang.getValidationLang(this.modelName, arguments.field, arguments.value, "validURLChars")>
+			<cfset error = application.lang.getValidationLang(variables.modelName, arguments.field, arguments.value, "validURLChars")>
 		</cfif>
 			
 		<cfreturn error>

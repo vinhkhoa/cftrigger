@@ -20,6 +20,9 @@
 	
 		<cfargument name="heading" type="string" required="no" default="Whoops! Looks like we've lost that page!" hint="The error heading to be displayed">
 		<cfargument name="message" type="string" required="no" default="The page you are looking for is not found or has been deleted." hint="The error message to be displayed">
+		<cfset var data = "">
+		<cfset var heading = "">
+		<cfset var message = "">
 		
 		<!--- Has an error page inside the application? Load it inside the application template --->
 		<cfif fileExists(application.errorFilePath & "404.cfm")>
@@ -43,6 +46,9 @@
 	
 		<cfargument name="heading" type="string" required="yes" hint="The error heading to be displayed">
 		<cfargument name="message" type="string" required="yes" hint="The error message to be displayed">
+		<cfset var data = "">
+		<cfset var heading = "">
+		<cfset var message = "">
 		
 		<!--- Has an error page inside the application? Load it inside the application template --->
 		<cfif fileExists(application.errorFilePath & "error_general.cfm")>

@@ -50,6 +50,7 @@
 		<cfargument name="textId" type="string" required="no" hint="text ID of the model object">
 		<cfargument name="getArchived" type="boolean" required="no" default="false" hint="true: get archived model">
 		<cfargument name="properties" type="struct" required="no" default="#StructNew()#" hint="Pass in some extra properties for this model">
+		<cfset var item = "">
 		
 		<cfset variables.userId = val(arguments.userId)>
 		<cfset variables.getArchived = arguments.getArchived>
@@ -75,18 +76,18 @@
 		</cfif>
 		
 		<!--- Some extra properties for this model --->
-		<cfloop collection="#arguments.properties#" item="i">
-			<cfset variables.properties[i] = arguments.properties[i]>
+		<cfloop collection="#arguments.properties#" item="item">
+			<cfset variables.properties[item] = arguments.properties[item]>
 		</cfloop>
 
 		<cfif (StructKeyExists(arguments, "id") OR StructKeyExists(arguments, "textId"))>
 			<!--- Get the model details and force it to refresh as user initializes the model --->
-			<cfset This.query = This.get(true)>
+			<cfset variables.query = variables.get(true)>
 			
-			<cfif This.query.recordCount>
+			<cfif variables.query.recordCount>
 				<!--- A record is found, update this model id --->
-				<cfset variables.id = This.query.id>
-				<cfset This.id = This.query.id>
+				<cfset variables.id = variables.query.id>
+				<cfset This.id = variables.query.id>
 			<cfelse>
 				<cfset This.error = "The #lcase(variables.modelName)# is not found">
 			</cfif>
@@ -103,6 +104,11 @@
 		<cfargument name="fieldCollection" type="struct" required="no" hint="Collection of fields">		
 		<cfargument name="ignoreMissingFields" type="boolean" required="no" default="false" hint="true: ignore fields that are not passed in. Only validate those that were passed.">		
 		<cfset var result = StructNew()>
+		<cfset var fieldValues = "">
+		<cfset var fieldList = "">
+		<cfset var validateResult = "">
+		<cfset var objValidation = "">
+		<cfset var field = "">
 		<cfset result.errorList = ArrayNew(1)>
 		<cfset result.newId = "">
 		<cfset result.newTextId = "">
@@ -130,7 +136,7 @@
 		<cfif variables.ranValidation>
 			<cfset validateResult.errorList = variables.validationResult.errorList>
 		<cfelse>
-			<cfset objValidation = application.load.library('validation').init(this)>
+			<cfset objValidation = application.load.library("validation").init(this)>
 			<cfset validateResult = objValidation.run(fieldValues, fieldList)>
 		</cfif>
 		
@@ -257,8 +263,9 @@
 	<cffunction name="get" displayname="get" access="public" returntype="query" hint="Get a model details">
 		
 		<cfargument name="refresh" type="boolean" required="no" default="false" hint="true: force refresh the query">
+		<cfset var qDetails = "">
 		
-		<cfif NOT isDefined("This.query") OR arguments.refresh>
+		<cfif NOT StructKeyExists(variables, "query") OR arguments.refresh>
 			<!--- Get this record details --->
 			<cfinvoke method="getAll" returnvariable="qDetails">
 				<!--- No id or text id passed in? => Get a blank record --->
@@ -281,7 +288,7 @@
 			
 			<cfreturn qDetails>		
 		<cfelse>
-			<cfreturn This.query>
+			<cfreturn variables.query>
 		</cfif>
 		
 	</cffunction>
@@ -293,9 +300,7 @@
 		<cfargument name="id" type="numeric" required="no" hint="Limit to a particular record by its id">
 		<cfargument name="textId" type="string" required="no" hint="Limit to a particular record by its text id">
 		<cfargument name="getArchived" type="boolean" required="no" default="false" hint="true: get archived model">
-		
-		<cfset metaData = getMetaData(this)>
-		<cfset thisModelName = lcase(listLast(metaData.name, '.'))>
+		<cfset var field = "">
 		
 		<!--- Get the list of models --->
 		<cfquery name="qList" datasource="#application.dbname#" username="#application.dbuser#" password="#application.dbpassword#">
@@ -368,6 +373,8 @@
 	<cffunction name="getAllIncludingArchived" displayname="getAllIncludingArchived" access="public" returntype="query" hint="Get the list of models">
 		<cfargument name="id" type="numeric" required="no" hint="Limit to a particular record by its id">
 		<cfargument name="textId" type="string" required="no" hint="Limit to a particular record by its text id">
+		<cfset var qActive = "">
+		<cfset var qArchived = "">
 
 		<!--- Get the list of active models --->
 		<cfinvoke method="getAll" returnvariable="qActive">
@@ -465,6 +472,9 @@
 		<cfargument name="relatedFieldName" type="string" required="yes" hint="The field name of the related model inside the related table">
 		<cfargument name="relatedIds" type="string" required="yes" hint="The related model ids">
 		<cfset var result = StructNew()>
+		<cfset var newIds = "">
+		<cfset var totalNewIds = "">
+		<cfset var counter = "">
 		<cfset result.error = "">
 		
 		<!--- Remove old relationships --->
@@ -488,7 +498,7 @@
 			
 			<!--- Insert new relationships --->
 			<cfif listLen(newIds)>
-				<cfset total = listLen(newIds)>
+				<cfset totalNewIds = listLen(newIds)>
 			
 				<cfquery name="qAddNew" datasource="#application.dbname#" username="#application.dbuser#" password="#application.dbpassword#">
 					INSERT INTO #arguments.relatedTableName# 
@@ -502,12 +512,12 @@
 					)
 	
 					<!--- Add multiple relationships at once --->
-					<cfloop from="1" to="#total#" index="i">
+					<cfloop from="1" to="#totalNewIds#" index="counter">
 						(
 							SELECT
 							
 							<cfqueryparam value="#val(variables.id)#" cfsqltype="cf_sql_integer">,
-							<cfqueryparam value="#val(listGetAt(newIds, i))#" cfsqltype="cf_sql_integer">,
+							<cfqueryparam value="#val(listGetAt(newIds, counter))#" cfsqltype="cf_sql_integer">,
 							<cfqueryparam value="#Now()#" cfsqltype="CF_SQL_TIMESTAMP">
 	
 							<!--- Record the person who makes this change? --->
@@ -516,7 +526,7 @@
 							</cfif>
 						)
 						
-						<cfif i lt total>UNION</cfif>
+						<cfif counter lt totalNewIds>UNION</cfif>
 					</cfloop>
 				</cfquery>
 			</cfif>
@@ -544,5 +554,32 @@
 	
 	</cffunction>
 			
+
+	<!--- Check if there are any duplicated records with this model --->
+	<cffunction name="hasDuplicates" displayname="hasDuplicates" access="public" returntype="boolean" hint="Check if there are any duplicated records with this model">
+	
+		<cfargument name="field" type="struct" required="yes" hint="The field being checked">
+		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">
+		<cfset var currentQuery = "">
+		
+		<cfif StructKeyExists(variables, "query")>
+			<cfset currentQuery = variables.query>
+		<cfelse>
+			<cfset currentQuery = this.get()>
+		</cfif>
+		
+		<cfquery name="qDuplicates" datasource="#application.dbname#" username="#application.dbuser#" password="#application.dbpassword#">
+			SELECT id
+			FROM #variables.tableName#
+			WHERE #variables.archivedField# IS NULL
+				AND #arguments.field.name# = <cfqueryparam value="#arguments.value#" cfsqltype="cf_sql_#arguments.field.type#">		
+				AND id != <cfqueryparam value="#val(currentQuery.id)#" cfsqltype="cf_sql_integer">
+		</cfquery>
+		
+		<cfreturn qDuplicates.recordCount gt 0>
+	
+	</cffunction>
+	
+	
 
 </cfcomponent>

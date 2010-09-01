@@ -25,6 +25,8 @@
 	
 	<!--- Initialize the controller --->
 	<cffunction name="init" access="public" output="no">
+	
+		<cfset var metaData = "">
 		
 		<cfif StructKeyExists(session, "userId")>
 			<cfset variables.userId = val(session.userId)>
@@ -34,10 +36,14 @@
 		
 		<!--- This controller may be referenced later on --->
 		<cfset request.controller = this>
+		<cfset metaData = getMetaData(this)>
+		<cfset variables.modelName = lcase(listLast(metaData.name, '.'))>
+		<cfset variables.displayName = metaData.displayName>
 		
 		<cfreturn this>
 		
 	</cffunction>
+	
 	
 	<!--- ================================ COMMON FUNCTIONS ======================================= --->
 	
@@ -49,11 +55,7 @@
 			THIS FUNCTION IS ONLY USED FOR TESTING TO INDICATE THAT THE CONTROLLER HAS BEEN SET UP PROPERLY
 		--->
 		
-		<!--- Get the controller name --->
-		<cfset metaData = getMetaData(this)>
-		<cfset modelName = lcase(listLast(metaData.name, '.'))>
-		
-		<cfset application.error.show_error("Missing index function", "You need to have an index function for controller: #modelName#")>
+		<cfset application.error.show_error("Missing index function", "You need to have an index function for controller: #variables.modelName#")>
 		
 	</cffunction>
 	
@@ -68,30 +70,31 @@
 		<cfargument name="modelName" type="string" required="no" hint="When passed in: get this model instead of the current one">
 		<cfargument name="getArchived" type="boolean" required="no" default="false" hint="true: get archived model">
 		<cfargument name="redirectOnNotFound" type="boolean" required="no" default="true" hint="true: redirect to the list page if the model is not found">
+		<cfset var thisModelName = "">
+		<cfset var objModel = "">
 	
 		<!--- Get the model name --->
 		<cfif StructKeyExists(arguments, "modelName")>
-			<cfset modelName = arguments.modelName>
+			<cfset thisModelName = arguments.modelName>
 		<cfelse>
-			<cfset metaData = getMetaData(this)>
-			<cfset modelName = lcase(listLast(metaData.name, '.'))>
+			<cfset thisModelName = variables.modelName>
 		</cfif>
 		
 		<!--- Has id? --->
-		<cfif NOT StructKeyExists(form, modelName & "Id") OR form[modelName & "Id"] eq "">
-			<cfset application.url.redirect(modelName)>
+		<cfif NOT StructKeyExists(form, thisModelName & "Id") OR form[thisModelName & "Id"] eq "">
+			<cfset application.url.redirect(thisModelName)>
 		</cfif>
 	
 		<!--- Get the model details --->
 		<cfinvoke component="#application.load#" method="model" returnvariable="objModel">
-			<cfinvokeargument name="template" value="#modelName#">
-			<cfinvokeargument name="id" value="#val(form[modelName & 'Id'])#">
+			<cfinvokeargument name="template" value="#thisModelName#">
+			<cfinvokeargument name="id" value="#val(form[thisModelName & 'Id'])#">
 			<cfinvokeargument name="getArchived" value="#arguments.getArchived#">
 		</cfinvoke>
 		
 		<!--- Any error in getting the model?--->
 		<cfif objModel.error neq "" AND arguments.redirectOnNotFound>
-			<cfset application.url.redirectError(lcase(modelName), objModel.error)>
+			<cfset application.url.redirectError(lcase(thisModelName), objModel.error)>
 		</cfif>
 		
 		<cfreturn objModel>
@@ -105,30 +108,31 @@
 		<cfargument name="modelName" type="string" required="no" hint="When passed in: get this model instead of the current one">
 		<cfargument name="getArchived" type="boolean" required="no" default="false" hint="true: get archived model">
 		<cfargument name="redirectOnNotFound" type="boolean" required="no" default="true" hint="true: redirect to the list page if the model is not found">
-
+		<cfset var thisModelName = "">
+		<cfset var objModel = "">
+	
 		<!--- Get the model name --->
 		<cfif StructKeyExists(arguments, "modelName")>
-			<cfset modelName = arguments.modelName>
+			<cfset thisModelName = arguments.modelName>
 		<cfelse>
-			<cfset metaData = getMetaData(this)>
-			<cfset modelName = lcase(listLast(metaData.name, '.'))>
+			<cfset thisModelName = variables.modelName>
 		</cfif>
 		
 		<!--- Has text id? --->
-		<cfif NOT StructKeyExists(form, modelName & "TextId") OR form[modelName & "TextId"] eq "">
-			<cfset application.url.redirect(modelName)>
+		<cfif NOT StructKeyExists(form, thisModelName & "TextId") OR form[thisModelName & "TextId"] eq "">
+			<cfset application.url.redirect(thisModelName)>
 		</cfif>
 		
 		<!--- Get the model details --->
 		<cfinvoke component="#application.load#" method="model" returnvariable="objModel">
-			<cfinvokeargument name="template" value="#modelName#" />
-			<cfinvokeargument name="textId" value="#form[modelName & 'TextId']#">
+			<cfinvokeargument name="template" value="#thisModelName#" />
+			<cfinvokeargument name="textId" value="#form[thisModelName & 'TextId']#">
 			<cfinvokeargument name="getArchived" value="#arguments.getArchived#" />
 		</cfinvoke>
 		
 		<!--- Any error in getting the model? --->
 		<cfif objModel.error neq "" AND arguments.redirectOnNotFound>
-			<cfset application.url.redirectError(lcase(modelName), objModel.error)>
+			<cfset application.url.redirectError(lcase(thisModelName), objModel.error)>
 		</cfif>
 		
 		<cfreturn objModel>
@@ -142,21 +146,22 @@
 		<cfargument name="addPage" type="string" required="no" hint="The path of the add page">
 		<cfargument name="editPage" type="string" required="no" hint="The path of the edit page">
 		<cfargument name="listPage" type="string" required="no" hint="The path of the list page">
+		<cfset var addNew = "">
+		<cfset var objModel = "">
+		<cfset var qModel = "">
+		<cfset var qForm = "">
+		<cfset var field = "">
+		<cfset var saveResult = "">
 		
-		<!--- Get the controller name --->
-		<cfset metaData = getMetaData(this)>
-		<cfset modelName = lcase(listLast(metaData.name, '.'))>
-		<cfset displayName = metaData.displayName>
-	
 		<!--- Get the default values for pages --->
 		<cfif NOT StructKeyExists(arguments, "addPage") OR trim(arguments.addPage) eq "">
-			<cfset arguments.addPage = "#modelName#/add">
+			<cfset arguments.addPage = "#variables.modelName#/add">
 		</cfif>
 		<cfif NOT StructKeyExists(arguments, "editPage") OR trim(arguments.editPage) eq "">
-			<cfset arguments.editPage = "#modelName#/edit">
+			<cfset arguments.editPage = "#variables.modelName#/edit">
 		</cfif>
 		<cfif NOT StructKeyExists(arguments, "listPage") OR trim(arguments.listPage) eq "">
-			<cfset arguments.listPage = "#modelName#/list">
+			<cfset arguments.listPage = "#variables.modelName#/list">
 		</cfif>
 	
 		<!--- User save? --->
@@ -166,7 +171,7 @@
 		
 			<!--- Get model --->
 			<cfif addNew>
-				<cfset objModel = application.load.model(modelName)>
+				<cfset objModel = application.load.model(variables.modelName)>
 			<cfelse>
 				<cfset objModel = getById()>
 			</cfif>
@@ -196,8 +201,8 @@
 				<cfset session.errorList = saveResult.errorList>
 				
 				<!--- Excute a function after save? --->
-				<cfif isDefined("this._post_save")>
-					<cfset this._post_save(saveResult)>
+				<cfif isDefined("variables._post_save")>
+					<cfset variables._post_save(saveResult)>
 				</cfif>
 			
 				<!--- Add new? --->
@@ -208,15 +213,15 @@
 				</cfif>
 			<cfelse>
 				<!--- Excute a function after save? --->
-				<cfif isDefined("this._post_save")>
-					<cfset this._post_save(saveResult)>
+				<cfif isDefined("variables._post_save")>
+					<cfset variables._post_save(saveResult)>
 				</cfif>
 			
 				<!--- Add new? --->
 				<cfif addNew>
-					<cfset application.url.redirectMessage("#arguments.listPage#", "New #displayName# added.")>
+					<cfset application.url.redirectMessage("#arguments.listPage#", "New #variables.displayName# added.")>
 				<cfelse>
-					<cfset application.url.redirectMessage("#arguments.editPage#/#val(qModel.id)#", "#application.core.capFirst(displayName)# updated")>
+					<cfset application.url.redirectMessage("#arguments.editPage#/#val(qModel.id)#", "#application.core.capFirst(variables.displayName)# updated")>
 				</cfif>
 			</cfif>
 		<cfelse>
@@ -234,18 +239,17 @@
 		<cfargument name="listPage" type="string" required="no" hint="The path of the list page">
 		<cfargument name="titleField" type="string" required="yes" hint="The name of the title field. Used for display">
 		<cfargument name="displayView" type="string" required="no" default="yes" hint="Display the delete view">
-	
-		<!--- Get the controller name --->
-		<cfset metaData = getMetaData(this)>
-		<cfset modelName = lcase(listLast(metaData.name, '.'))>
-		<cfset displayName = metaData.displayName>
+		<cfset var objModel = "">
+		<cfset var qModel = "">
+		<cfset var data = "">
+		<cfset var deleteResult = "">
 	
 		<!--- Get the default values for pages --->
 		<cfif NOT StructKeyExists(arguments, "deletePage") OR trim(arguments.deletePage) eq "">
-			<cfset arguments.deletePage = "#modelName#/delete">
+			<cfset arguments.deletePage = "#variables.modelName#/delete">
 		</cfif>
 		<cfif NOT StructKeyExists(arguments, "listPage") OR trim(arguments.listPage) eq "">
-			<cfset arguments.listPage = "#modelName#/list">
+			<cfset arguments.listPage = "#variables.modelName#/list">
 		</cfif>
 		
 		<!--- Get model --->
@@ -257,15 +261,15 @@
 			<cfinvoke component="#objModel#" method="delete" returnvariable="deleteResult">
 			
 			<!--- Excute a function after delete? --->
-			<cfif isDefined("this._post_delete")>
-				<cfset this._post_delete(deleteResult)>
+			<cfif isDefined("variables._post_delete")>
+				<cfset variables._post_delete(deleteResult)>
 			</cfif>
 			
 			<cfif arrayLen(deleteResult.errorList)>
 				<cfset session.errorList = deleteResult.errorList>
 				<cfset application.url.redirect("#arguments.listPage#")>
 			<cfelse>
-				<cfset application.url.redirectMessage("#arguments.listPage#", "#application.output.capFirst(displayName)# '#qModel[arguments.titleField][1]#' deleted")>
+				<cfset application.url.redirectMessage("#arguments.listPage#", "#application.output.capFirst(variables.displayName)# '#qModel[arguments.titleField][1]#' deleted")>
 			</cfif>
 		</cfif>
 		
@@ -277,8 +281,8 @@
 		<!--- Display view? --->
 		<cfif arguments.displayView>
 			<cfset data = StructNew()>
-			<cfset data.heading = "Delete #displayName#: #qModel[arguments.titleField][1]#">
-			<cfset data["q#modelName#"] = qModel>
+			<cfset data.heading = "Delete #variables.displayName#: #qModel[arguments.titleField][1]#">
+			<cfset data["q#variables.modelName#"] = qModel>
 			<cfset application.load.viewInTemplate("#arguments.deletePage#", data, objModel.fields)>
 		</cfif>
 	

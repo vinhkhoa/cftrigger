@@ -39,7 +39,8 @@
 		<cfset var result = arguments.date>
 		
 		<!--- Get the date part --->
-		<cfset dDiff = dateDiff("d", arguments.date, now())>		
+		<cfset var dDiff = dateDiff("d", arguments.date, now())>	
+		<cfset var dPart = "">	
 		<cfswitch expression="#dDiff#">
 			<cfcase value="0"><cfset dPart = "today"></cfcase>
 			<cfcase value="1"><cfset dPart = "yesterday"></cfcase>
@@ -59,8 +60,7 @@
 	<cffunction name="extractPhoneNumber" displayname="extractPhoneNumber" access="public" returntype="string" hint="Extract a phone number from some text">
 		<cfargument name="string" type="string" required="yes" hint="The string that contains the phone number">
 		<cfset var result = "">
-		
-		<cfset extractResult = reMatch("0[0-9]{9,9}", arguments.string)>
+		<cfset var extractResult = reMatch("0[0-9]{9,9}", arguments.string)>
 		
 		<cfif arrayLen(extractResult)>
 			<cfset result = extractResult[1]>
@@ -84,6 +84,8 @@
 	<cffunction name="stripTags" access="public" returntype="string" hint="">
 		<cfargument name="string" type="string" required="yes" hint="The string that contains tags to be stripped out">
 		<cfargument name="replaceWithSpace" type="boolean" required="no" default="false" hint="True: put in a space where tag is stripped out">
+		<cfset var result = "">
+		<cfset var replacement = "">
 		
 		<!--- Add in a space to replace tags? --->
 		<cfif arguments.replaceWithSpace>
@@ -119,6 +121,7 @@
 	<cffunction name="capWords" access="public" returntype="string" hint="">
 		<cfargument name="string" type="string" required="yes" hint="The text to be changed">
 		<cfset var result = "">
+		<cfset var word = "">
 		
 		<cfloop list="#arguments.string#" index="word" delimiters=" ">
 			<cfset result = listAppend(result, this.capFirst(word), " ")>
@@ -140,6 +143,14 @@
 		<cfargument name="paginationClassName" type="string" required="no" default="pagination" hint="The class name to be used for the pagination">	
 		<cfargument name="nextPrevClassName" type="string" required="no" default="nextprev" hint="The class name to be used for the next and previous buttons">	
 		<cfargument name="paginationId" type="string" required="no" default="pagination" hint="The ID to be used for the pagination">	
+		<cfset var page = "">
+		<cfset var pageNum = "">
+		<cfset var queryString = "">
+		<cfset var pathInfo = "">
+		<cfset var pageURL = "">
+		<cfset var leftPage = "">
+		<cfset var rightPage = "">
+		<cfset var counter = "">
 	
 		<cfif val(arguments.total)>
 			<!--- Validate the current page number --->
@@ -212,12 +223,12 @@
 				</cfif>
 				
 				<!--- Only display page in range --->
-				<cfloop from="1" to="#pageNum#" index="i">
-					<cfif i ge leftPage AND i le rightPage>
-						<cfif i eq page>
-							<li class="current"><span>Page </span>#i#</li>
+				<cfloop from="1" to="#pageNum#" index="counter">
+					<cfif counter ge leftPage AND counter le rightPage>
+						<cfif counter eq page>
+							<li class="current"><span>Page </span>#counter#</li>
 						<cfelse>
-							<li><a href="#pageURL##urlPageVariable#=#i#"><span>Page </span>#i#</a></li>
+							<li><a href="#pageURL##urlPageVariable#=#counter#"><span>Page </span>#counter#</a></li>
 						</cfif>
 					</cfif>
 				</cfloop>
