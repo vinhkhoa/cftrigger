@@ -55,16 +55,16 @@
 	<cffunction name="redirect" access="public" output="no">
 
 		<cfargument name="location" type="string" required="no" default="" hint="The location to redirect to">
-		<cfset var location = "">
+		<cfset var finalLocation = "">
 		
 		<!--- Remove multi-slash and ending index.cfm to make the url looks nicer --->
 		<cfif isValid("url", arguments.location)>
-			<cfset location = arguments.location>
+			<cfset finalLocation = arguments.location>
 		<cfelse>
-			<cfset location = reReplace(reReplace("#application.baseURL#/#arguments.location#", "([^:])/{2,}", "\1/", "ALL"), "index.cfm/$", "")>
+			<cfset finalLocation = reReplace(reReplace("#application.baseURL#/#arguments.location#", "([^:])/{2,}", "\1/", "ALL"), "index.cfm/$", "")>
 		</cfif>
 		
-		<cflocation url="#location#" addtoken="no">
+		<cflocation url="#finalLocation#" addtoken="no">
 		
 	</cffunction>
 	
@@ -300,16 +300,16 @@
 	<cffunction name="redirectParent" access="public" output="no">
 
 		<cfargument name="location" type="string" required="no" default="" hint="The location to redirect to">
-		<cfset var location = "">
+		<cfset var finalLocation = "">
 		
 		<!--- Remove multi-slash and ending index.cfm to make the url looks nicer --->
 		<cfif isValid("url", arguments.location)>
-			<cfset location = arguments.location>
+			<cfset finalLocation = arguments.location>
 		<cfelse>
-			<cfset location = reReplace(reReplace("#application.baseURL#/#arguments.location#", "([^:])/{2,}", "\1/", "ALL"), "index.cfm/$", "")>
+			<cfset finalLocation = reReplace(reReplace("#application.baseURL#/#arguments.finalLocation#", "([^:])/{2,}", "\1/", "ALL"), "index.cfm/$", "")>
 		</cfif>
 		
-		<cfset variables.redirect("redirectparent?parentRedirectURL=#location#")>
+		<cfset variables.redirect("redirectparent?parentRedirectURL=#finalLocation#")>
 		
 	</cffunction>
 	

@@ -143,7 +143,7 @@
 		<cfargument name="paginationClassName" type="string" required="no" default="pagination" hint="The class name to be used for the pagination">	
 		<cfargument name="nextPrevClassName" type="string" required="no" default="nextprev" hint="The class name to be used for the next and previous buttons">	
 		<cfargument name="paginationId" type="string" required="no" default="pagination" hint="The ID to be used for the pagination">	
-		<cfset var page = "">
+		<cfset var thisPage = "">
 		<cfset var pageNum = "">
 		<cfset var queryString = "">
 		<cfset var pathInfo = "">
@@ -154,9 +154,9 @@
 	
 		<cfif val(arguments.total)>
 			<!--- Validate the current page number --->
-			<cfset page = round(val(arguments.page))>
-			<cfif page lt 1>
-				<cfset page = 1>
+			<cfset thisPage = round(val(arguments.page))>
+			<cfif thisPage lt 1>
+				<cfset thisPage = 1>
 			</cfif>
 			
 			<!--- Get the total number of pages --->
@@ -184,9 +184,9 @@
 			
 			<!--- Get the left and right number of pages --->
 			<cfif val(arguments.paginationSize) MOD 2 eq 0>
-				<cfset leftPage = page - val(arguments.paginationSize)/2 + 1>
+				<cfset leftPage = thisPage - val(arguments.paginationSize)/2 + 1>
 			<cfelse>
-				<cfset leftPage = page - (val(arguments.paginationSize) - 1)/2>
+				<cfset leftPage = thisPage - (val(arguments.paginationSize) - 1)/2>
 			</cfif>
 			<cfset rightPage = leftPage + val(arguments.paginationSize) - 1>
 			
@@ -214,9 +214,9 @@
 				<ul id="#arguments.paginationId#" class="#arguments.paginationClassName#">
 				
 				<!--- Check if to display the "First" and "Previous" links --->
-				<cfif page gt 1>
+				<cfif thisPage gt 1>
 					<li><a href="#pageURL##urlPageVariable#=1" class="#nextPrevClassName#">First</a></li>
-					<li><a href="#pageURL##urlPageVariable#=#page - 1#" class="#nextPrevClassName#">&lt; Prev</a></li>
+					<li><a href="#pageURL##urlPageVariable#=#thisPage - 1#" class="#nextPrevClassName#">&lt; Prev</a></li>
 				<cfelse>
 					<li><span class="#nextPrevClassName#">First</span></li>
 					<li><span class="#nextPrevClassName#">&lt; Prev</span></li>
@@ -225,7 +225,7 @@
 				<!--- Only display page in range --->
 				<cfloop from="1" to="#pageNum#" index="counter">
 					<cfif counter ge leftPage AND counter le rightPage>
-						<cfif counter eq page>
+						<cfif counter eq thisPage>
 							<li class="current"><span>Page </span>#counter#</li>
 						<cfelse>
 							<li><a href="#pageURL##urlPageVariable#=#counter#"><span>Page </span>#counter#</a></li>
@@ -234,8 +234,8 @@
 				</cfloop>
 				
 				<!--- Check if to display the "Next" and "Last" links --->
-				<cfif page lt pageNum>
-					<li><a href="#pageURL##urlPageVariable#=#page + 1#" class="#nextPrevClassName#">Next &gt;</a></li>
+				<cfif thisPage lt pageNum>
+					<li><a href="#pageURL##urlPageVariable#=#thisPage + 1#" class="#nextPrevClassName#">Next &gt;</a></li>
 					<li><a href="#pageURL##urlPageVariable#=#pageNum#" class="#nextPrevClassName#">Last</a></li>
 				<cfelse>
 					<li><span class="#nextPrevClassName#">Next &gt;</span></li>

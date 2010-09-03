@@ -23,7 +23,7 @@
 		<cfset var result = "">
 		<cfset var positions = listToArray(reReplace(reverse(arguments.number), "(\d)", "\1,", "ALL"))>
 		<cfset var positionWords = arrayNew(1)>
-		<cfset var number = int(val(arguments.number))>
+		<cfset var thisNumber = int(val(arguments.number))>
 		<cfset var units = "">
 		<cfset var teens = "">
 		<cfset var ties = "">
@@ -72,17 +72,17 @@
 		<cfset ties[9] = "eighty">
 		<cfset ties[10] = "ninty">
 
-		<cfif number ge 1>
+		<cfif thisNumber ge 1>
 			<!--- 1 to 9 --->
-			<cfif number le 9>
-				<cfset result = units[number + 1]>
+			<cfif thisNumber le 9>
+				<cfset result = units[thisNumber + 1]>
 				
 			<!--- 10 to 19 --->
-			<cfelseif number le 19>
-				<cfset result = teens[number - 9]>
+			<cfelseif thisNumber le 19>
+				<cfset result = teens[thisNumber - 9]>
 				
 			<!--- 20 to 99 --->
-			<cfelseif number le 99>
+			<cfelseif thisNumber le 99>
 				<cfloop from="1" to="#arrayLen(positions)#" index="pos">
 					<cfset digit = positions[pos]>
 					
@@ -97,8 +97,8 @@
 				<cfset result = trim(arrayToList(application.core.arrayReverse(positionWords), " "))>
 			
 			<!--- 100 to 999 --->
-			<cfelseif number le 999>
-				<cfset part1 = this.numberToWord(number MOD 100)>
+			<cfelseif thisNumber le 999>
+				<cfset part1 = this.numberToWord(thisNumber MOD 100)>
 				<cfset part2 = units[positions[3] + 1]>
 				
 				<!--- Anything in part 1? --->
@@ -109,8 +109,8 @@
 				</cfif>
 				
 			<!--- 1000 to 9999 --->
-			<cfelseif number le 9999>
-				<cfset part1Value = number MOD 1000>
+			<cfelseif thisNumber le 9999>
+				<cfset part1Value = thisNumber MOD 1000>
 				<cfset part1 = this.numberToWord(part1Value)>
 				<cfset part2 = units[positions[4] + 1]>
 				

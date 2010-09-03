@@ -27,8 +27,8 @@ margin: 			0 0 4px 0;
 </head>
 <body>
 	<div id="content">
-		<h1><cfoutput>#heading#</cfoutput></h1>
-		<p><cfoutput>#message#</cfoutput></p>
+		<h1><cfoutput>#error.heading#</cfoutput></h1>
+		<p><cfoutput>#error.message#</cfoutput></p>
 	</div>
 </body>
 </html>

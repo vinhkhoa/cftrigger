@@ -35,25 +35,25 @@
 	<cffunction name="HtmlCompressFormat" access="public" returntype="string">
 		<cfargument name="sInput" type="string" required="yes">
 		<cfargument name="level" type="numeric" default="2" required="no">		
-		<cfset var sInput = trim(arguments.sInput)>
+		<cfset var result = trim(arguments.sInput)>
 		
 		<cfswitch expression="#arguments.level#">
 			<cfcase value="3">
 				<!--- extra compression can screw up a few little pieces of HTML, doh --->
-				<cfset sInput = reReplace( sInput, "[[:space:]]{2,}", " ", "all" )>
-				<cfset sInput = replace( sInput, "> <", "><", "all" )>
-				<cfset sInput = reReplace( sInput, "<!--[^>]+>", "", "all" )>
+				<cfset result = reReplace( result, "[[:space:]]{2,}", " ", "all" )>
+				<cfset result = replace( result, "> <", "><", "all" )>
+				<cfset result = reReplace( result, "<!--[^>]+>", "", "all" )>
 			</cfcase>
 			<cfcase value="2">
-				<cfset sInput = reReplace( sInput, "[[:space:]]{2,}", chr( 13 ), "all" )>
+				<cfset result = reReplace( result, "[[:space:]]{2,}", chr( 13 ), "all" )>
 			</cfcase>
 			<cfcase value="1">
 				<!--- only compresses after a line break --->
-				<cfset sInput = reReplace( sInput, "(" & chr( 10 ) & "|" & chr( 13 ) & ")+[[:space:]]{2,}", chr( 13 ), "all" )>
+				<cfset result = reReplace( result, "(" & chr( 10 ) & "|" & chr( 13 ) & ")+[[:space:]]{2,}", chr( 13 ), "all" )>
 			</cfcase>
 		</cfswitch>
 		
-		<cfreturn sInput>
+		<cfreturn result>
 		
 	</cffunction>
 	
@@ -102,26 +102,26 @@
 	<cffunction name="plural" access="public" returntype="string" output="false" hint="Return the plural version of a word">
 		<cfargument name="word" type="string" required="yes" hint="The word to be checked">		
 		<cfset var result = "">
-		<cfset var word = lcase(trim(arguments.word))>
-		<cfset var end = right(word, 1)>
-		<cfset var end2 = right(word, 2)>
+		<cfset var thisword = lcase(trim(arguments.word))>
+		<cfset var end = right(thisword, 1)>
+		<cfset var end2 = right(thisword, 2)>
 		
 		<!--- End with a "y"? --->
 		<cfif end eq "y">
 			<!--- Preceeded by a vowel? --->
-			<cfif listFind("a,e,i,o,u", left(right(word, 2), 1))>
-				<cfset result = word & "s">
+			<cfif listFind("a,e,i,o,u", left(right(thisword, 2), 1))>
+				<cfset result = thisword & "s">
 			<cfelse>
-				<cfset result = mid(word, 1, len(word) - 1) & "ies">
+				<cfset result = mid(thisword, 1, len(thisword) - 1) & "ies">
 			</cfif>
 		
 		<!--- End with s? --->
 		<cfelseif end eq "s" OR end2 eq "sh">
-			<cfset result = word & "es">
+			<cfset result = thisword & "es">
 			
 		<!--- Normal --->
 		<cfelse>
-			<cfset result = word & "s">
+			<cfset result = thisword & "s">
 		</cfif>
 		
 		<cfreturn result>
@@ -254,7 +254,6 @@
 		<cfset var content = "">
 		<cfset var counter = "">
 		<cfset var thisMatch = "">
-		<cfset var substrings = "">
 
 		<!--- Find all matches --->		
 		<cfset var matches = ReMatch(arguments.regExp, arguments.string)>
