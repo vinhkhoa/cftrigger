@@ -112,10 +112,13 @@
 		<cfset var continueSearching = "">
 		<cfset var counter = "">
 		<cfset var path = "">
+		<cfset var nextPath = "">
 		<cfset var logicalPath = "">
 		<cfset var controllerPath = "">
 		<cfset var pathInfo = "">
 		<cfset var pathInfoLength = "">
+		<cfset var arrPathInfo = "">
+		<cfset var totalPathInfo = "">
 		<cfset result.foundController = false>
 		<cfset result.controller = "">
 		<cfset result.rootController = "">
@@ -144,17 +147,30 @@
 			<cfset pathInfoStr = "/" & application.defaultController>
 		</cfif>
 		
-		<!---
-			Check if the controller is found and what is the correct controller 
-			This is needed to search for controllers inside folders
-		--->
+		<!--- Search through the path info string to extract the controller and view --->
 		<cfloop condition="continueSearching AND counter le listLen(pathInfoStr, '/')">
 			<cfset path = listAppend(path, listGetAt(pathInfoStr, counter, "/"), application.separator)>
+
+			<!--- Get the next part of the path info string --->
+			<cfif counter lt listLen(pathInfoStr, '/')>
+				<cfset nextPath = listGetAt(pathInfoStr, counter + 1, "/")>
+			<cfelse>
+				<cfset nextPath = application.defaultView>
+			</cfif>
+			
 			<cfset logicalPath = replace(path, application.separator, ".", "ALL")>
 			<cfset result.controller = replace(path, application.separator, "/", "ALL")>
 			<cfset controllerPath = lcase(application.controllerFilePath & path)>
 
-			<cfset result.foundController = fileExists(controllerPath & ".cfc")>
+			<!--- Found controller? --->
+			<cfif fileExists(controllerPath & ".cfc")>
+				<cfset result.objController = createObject("component", application.controllerRoot & "." & logicalPath)>
+				
+				<!--- View exists inside this controller? --->
+				<cfif StructKeyExists(result.objController, nextPath)>
+					<cfset result.foundController = true>
+				</cfif>
+			</cfif>
 			<cfset continueSearching = (NOT result.foundController) AND directoryExists(controllerPath)>
 
 			<cfset counter = counter + 1>
@@ -218,7 +234,7 @@
 			</cfif>
 		</cfif>
 		
-		<!--- Has a view? --->
+		<!--- NOT has a view? Set it to the default one --->
 		<cfif NOT StructKeyExists(result, "view") OR result.view eq "">
 			<cfset result.view = application.defaultView>
 		</cfif>

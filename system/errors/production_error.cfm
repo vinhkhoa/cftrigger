@@ -1,6 +1,6 @@
 <html>
 <head>
-<title>Error - <cfoutput>#heading#</cfoutput></title>
+<title>Error - <cfoutput>#errorDetails.heading#</cfoutput></title>
 <style type="text/css">
 
 body {
@@ -27,8 +27,8 @@ margin: 			0 0 4px 0;
 </head>
 <body>
 	<div id="content">
-		<h1><cfoutput>#heading#</cfoutput></h1>
-		<p><cfoutput>#message#</cfoutput></p>
+		<h1><cfoutput>#errorDetails.heading#</cfoutput></h1>
+		<p><cfoutput>#errorDetails.message#</cfoutput></p>
 	</div>
 </body>
 </html>
