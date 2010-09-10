@@ -20,12 +20,12 @@
 	// =========================== Start of Server settings ===========================
 	application.servers = ArrayNew(1);
 	
-	// Localhost for Railo
+	// Localhost for Apache
 	s = StructNew();
 	s.name = "localhost";
 	s.type = "dev";
-	s.url = "http://localhost:8600/sampleapp";
-	s.appNameSuffix = 'localhost_railo';
+	s.url = "http://localhost/sampleapp";
+	s.appNameSuffix = 'localhost_apache';
 	arrayAppend(application.servers, s);
 	
 	// Localhost for Adobe Coldfusion
@@ -36,12 +36,12 @@
 	s.appNameSuffix = 'localhost_adobe';
 	arrayAppend(application.servers, s);
 	
-	// Localhost for Apache
+	// Localhost for Railo
 	s = StructNew();
 	s.name = "localhost";
 	s.type = "dev";
-	s.url = "http://localhost/sampleapp";
-	s.appNameSuffix = 'localhost_apache';
+	s.url = "http://localhost:8600/sampleapp";
+	s.appNameSuffix = 'localhost_railo';
 	arrayAppend(application.servers, s);
 	
 	// Live
