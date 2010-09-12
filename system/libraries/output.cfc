@@ -10,13 +10,13 @@
 
 --->
 
-<cfcomponent displayname="Output" hint="Output library, handle the display of output">
+<cfcomponent displayname="Output" hint="Output library, handle the display of output" output="false">
 
 	<cfsetting enablecfoutputonly="yes">
 	
 	
 	<!--- Display text preserving its format --->
-	<cffunction name="pre" access="public" returntype="string" hint="">
+	<cffunction name="pre" access="public" returntype="string" hint="" output="false">
 		<cfargument name="string" type="string" required="yes" hint="The text to be displayed">
 		<cfset var result = HTMLEditFormat(arguments.string)>
 		
@@ -34,7 +34,7 @@
 
 
 	<!--- Create a friendly date representation for display purpose --->
-	<cffunction name="displayDate" displayname="displayDate" access="public" returntype="string" output="no">
+	<cffunction name="displayDate" displayname="displayDate" access="public" returntype="string" output="false">
 		<cfargument name="date" type="date" required="yes" hint="The original dates to start with">
 		<cfset var result = arguments.date>
 		
@@ -57,7 +57,7 @@
 	
 	
 	<!--- Extract a phone number from some text --->
-	<cffunction name="extractPhoneNumber" displayname="extractPhoneNumber" access="public" returntype="string" hint="Extract a phone number from some text">
+	<cffunction name="extractPhoneNumber" displayname="extractPhoneNumber" access="public" returntype="string" hint="Extract a phone number from some text" output="false">
 		<cfargument name="string" type="string" required="yes" hint="The string that contains the phone number">
 		<cfset var result = "">
 		<cfset var extractResult = reMatch("0[0-9]{9,9}", arguments.string)>
@@ -81,7 +81,7 @@
 
 
 	<!--- Strip tags from a string --->
-	<cffunction name="stripTags" access="public" returntype="string" hint="">
+	<cffunction name="stripTags" access="public" returntype="string" hint="" output="false">
 		<cfargument name="string" type="string" required="yes" hint="The string that contains tags to be stripped out">
 		<cfargument name="replaceWithSpace" type="boolean" required="no" default="false" hint="True: put in a space where tag is stripped out">
 		<cfset var result = "">
@@ -102,7 +102,7 @@
 
 
 	<!--- Capitalize the first letter --->
-	<cffunction name="capFirst" access="public" returntype="string" hint="">
+	<cffunction name="capFirst" access="public" returntype="string" hint="" output="false">
 		<cfargument name="string" type="string" required="yes" hint="The text to be changed">
 		<cfset var result = "">
 		
@@ -118,7 +118,7 @@
 
 
 	<!--- Capitalize the first letter of each word --->
-	<cffunction name="capWords" access="public" returntype="string" hint="">
+	<cffunction name="capWords" access="public" returntype="string" hint="" output="false">
 		<cfargument name="string" type="string" required="yes" hint="The text to be changed">
 		<cfset var result = "">
 		<cfset var word = "">

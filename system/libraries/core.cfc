@@ -11,7 +11,7 @@
 
 --->
 
-<cfcomponent displayname="Core" hint="Contains functions extended from coldfusion core/built in functions">
+<cfcomponent displayname="Core" hint="Contains functions extended from coldfusion core/built in functions" output="false">
 
 	<cfsetting enablecfoutputonly="yes">
 	
@@ -19,7 +19,7 @@
 	<!--- ============================================= STRING ============================================ --->
 	
 	<!--- Capitalize the first word --->
-	<cffunction name="capFirst" access="public" returntype="string" hint="">
+	<cffunction name="capFirst" access="public" returntype="string" hint="" output="false">
 		<cfargument name="str" type="string" required="yes" hint="The text to be capitalized">
 		<cfset var result = "">
 		
@@ -35,7 +35,7 @@
 
 
 	<!--- Trim a particular character. Similar to the default trim which trims spaces, this one trims any characters --->
-	<cffunction name="trimChar" access="public" returntype="string" hint="">
+	<cffunction name="trimChar" access="public" returntype="string" hint="" output="false">
 		<cfargument name="str" type="string" required="yes" hint="The text to be trimmed">
 		<cfargument name="char" type="string" required="yes" hint="The char to be trimmed">
 		<cfset var result = "">
@@ -53,7 +53,7 @@
 	<!--- ============================================= LIST ============================================ --->
 
 	<!--- Remove duplicates from a list --->
-	<cffunction name="ListUnique" access="public" returntype="string">
+	<cffunction name="ListUnique" access="public" returntype="string" output="false">
 		<cfargument name="ls" type="string" required="yes" hint="The original list" />
 		<cfargument name="delimiter" type="string" required="no" default="," hint="The list delimiter" />
 	
@@ -66,7 +66,7 @@
 	
 	
 	<!--- Get the first number of items in a list. Similar to listFirst but more items --->
-	<cffunction name="ListLeft" access="public" returntype="string">
+	<cffunction name="ListLeft" access="public" returntype="string" output="false">
 		<cfargument name="ls" type="string" required="yes" hint="The original list" />
 		<cfargument name="size" type="numeric" required="yes" hint="The number of elements to get" />
 		<cfargument name="delimiter" type="string" required="no" default="," hint="The list delimiter" />
@@ -90,7 +90,7 @@
 	
 	
 	<!--- Get the last number of items in a list. Similar to listRest but flexible number of items --->
-	<cffunction name="ListRight" access="public" returntype="string">
+	<cffunction name="ListRight" access="public" returntype="string" output="false">
 		<cfargument name="ls" type="string" required="yes" hint="The original list" />
 		<cfargument name="size" type="numeric" required="yes" hint="The number of elements to get" />
 		<cfargument name="delimiter" type="string" required="no" default="," hint="The list delimiter" />
@@ -106,7 +106,7 @@
 	
 	
 	<!--- Reverse a list --->
-	<cffunction name="ListReverse" access="public" returntype="string">
+	<cffunction name="ListReverse" access="public" returntype="string" output="false">
 		<cfargument name="ls" type="string" required="yes" hint="The original list" />
 		<cfargument name="delimiter" type="string" required="no" default="," hint="The list delimiter" />
 		
@@ -118,7 +118,7 @@
 	
 	
 	<!--- Delete the last item of the list --->
-	<cffunction name="ListDeleteLast" access="public" returntype="string">
+	<cffunction name="ListDeleteLast" access="public" returntype="string" output="false">
 		<cfargument name="ls" type="string" required="yes" hint="The original list" />
 		<cfargument name="delimiter" type="string" required="no" default="," hint="The list delimiter" />
 		<cfset var result = "">
@@ -133,7 +133,7 @@
 	
 	
 	<!--- Get the intersect of 2 lists: a new list that contains items that appaear in both of the original lists --->
-	<cffunction name="ListIntersect" access="public" returntype="string">
+	<cffunction name="ListIntersect" access="public" returntype="string" output="false">
 		<cfargument name="ls1" type="string" required="yes" hint="The first original list" />
 		<cfargument name="ls2" type="string" required="yes" hint="The second original list" />
 		<cfargument name="delimiter" type="string" required="no" default="," hint="The list delimiter" />
@@ -154,7 +154,7 @@
 	
 	
 	<!--- Get the union of 2 lists: a new list that contains items from both list --->
-	<cffunction name="ListUnion" access="public" returntype="string">
+	<cffunction name="ListUnion" access="public" returntype="string" output="false">
 		<cfargument name="ls1" type="string" required="yes" hint="The first list" />
 		<cfargument name="ls2" type="string" required="yes" hint="The second list" />
 		<cfargument name="delimiter" type="string" required="no" default="," hint="The list delimiter" />
@@ -172,7 +172,7 @@
 	
 	
 	<!--- Get the minus of 2 lists: a new list that contains items that appaear the first list but not the second list --->
-	<cffunction name="ListMinus" access="public" returntype="string">
+	<cffunction name="ListMinus" access="public" returntype="string" output="false">
 		<cfargument name="ls1" type="string" required="yes" hint="The first original list" />
 		<cfargument name="ls2" type="string" required="yes" hint="The second original list" />
 		<cfargument name="delimiter" type="string" required="no" default="," hint="The list delimiter" />
@@ -193,7 +193,7 @@
 	
 	
 	<!--- Reorder an item on the list --->
-	<cffunction name="ListReorderAt" access="public" returntype="string">
+	<cffunction name="ListReorderAt" access="public" returntype="string" output="false">
 		<cfargument name="ls" type="string" required="yes" hint="The original list" />
 		<cfargument name="oldPosition" type="numeric" required="yes" hint="The original item position index" />
 		<cfargument name="newPosition" type="numeric" required="yes" hint="The new item position index" />
@@ -223,7 +223,7 @@
 	
 	
 	<!--- Create a list from a range of numbers --->
-	<cffunction name="ListFromRange" access="public" returntype="string">
+	<cffunction name="ListFromRange" access="public" returntype="string" output="false">
 		<cfargument name="leftBound" type="numeric" required="yes" hint="The left bound number" />
 		<cfargument name="rightBound" type="numeric" required="yes" hint="The right bound number" />
 		<cfset var result = "">
@@ -240,7 +240,7 @@
 	<!--- ============================================= ARRAY ============================================ --->
 
 	<!--- Remove duplicates from an array --->
-	<cffunction name="ArrayUnique" access="public" returntype="array">
+	<cffunction name="ArrayUnique" access="public" returntype="array" output="false">
 		<cfargument name="arr" type="array" required="yes" hint="The original array" />
 		<cfset var result = ArrayNew(1)>
 	
@@ -254,7 +254,7 @@
 	
 
 	<!--- Get the union of 2 arrays: a new array that contains items from both arrays --->
-	<cffunction name="ArrayUnion" access="public" returntype="array">
+	<cffunction name="ArrayUnion" access="public" returntype="array" output="false">
 		<cfargument name="arr1" type="array" required="yes" hint="The first array" />
 		<cfargument name="arr2" type="array" required="yes" hint="The second array" />
 		<cfset var result = ArrayNew(1)>
@@ -269,7 +269,7 @@
 	
 	
 	<!--- Reverse an array --->
-	<cffunction name="ArrayReverse" access="public" returntype="array">
+	<cffunction name="ArrayReverse" access="public" returntype="array" output="false">
 		<cfargument name="arr" type="array" required="yes" hint="The first array" />
 		<cfset var result = ArrayNew(1)>
 		
@@ -285,7 +285,7 @@
 	<!--- ============================================= STRUCT ============================================ --->
 	
 	<!--- Get the list of values inside a struct. Similar to StructKeyList. Ignores complex variables --->
-	<cffunction name="structValueList" access="public" returntype="string" hint="">
+	<cffunction name="structValueList" access="public" returntype="string" output="false">
 		<cfargument name="struct" type="struct" required="yes" hint="The struct that contains the values">
 		<cfset var result = "">
 		<cfset var v = "">
@@ -307,7 +307,7 @@
 	<!--- ============================================= QUERY ============================================ --->
 	
 	<!--- Sort a query based on a custom list --->
-	<cffunction name="QuerySort" displayname="QuerySort" access="public" hint="Sort a query based on a custom list" returntype="query">
+	<cffunction name="QuerySort" displayname="QuerySort" access="public" hint="Sort a query based on a custom list" returntype="query" output="false">
 		<cfargument name="query" type="query" required="yes" hint="The query to be sorted">
 		<cfargument name="columnName" type="string" required="yes" hint="The name of the column to be sorted">
 		<cfargument name="columnType" type="string" required="no" default="numeric" hint="The column type. Possible values: numeric, varchar">
@@ -343,7 +343,7 @@
 	
 
 	<!--- Group query records --->
-	<cffunction name="QueryGroup" displayname="QueryGroup" access="public" hint="Group query records" returntype="query">
+	<cffunction name="QueryGroup" displayname="QueryGroup" access="public" hint="Group query records" returntype="query" output="false">
 		<cfargument name="query" type="query" required="yes" hint="The query to be sorted">
 		<cfargument name="groupBy" type="string" required="yes" hint="The name of the column to be grouped by">
 		<cfargument name="groupColumns" type="string" required="yes" hint="The columns to be combined/group">
@@ -385,7 +385,7 @@
 	<!--- ============================================= OBJECT/COMPONENT ============================================ --->
 
 	<!--- Retrieve private variables --->
-	<cffunction name="getPrivate" displayname="getPrivate" access="private" returntype="struct" hint="Retrieve private variables">
+	<cffunction name="getPrivate" displayname="getPrivate" access="private" returntype="struct" hint="Retrieve private variables" output="false">
 		
 		<cfargument name="group" type="boolean" required="no" default="true" hint="Group the local variables">
 		<cfset var result = StructNew()>
@@ -437,7 +437,7 @@
 	
 	
 	<!--- Get private variables inside an object --->
-	<cffunction name="getPrivateVariables" displayname="getPrivateVariables" access="public" hint="Get private variables inside an object">
+	<cffunction name="getPrivateVariables" displayname="getPrivateVariables" access="public" hint="Get private variables inside an object" output="false">
 	
 		<cfargument name="obj" type="component" required="yes" hint="The object to retrieve the private variables from">
 		<cfargument name="group" type="boolean" required="no" default="true" hint="Group the local variables">

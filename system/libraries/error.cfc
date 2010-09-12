@@ -10,7 +10,7 @@
 
 --->
 
-<cfcomponent displayname="Error" hint="Handles application errors">
+<cfcomponent displayname="Error" hint="Handles application errors" output="false">
 
 	<cfsetting enablecfoutputonly="yes">
 	

@@ -12,13 +12,13 @@
 
 --->
 
-<cfcomponent displayname="Directory">
+<cfcomponent displayname="Directory" output="false">
 
 	<cfsetting enablecfoutputonly="yes">
 	
 	
 	<!--- Delete a directory but ignore any warning, even when the directory does not exist--->
-	<cffunction name="delete" returntype="struct" access="public">
+	<cffunction name="delete" returntype="struct" access="public" output="false">
 		<cfargument name="directoryLocation" type="string" required="yes" hint="Location of the directory to be deleted">
 		<cfargument name="ignoreNonExisting" type="boolean" required="no" default="true" hint="true: ignore when the directory does not exist, ie. does not return error in that case.">
 		<cfargument name="deleteEmptyOnly" type="boolean" required="no" default="true" hint="true: only delete if the directory is empty and throw error when it's not. False: delete the directory and all of its content">
@@ -58,7 +58,7 @@
 	
 	
 	<!--- Create a directory, ignore if the directory already exists --->
-	<cffunction name="create" returntype="struct" access="public">
+	<cffunction name="create" returntype="struct" access="public" output="false">
 		<cfargument name="directoryLocation" type="string" required="yes" hint="Location of the directory to be deleted">
 		<cfargument name="ignoreExisting" type="boolean" required="no" default="true" hint="true: ignore when the directory already exists, ie. does not return error in that case.">
 		<cfset var result = StructNew()>

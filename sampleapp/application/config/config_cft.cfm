@@ -56,7 +56,7 @@
 	
 	
 	application.enableUserAuthentication = false;
-	application.fromEmail = "CFT Simple App <hello@sampleapp.com>";
+	application.fromEmail = "CFT Sample App <hello@sampleapp.com>";
 	application.ErrorEmail = "error@sampleapp.com";
 	application.AdminEmail = "admin@sampleapp.com";
 	application.defaultController = 'home';

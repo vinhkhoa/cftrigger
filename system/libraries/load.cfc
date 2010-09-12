@@ -14,13 +14,13 @@
 
 --->
 
-<cfcomponent displayname="Load">
+<cfcomponent displayname="Load" output="false">
 
 	<cfsetting enablecfoutputonly="yes">
 
 
 	<!--- Load a controller --->
-	<cffunction name="controller" access="public">
+	<cffunction name="controller" access="public" output="false">
 		<cfargument name="template" type="string" required="yes" hint="The path to the controller to be loaded">
 		<cfset var result = "">
 		
@@ -184,7 +184,7 @@
 
 
 	<!--- Load a model --->
-	<cffunction name="model" access="public">
+	<cffunction name="model" access="public" output="false">
 		<cfargument name="template" type="string" required="yes" hint="The path to the model to be loaded">
 		<cfargument name="id" type="numeric" required="no" hint="Model Id">
 		<cfargument name="textId" type="string" required="no" hint="Model text Id">
@@ -250,7 +250,7 @@
 
 
 	<!--- Load a library --->
-	<cffunction name="library" access="public">
+	<cffunction name="library" access="public" output="false">
 		<cfargument name="template" type="string" required="yes" hint="The path to the library to be loaded">
 		<cfargument name="storeInApplication" type="boolean" required="no" default="false" hint="True: store the loaded library into application scope">
 		<cfset var result = "">
@@ -369,7 +369,7 @@
 	
 	
 	<!--- Validate if a view exists --->
-	<cffunction name="validateView" access="public" returntype="struct">
+	<cffunction name="validateView" access="public" returntype="struct" output="false">
 		<cfargument name="template" type="string" required="yes" hint="The path to the view to be validated">
 		<cfset var result = StructNew()>
 		<cfset result.exists = false>
@@ -395,7 +395,7 @@
 	
 
 	<!--- Validate if a controller exists --->
-	<cffunction name="validateController" access="public" returntype="struct">
+	<cffunction name="validateController" access="public" returntype="struct" output="false">
 		<cfargument name="template" type="string" required="yes" hint="The path to the controller to be validated">
 		<cfset var result = StructNew()>
 		<cfset result.exists = false>

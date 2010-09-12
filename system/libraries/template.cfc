@@ -24,7 +24,7 @@
 		
 --->
 
-<cfcomponent displayname="Template">
+<cfcomponent displayname="Template" output="false">
 
 	<cfsetting enablecfoutputonly="yes">
 	

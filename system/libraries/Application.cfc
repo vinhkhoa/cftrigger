@@ -10,7 +10,7 @@
 
 --->
 
-<cfcomponent displayname="Application">
+<cfcomponent displayname="Application" output="false">
 	<cfsetting enablecfoutputonly="yes">
 
 	<cfscript>
@@ -283,12 +283,12 @@
 	
 	<!--- ================================ SESSION METHODS ================================= --->
 	
-	<cffunction name="OnSessionStart">	
+	<cffunction name="OnSessionStart" output="false">	
 
 	</cffunction>
 	
 	
-	<cffunction name="OnSessionEnd">		
+	<cffunction name="OnSessionEnd" output="false">		
 		<cfargument name="SessionScope" required="yes"/>
 		<cfargument name="ApplicationScope" required="no"/>
 
@@ -512,7 +512,7 @@
 	</cffunction>
 
 
-	<cffunction name="onRequestEnd">
+	<cffunction name="onRequestEnd" output="false">
 		<cfargument name="targetPage" type="string" required="true">
 		
 		<!--- Clear flash variables --->
@@ -676,7 +676,7 @@
 	
 
 	<!--- Get the mappings from coldfusion admin --->
-	<cffunction name="getMappings" access="public" returntype="struct">
+	<cffunction name="getMappings" access="public" returntype="struct" output="false">
 
 		<cfset var mappings = StructNew()>
 

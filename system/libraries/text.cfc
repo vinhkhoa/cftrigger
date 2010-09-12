@@ -12,13 +12,13 @@
 
 --->
 
-<cfcomponent displayname="Text">
+<cfcomponent displayname="Text" output="false">
 
 	<cfsetting enablecfoutputonly="yes">
 	
 	
 	<!--- Convert a number to word --->
-	<cffunction name="numberToWord" displayname="numberToWord" access="public" returntype="string" hint="Convert a number to word">
+	<cffunction name="numberToWord" displayname="numberToWord" access="public" returntype="string" hint="Convert a number to word" output="false">
 		<cfargument name="number" type="numeric" required="yes" hint="The number to be converted to text">
 		<cfset var result = "">
 		<cfset var positions = listToArray(reReplace(reverse(arguments.number), "(\d)", "\1,", "ALL"))>

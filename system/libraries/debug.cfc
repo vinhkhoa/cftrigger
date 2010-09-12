@@ -10,7 +10,7 @@
 
 --->
 
-<cfcomponent displayname="Debug" hint="Contains functions to do debugging">
+<cfcomponent displayname="Debug" hint="Contains functions to do debugging" output="false">
 
 	<cfsetting enablecfoutputonly="yes">
 	

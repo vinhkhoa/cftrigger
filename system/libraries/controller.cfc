@@ -12,7 +12,7 @@
 
 --->
 
-<cfcomponent bindingname="Controller" displayname="Controller" hint="Main Controller class">
+<cfcomponent bindingname="Controller" displayname="Controller" hint="Main Controller class" output="false">
 
 	<cfsetting enablecfoutputonly="yes">
 	
@@ -24,7 +24,7 @@
 	
 	
 	<!--- Initialize the controller --->
-	<cffunction name="init" access="public" output="no">
+	<cffunction name="init" access="public" output="false">
 	
 		<cfset var metaData = "">
 		
@@ -48,7 +48,7 @@
 	<!--- ================================ COMMON FUNCTIONS ======================================= --->
 	
 	<!--- Default function --->
-	<cffunction name="index" access="public">
+	<cffunction name="index" access="public" output="false">
 	
 		<!---
 			USE SHOULD NEVER BE ABLE TO GET HERE. IF THEY DO, THE CONTROLLER IS MISSING THE INDEX FUNCTION.
@@ -65,7 +65,7 @@
 	
 	
 	<!--- Get a model by id --->
-	<cffunction name="getById" access="private" returntype="any">
+	<cffunction name="getById" access="private" returntype="any" output="false">
 	
 		<cfargument name="modelName" type="string" required="no" hint="When passed in: get this model instead of the current one">
 		<cfargument name="getArchived" type="boolean" required="no" default="false" hint="true: get archived model">
@@ -103,14 +103,14 @@
 	
 	
 	<!--- Get a model by text id --->
-	<cffunction name="getByTextId" access="private" returntype="any">
+	<cffunction name="getByTextId" access="private" returntype="any" output="false">
 		
 		<cfargument name="modelName" type="string" required="no" hint="When passed in: get this model instead of the current one">
 		<cfargument name="getArchived" type="boolean" required="no" default="false" hint="true: get archived model">
 		<cfargument name="redirectOnNotFound" type="boolean" required="no" default="true" hint="true: redirect to the list page if the model is not found">
 		<cfset var thisModelName = "">
 		<cfset var objModel = "">
-	
+		
 		<!--- Get the model name --->
 		<cfif StructKeyExists(arguments, "modelName")>
 			<cfset thisModelName = arguments.modelName>
@@ -141,7 +141,7 @@
 	
 
 	<!--- Save a model --->
-	<cffunction name="save" access="private" returntype="any">
+	<cffunction name="save" access="private" output="false">
 		<cfargument name="saveButton" type="string" required="no" default="save" hint="The name of the save button">
 		<cfargument name="addPage" type="string" required="no" hint="The path of the add page">
 		<cfargument name="editPage" type="string" required="no" hint="The path of the edit page">
@@ -232,7 +232,7 @@
 			
 
 	<!--- Delete --->
-	<cffunction name="delete" access="public">
+	<cffunction name="delete" access="public" output="false">
 		<cfargument name="deleteButton" type="string" required="no" default="delete" hint="The name of the delete button">
 		<cfargument name="cancelButton" type="string" required="no" default="cancel" hint="The name of the cancel button">
 		<cfargument name="deletePage" type="string" required="no" hint="The path of the delete page">

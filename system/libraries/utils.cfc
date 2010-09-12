@@ -10,7 +10,7 @@
 
 --->
 
-<cfcomponent displayname="Utils" hint="Handles utility funtions">
+<cfcomponent displayname="Utils" hint="Handles utility funtions" output="false">
 
 	<cfsetting enablecfoutputonly="yes">
 
@@ -32,7 +32,7 @@
 		
 	---- --------------------------------------------------------------------------------------- --->
 
-	<cffunction name="HtmlCompressFormat" access="public" returntype="string">
+	<cffunction name="HtmlCompressFormat" access="public" returntype="string" output="false">
 		<cfargument name="sInput" type="string" required="yes">
 		<cfargument name="level" type="numeric" default="2" required="no">		
 		<cfset var result = trim(arguments.sInput)>
@@ -134,7 +134,7 @@
 		length and the content following it (good for extracting content based on heading format)
 	--->
 	
-	<cffunction name="reMatchWithContent" displayname="reMatchWithContent" access="public" returntype="array">
+	<cffunction name="reMatchWithContent" displayname="reMatchWithContent" access="public" returntype="array" output="false">
 		<cfargument name="regex" type="string" required="yes" hint="The regular expression to search for" />
 		<cfargument name="string" type="string" required="yes" hint="The string to search in" />
 		<cfargument name="endOfContent" type="string" required="no" default="" hint="The string that marks the end of the final content" />
@@ -200,7 +200,7 @@
 
 
 	<!--- Extract content based on the start and end flags --->
-	<cffunction name="extractContent" displayname="extractContent" access="public" returntype="array" output="no">
+	<cffunction name="extractContent" displayname="extractContent" access="public" returntype="array" output="false">
 		<cfargument name="string" type="string" required="yes" hint="The string to search in" />
 		<cfargument name="startFlag" type="string" required="yes" hint="The string that marks the start of searching" />
 		<cfargument name="endFlag" type="string" required="yes" hint="The string that marks the end of searching" />
@@ -230,7 +230,7 @@
 	
 
 	<!--- Create a url friendly version of a string --->
-	<cffunction name="createURLFriendly" displayname="createURLFriendly" access="public" returntype="string" output="no">
+	<cffunction name="createURLFriendly" displayname="createURLFriendly" access="public" returntype="string" output="false">
 		<cfargument name="string" type="string" required="yes" hint="The original string to start with">
 		<cfset var result = trim(arguments.string)>
 		
@@ -245,7 +245,7 @@
 	
 	
 	<!--- Extract a string into an array of substrings --->
-	<cffunction name="extract" access="public" returntype="array">
+	<cffunction name="extract" access="public" returntype="array" output="false">
 		<cfargument name="string" type="string" required="yes" hint="The string to search in" />
 		<cfargument name="regExp" type="string" required="yes" hint="The regular expression used to search" />
 		<cfset var result = ArrayNew(1)>
@@ -278,7 +278,7 @@
 
 
 	<!--- Get attributes inside a tag --->
-	<cffunction name="getTagAttributes" access="public" returntype="struct">
+	<cffunction name="getTagAttributes" access="public" returntype="struct" output="false">
 		<cfargument name="tag" type="string" required="yes" hint="The tag to search in" />
 		<cfset var result = StructNew()>
 		<cfset var pair = "">
@@ -294,7 +294,7 @@
 
 
 	<!--- Extract tags --->
-	<cffunction name="extractTags" access="public" returntype="array">
+	<cffunction name="extractTags" access="public" returntype="array" output="false">
 		<cfargument name="string" type="string" required="yes" hint="The string to search in" />
 		<cfargument name="tagName" type="string" required="yes" hint="The tag name" />
 		<cfset var result = ArrayNew(1)>

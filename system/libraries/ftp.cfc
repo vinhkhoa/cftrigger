@@ -12,13 +12,13 @@
 
 --->
 
-<cfcomponent displayname="FTP">
+<cfcomponent displayname="FTP" output="false">
 
 	<cfsetting enablecfoutputonly="yes">
 	
 	
 	<!--- Initialize the connection --->
-	<cffunction name="init" displayname="init" access="public" hint="Initialize the connection">
+	<cffunction name="init" displayname="init" access="public" hint="Initialize the connection" output="false">
 	
 		<cfargument name="server" type="string" required="yes" hint="The FTP server address">
 		<cfargument name="username" type="string" required="yes" hint="The account username used to connect to the server">
@@ -46,7 +46,7 @@
 	<!--- =================================== CONNECTION FUNCTIONS ======================================== --->
 	
 	<!--- Open the connection --->
-	<cffunction name="open" displayname="open" access="private" returntype="struct" hint="Open the connection">
+	<cffunction name="open" displayname="open" access="private" returntype="struct" hint="Open the connection" output="false">
 	
 		<cfset var result = StructNew()>
 		<cfset result.error = "">
@@ -79,7 +79,7 @@
 	
 		
 	<!--- Close the connection --->
-	<cffunction name="close" displayname="close" access="private" returntype="struct" hint="Close the connection">
+	<cffunction name="close" displayname="close" access="private" returntype="struct" hint="Close the connection" output="false">
 	
 		<cfif this.isConnected()>
 			<cfftp action="close" server="#variables.server#" username="#variables.username#" password="#variables.password#" port="#variables.port#" stoponerror="No">
@@ -89,7 +89,7 @@
 	
 	
 	<!--- Check if a connection to the server has been opened --->
-	<cffunction name="isConnected" displayname="isConnected" access="public" returntype="boolean" hint="Check if a connection to the server has been opened">
+	<cffunction name="isConnected" displayname="isConnected" access="public" returntype="boolean" hint="Check if a connection to the server has been opened" output="false">
 
 		<cfreturn StructKeyExists(variables, "connection") AND variables.connection.isConnected()>
 
@@ -99,7 +99,7 @@
 	<!--- =================================== DIRECTORY FUNCTIONS ======================================== --->
 	
 	<!--- Check if a directory exists --->
-	<cffunction name="existsDir" displayname="existsDir" access="public" returntype="boolean" hint="Check if a directory exists">
+	<cffunction name="existsDir" displayname="existsDir" access="public" returntype="boolean" hint="Check if a directory exists" output="false">
 	
 		<cfargument name="directoryPath" type="string" required="yes" hint="The directory path">
 	
@@ -111,7 +111,7 @@
 	
 	
 	<!--- List files inside a directory --->
-	<cffunction name="listDir" displayname="listDir" access="public" returntype="struct" hint="List files inside a directory">
+	<cffunction name="listDir" displayname="listDir" access="public" returntype="struct" hint="List files inside a directory" output="false">
 	
 		<cfargument name="directoryPath" type="string" required="yes" hint="The directory path">
 		<cfargument name="excludeItems" type="string" required="no" hint="Pass in the items to be hidden. For example, hidden files are not wished to be returned.">
@@ -142,7 +142,7 @@
 
 
 	<!--- Create a directory --->
-	<cffunction name="createDir" displayname="createDir" access="public" returntype="struct" hint="Create a directory">
+	<cffunction name="createDir" displayname="createDir" access="public" returntype="struct" hint="Create a directory" output="false">
 	
 		<cfargument name="directoryPath" type="string" required="yes" hint="The directory path">
 		<cfset var result = StructNew()>
@@ -180,7 +180,7 @@
 	
 	
 	<!--- Delete a directory --->
-	<cffunction name="removeDir" displayname="removeDir" access="public" returntype="struct" hint="Delete a directory">
+	<cffunction name="removeDir" displayname="removeDir" access="public" returntype="struct" hint="Delete a directory" output="false">
 	
 		<cfargument name="directoryPath" type="string" required="yes" hint="The directory path">
 		<cfset var result = StructNew()>
@@ -210,7 +210,7 @@
 	
 	
 	<!--- Check if a directory is empty --->
-	<cffunction name="isEmptyDir" displayname="isEmptyDir" access="public" returntype="boolean" hint="Check if a directory is empty">
+	<cffunction name="isEmptyDir" displayname="isEmptyDir" access="public" returntype="boolean" hint="Check if a directory is empty" output="false">
 	
 		<cfargument name="directoryPath" type="string" required="yes" hint="The directory path">
 
@@ -224,7 +224,7 @@
 	<!--- =================================== FILE FUNCTIONS ======================================== --->
 	
 	<!--- Check if a file exists --->
-	<cffunction name="existsFile" displayname="existsFile" access="public" returntype="boolean" hint="Check if a directory exists">
+	<cffunction name="existsFile" displayname="existsFile" access="public" returntype="boolean" hint="Check if a directory exists" output="false">
 	
 		<cfargument name="filePath" type="string" required="yes" hint="The file path">
 	
@@ -236,7 +236,7 @@
 	
 	
 	<!--- Delete a file --->
-	<cffunction name="remove" displayname="remove" access="public" returntype="struct" hint="Delete a file">
+	<cffunction name="remove" displayname="remove" access="public" returntype="struct" hint="Delete a file" output="false">
 	
 		<cfargument name="filePath" type="string" required="yes" hint="The file path">
 		<cfset var result = StructNew()>
@@ -260,7 +260,7 @@
 	
 	
 	<!--- Upload file --->
-	<cffunction name="putFile" displayname="putFile" access="public" returntype="struct" hint="Upload file">
+	<cffunction name="putFile" displayname="putFile" access="public" returntype="struct" hint="Upload file" output="false">
 		
 		<cfargument name="localFilePath" type="string" required="yes" hint="The file path">
 		<cfargument name="remoteFilePath" type="string" required="yes" hint="The file path">

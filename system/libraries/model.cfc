@@ -12,7 +12,7 @@
 
 --->
 
-<cfcomponent displayname="Model" hint="Main Model class">
+<cfcomponent displayname="Model" hint="Main Model class" output="false">
 
 	<cfsetting enablecfoutputonly="yes">
 
@@ -43,7 +43,7 @@
 	
 	
 	<!--- Initialize model --->
-	<cffunction name="init" access="public">
+	<cffunction name="init" access="public" output="false">
 		
 		<cfargument name="userId" type="numeric" required="no" default="0" hint="ID of the user">
 		<cfargument name="id" type="numeric" required="no" hint="ID of the model object">
@@ -99,7 +99,7 @@
 	
 	
 	<!--- Add/update model --->
-	<cffunction name="save" displayname="save" access="public" returntype="struct" hint="Add/update model">
+	<cffunction name="save" displayname="save" access="public" returntype="struct" hint="Add/update model" output="false">
 	
 		<cfargument name="fieldCollection" type="struct" required="no" hint="Collection of fields">		
 		<cfargument name="ignoreMissingFields" type="boolean" required="no" default="false" hint="true: ignore fields that are not passed in. Only validate those that were passed.">		
@@ -232,7 +232,7 @@
 	
 	
 	<!--- Delete a model --->
-	<cffunction name="delete" displayname="delete" access="public" returntype="struct" hint="Delete a model">
+	<cffunction name="delete" displayname="delete" access="public" returntype="struct" hint="Delete a model" output="false">
 		
 		<cfset var result = StructNew()>
 		<cfset result.errorList = ArrayNew(1)>
@@ -260,7 +260,7 @@
 	
 
 	<!--- Get a model details --->
-	<cffunction name="get" displayname="get" access="public" returntype="query" hint="Get a model details">
+	<cffunction name="get" displayname="get" access="public" returntype="query" hint="Get a model details" output="false">
 		
 		<cfargument name="refresh" type="boolean" required="no" default="false" hint="true: force refresh the query">
 		<cfset var qDetails = "">
@@ -295,7 +295,7 @@
 	
 
 	<!--- Get the list of models --->
-	<cffunction name="getAll" displayname="getAll" access="public" returntype="query" hint="Get the list of models">
+	<cffunction name="getAll" displayname="getAll" access="public" returntype="query" hint="Get the list of models" output="false">
 		
 		<cfargument name="id" type="numeric" required="no" hint="Limit to a particular record by its id">
 		<cfargument name="textId" type="string" required="no" hint="Limit to a particular record by its text id">
@@ -347,7 +347,7 @@
 
 	
 	<!--- Set the where condition for this model --->
-	<cffunction name="where" displayname="where" access="public" hint="Set the where condition for this model">
+	<cffunction name="where" displayname="where" access="public" hint="Set the where condition for this model" output="false">
 	
 		<cfargument name="field" type="string" required="yes" hint="The where field">
 		<cfargument name="value" type="string" required="yes" hint="The where value">
@@ -360,7 +360,7 @@
 		
 
 	<!--- Reset all WHERE/filter conditions --->
-	<cffunction name="resetWhere" displayname="resetWhere" access="private" hint="">
+	<cffunction name="resetWhere" displayname="resetWhere" access="private" hint="" output="false">
 	
 		<!--- Reset the where clauses --->
 		<cfset StructClear(variables.wheres)>
@@ -370,7 +370,7 @@
 	
 
 	<!--- Get the list of all models including both active and archived ones --->
-	<cffunction name="getAllIncludingArchived" displayname="getAllIncludingArchived" access="public" returntype="query" hint="Get the list of models">
+	<cffunction name="getAllIncludingArchived" displayname="getAllIncludingArchived" access="public" returntype="query" hint="Get the list of models" output="false">
 		<cfargument name="id" type="numeric" required="no" hint="Limit to a particular record by its id">
 		<cfargument name="textId" type="string" required="no" hint="Limit to a particular record by its text id">
 		<cfset var qActive = "">
@@ -417,7 +417,7 @@
 	
 	
 	<!--- Undelete a model --->
-	<cffunction name="undelete" displayname="undelete" access="public" returntype="struct" hint="Undelete a model">
+	<cffunction name="undelete" displayname="undelete" access="public" returntype="struct" hint="Undelete a model" output="false">
 		
 		<cfset var result = StructNew()>
 		<cfset result.errorList = ArrayNew(1)>
@@ -445,7 +445,7 @@
 	
 
 	<!--- Actually delete a model --->
-	<cffunction name="hardDelete" displayname="hardDelete" access="public" returntype="struct" hint="Actually delete a model">
+	<cffunction name="hardDelete" displayname="hardDelete" access="public" returntype="struct" hint="Actually delete a model" output="false">
 		
 		<cfset var result = StructNew()>
 		<cfset result.errorList = ArrayNew(1)>
@@ -466,7 +466,7 @@
 	
 
 	<!--- Update relationship with another model --->
-	<cffunction name="updateRelationship" displayname="updateRelationship" access="public" returntype="struct" hint="Update relationship with another model">
+	<cffunction name="updateRelationship" displayname="updateRelationship" access="public" returntype="struct" hint="Update relationship with another model" output="false">
 		<cfargument name="relatedTableName" type="string" required="yes" hint="The related table name">
 		<cfargument name="fieldName" type="string" required="yes" hint="The field name of this model inside the related table">
 		<cfargument name="relatedFieldName" type="string" required="yes" hint="The field name of the related model inside the related table">
@@ -538,7 +538,7 @@
 	
 
 	<!--- Clear this model current state --->
-	<cffunction name="clear" displayname="clear" access="public" returntype="struct" hint="Clear this model current state">
+	<cffunction name="clear" displayname="clear" access="public" returntype="struct" hint="Clear this model current state" output="false">
 		
 		<cfset var result = StructNew()>
 		<cfset result.errorList = ArrayNew(1)>
@@ -556,7 +556,7 @@
 			
 
 	<!--- Check if there are any duplicated records with this model --->
-	<cffunction name="hasDuplicates" displayname="hasDuplicates" access="public" returntype="boolean" hint="Check if there are any duplicated records with this model">
+	<cffunction name="hasDuplicates" displayname="hasDuplicates" access="public" returntype="boolean" hint="Check if there are any duplicated records with this model" output="false">
 	
 		<cfargument name="field" type="struct" required="yes" hint="The field being checked">
 		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">

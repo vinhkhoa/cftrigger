@@ -10,13 +10,13 @@
 
 --->
 
-<cfcomponent displayname="Url" hint="Handles user funtions">
+<cfcomponent displayname="Url" hint="Handles user funtions" output="false">
 
 	<cfsetting enablecfoutputonly="yes">
 	
 
 	<!--- Redirect the page with a message --->
-	<cffunction name="redirectMessage" access="public" output="no">
+	<cffunction name="redirectMessage" access="public" output="false">
 	
 		<cfargument name="location" type="string" required="yes" hint="The location to redirect to">
 		<cfargument name="message" type="string" required="yes" hint="The message to be displayed">
@@ -28,7 +28,7 @@
 
 
 	<!--- Redirect the page with an error --->
-	<cffunction name="redirectError" access="public" output="no">
+	<cffunction name="redirectError" access="public" output="false">
 	
 		<cfargument name="location" type="string" required="yes" hint="The location to redirect to">
 		<cfargument name="error" type="string" required="yes" hint="The error to be displayed">
@@ -40,7 +40,7 @@
 	
 	
 	<!--- Redirect the page with a list of error --->
-	<cffunction name="redirectErrorList" access="public" output="no">
+	<cffunction name="redirectErrorList" access="public" output="false">
 	
 		<cfargument name="location" type="string" required="yes" hint="The location to redirect to">
 		<cfargument name="errorList" type="array" required="yes" hint="The error list to be displayed">
@@ -52,7 +52,7 @@
 	
 	
 	<!--- Redirect user to a page --->
-	<cffunction name="redirect" access="public" output="no">
+	<cffunction name="redirect" access="public" output="false">
 
 		<cfargument name="location" type="string" required="no" default="" hint="The location to redirect to">
 		<cfset var finalLocation = "">
@@ -70,7 +70,7 @@
 	
 
 	<!--- Redirect user to a page --->
-	<cffunction name="redirectBack" access="public" output="no">
+	<cffunction name="redirectBack" access="public" output="false">
 
 		<cfargument name="message" type="string" required="no" hint="The message to be displayed">
 		<cfargument name="error" type="string" required="no" hint="The error to be displayed">
@@ -103,7 +103,7 @@
 	
 
 	<!--- Get variables out of page path info --->
-	<cffunction name="getPathInfoVariables" access="public" returntype="struct" output="no">
+	<cffunction name="getPathInfoVariables" access="public" returntype="struct" output="false">
 
 		<cfset var result = StructNew()>
 		<cfset var fromDevComputer = "">
@@ -169,6 +169,13 @@
 				<!--- View exists inside this controller? --->
 				<cfif StructKeyExists(result.objController, nextPath)>
 					<cfset result.foundController = true>
+					<cfset result.view = nextPath>
+				<cfelse>
+					<!--- Does this controller have a default view? --->
+					<cfif StructKeyExists(result.objController, "defaultView") AND trim(result.objController.defaultView) neq "">
+						<cfset result.foundController = true>
+						<cfset result.view = result.objController.defaultView>
+					</cfif>
 				</cfif>
 			</cfif>
 			<cfset continueSearching = (NOT result.foundController) AND directoryExists(controllerPath)>
@@ -254,7 +261,7 @@
 
 
 	<!--- Get the actual path info string --->
-	<cffunction name="getPathInfoStr" access="public" returntype="string" output="no">
+	<cffunction name="getPathInfoStr" access="public" returntype="string" output="false">
 	
 		<!--- At the root level address (just index.cfm), sometimes CGI.PATH_INFO returns the full path to the file
 			instead of what is appended after the index.cfm. So we need to remove that before continuing --->
@@ -275,7 +282,7 @@
 
 
 	<!--- Get the actual path info string --->
-	<cffunction name="currentPage" access="public" returntype="string" output="no">
+	<cffunction name="currentPage" access="public" returntype="string" output="false">
 		<cfargument name="includeQueryString" type="boolean" default="true" hint="true: include the query string in the result">
 	
 		<cfset var result = application.baseURL & getPathInfoStr()>
@@ -289,7 +296,7 @@
 	</cffunction>
 
 	<!--- Redirect the parent page with a message. Used when inside an iframe popup --->
-	<cffunction name="redirectParentMessage" access="public" output="no">
+	<cffunction name="redirectParentMessage" access="public" output="false">
 	
 		<cfargument name="location" type="string" required="yes" hint="The location to redirect to">
 		<cfargument name="message" type="string" required="yes" hint="The message to be displayed">
@@ -301,7 +308,7 @@
 
 
 	<!--- Redirect the parent page with an error. Used when inside an iframe popup --->
-	<cffunction name="redirectParentError" access="public" output="no">
+	<cffunction name="redirectParentError" access="public" output="false">
 	
 		<cfargument name="location" type="string" required="yes" hint="The location to redirect to">
 		<cfargument name="error" type="string" required="yes" hint="The error to be displayed">
@@ -313,7 +320,7 @@
 	
 	
 	<!--- Redirect the parent page to a new page. Used when inside an iframe popup --->
-	<cffunction name="redirectParent" access="public" output="no">
+	<cffunction name="redirectParent" access="public" output="false">
 
 		<cfargument name="location" type="string" required="no" default="" hint="The location to redirect to">
 		<cfset var finalLocation = "">

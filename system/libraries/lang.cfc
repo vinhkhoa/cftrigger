@@ -12,13 +12,13 @@
 
 --->
 
-<cfcomponent displayname="Lang">
+<cfcomponent displayname="Lang" output="false">
 
 	<cfsetting enablecfoutputonly="yes">
 	
 	
 	<!--- Get a validation languge --->
-	<cffunction name="getValidationLang" displayname="getValidationLang" access="public" returntype="string" hint="Get a validation language">
+	<cffunction name="getValidationLang" displayname="getValidationLang" access="public" returntype="string" hint="Get a validation language" output="false">
 		<cfargument name="modelName" type="string" required="yes" hint="The model name">
 		<cfargument name="field" type="struct" required="yes" hint="The field details">
 		<cfargument name="value" type="string" required="yes" hint="The field value">
@@ -53,7 +53,7 @@
 	
 
 	<!--- Get a message --->
-	<cffunction name="get" displayname="get" access="public" returntype="string" hint="Get a message">
+	<cffunction name="get" displayname="get" access="public" returntype="string" hint="Get a message" output="false">
 		<cfargument name="msgName" type="string" required="yes" hint="The message name">
 		<cfset var result = "">
 		

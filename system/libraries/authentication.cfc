@@ -10,13 +10,13 @@
 
 --->
 
-<cfcomponent displayname="Authentication" hint="Handles authentication related functions">
+<cfcomponent displayname="Authentication" hint="Handles authentication related functions" output="false">
 
 	<cfsetting enablecfoutputonly="yes">
 
 
 	<!--- Authenticate user. Make sure that user has logged in --->
-	<cffunction name="validate" displayname="authenticate" access="public">
+	<cffunction name="validate" displayname="authenticate" access="public" output="false">
 		<cfargument name="sysAdmin" type="boolean" required="no" default="false" hint="Limit to a admin role">
 		<cfargument name="loginController" type="string" required="no" default="login" hint="The login controller">
 		
@@ -45,7 +45,7 @@
 
 
 	<!--- Validate user as guiest. Make sure that user has NOT logged in yet --->
-	<cffunction name="validateAsGuest" displayname="deauthenticate" access="public">
+	<cffunction name="validateAsGuest" displayname="deauthenticate" access="public" output="false">
 		
 		<cfset var authenticated = StructKeyExists(session, "userId") AND val(session.userId)>
 		
@@ -57,7 +57,7 @@
 		
 
 	<!--- Generate an encrypted password and its salt --->
-	<cffunction name="encryptPassword" displayname="encryptPassword" returntype="struct" hint="Generate the encrypted password">
+	<cffunction name="encryptPassword" displayname="encryptPassword" returntype="struct" hint="Generate the encrypted password" output="false">
 		<cfargument name="password" type="string" required="yes" hint="The password that user wants">
 		<cfargument name="salt" type="string" required="no" hint="The salt that user wants. Pass this in to keep the old salt. Don't pass in to generate a new salt as well">
 		<cfset var result = StructNew()>

@@ -12,13 +12,13 @@
 
 --->
 
-<cfcomponent displayname="File">
+<cfcomponent displayname="File" output="false">
 
 	<cfsetting enablecfoutputonly="yes">
 	
 	
 	<!--- Delete a file but ignore any warning, even when the file does not exist to be deleted --->
-	<cffunction name="delete" returntype="struct" access="public">
+	<cffunction name="delete" returntype="struct" access="public" output="false">
 		<cfargument name="fileLocation" type="string" required="yes" hint="Location of the file to be deleted">
 		<cfargument name="ignoreNonExisting" type="boolean" required="no" default="true" hint="true: ignore when the file does not exist, ie. does not return error in that case.">
 		<cfset var result = StructNew()>
@@ -49,7 +49,7 @@
 	
 	
 	<!--- Rename a file to a random string --->
-	<cffunction name="renameToRandom" access="public" returntype="struct">
+	<cffunction name="renameToRandom" access="public" returntype="struct" output="false">
 		<cfargument name="fileLocation" type="string" required="yes" hint="Location of the file to be renamed">
 		<cfset var result = StructNew()>
 		<cfset var folderLocation = "">
@@ -103,7 +103,7 @@
 	
 	
 	<!--- Determine if a file is ascii based on its extension --->
-	<cffunction name="isAscii" access="public" returntype="boolean">
+	<cffunction name="isAscii" access="public" returntype="boolean" output="false">
 		<cfargument name="fileLocation" type="string" required="yes" hint="Location of the file to be checked">
 		
 		<cfset var ext = listLast(getFileFromPath(arguments.fileLocation), ".")>
@@ -114,7 +114,7 @@
 	
 
 	<!--- Copy a file. Create missing directories --->
-	<cffunction name="copy" returntype="struct" access="public">
+	<cffunction name="copy" returntype="struct" access="public" output="false">
 		<cfargument name="fileLocation" type="string" required="yes" hint="Location of the file to be copied">
 		<cfargument name="fileDestination" type="string" required="yes" hint="Copy file to this location">
 		<cfset var result = StructNew()>

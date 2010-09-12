@@ -12,7 +12,7 @@
 
 --->
 
-<cfcomponent bindingname="Validation" displayname="Validation" hint="Validation class">
+<cfcomponent bindingname="Validation" displayname="Validation" hint="Validation class" output="false">
 
 	<cfset variables.model = "">
 	<cfset variables.modelName = "">
@@ -21,7 +21,7 @@
 	
 
 	<!--- Initialize the validation --->
-	<cffunction name="init" displayname="required">
+	<cffunction name="init" displayname="required" output="false">
 		<cfargument name="model" type="component" required="no" hint="The model being validated">
 		<cfargument name="fields" type="array" required="no" hint="The fields validated">
 		<cfset var metaData = "">
@@ -43,7 +43,7 @@
 
 
 	<!--- Run the validation --->
-	<cffunction name="run" displayname="required" returntype="struct">
+	<cffunction name="run" displayname="required" returntype="struct" output="false">
 	
 		<cfargument name="values" type="struct" required="yes" hint="The model field values">
 		<cfargument name="fieldList" type="array" required="no" default="#variables.fields#" hint="The list of fields to be checked against">
@@ -123,7 +123,7 @@
 	<!--- ======================================= VALIDATAION RULES ========================================== --->
 
 	<!--- Required field --->
-	<cffunction name="_required" displayname="_required" returntype="string">
+	<cffunction name="_required" displayname="_required" returntype="string" output="false">
 	
 		<cfargument name="field" type="struct" required="yes" hint="The field being checked">
 		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">
@@ -141,7 +141,7 @@
 	
 	
 	<!--- Unique field --->
-	<cffunction name="_unique" displayname="_unique" returntype="string">
+	<cffunction name="_unique" displayname="_unique" returntype="string" output="false">
 	
 		<cfargument name="field" type="struct" required="yes" hint="The field being checked">
 		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">
@@ -157,7 +157,7 @@
 	
 	
 	<!--- Email field --->
-	<cffunction name="_email" displayname="_email" returntype="string">
+	<cffunction name="_email" displayname="_email" returntype="string" output="false">
 	
 		<cfargument name="field" type="struct" required="yes" hint="The field being checked">
 		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">
@@ -173,7 +173,7 @@
 	
 
 	<!--- Minimum length --->
-	<cffunction name="_minLen" displayname="_minLen" returntype="string">
+	<cffunction name="_minLen" displayname="_minLen" returntype="string" output="false">
 	
 		<cfargument name="field" type="struct" required="yes" hint="The field being checked">
 		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">
@@ -190,7 +190,7 @@
 	
 
 	<!--- Maximum length --->
-	<cffunction name="_maxLen" displayname="_maxLen" returntype="string">
+	<cffunction name="_maxLen" displayname="_maxLen" returntype="string" output="false">
 	
 		<cfargument name="field" type="struct" required="yes" hint="The field being checked">
 		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">
@@ -207,7 +207,7 @@
 	
 
 	<!--- Numeric --->
-	<cffunction name="_numeric" displayname="_numeric" returntype="string">
+	<cffunction name="_numeric" displayname="_numeric" returntype="string" output="false">
 	
 		<cfargument name="field" type="struct" required="yes" hint="The field being checked">
 		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">
@@ -223,7 +223,7 @@
 	
 
 	<!--- Minimum value --->
-	<cffunction name="_minVal" displayname="_minVal" returntype="string">
+	<cffunction name="_minVal" displayname="_minVal" returntype="string" output="false">
 	
 		<cfargument name="field" type="struct" required="yes" hint="The field being checked">
 		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">
@@ -240,7 +240,7 @@
 	
 
 	<!--- Maximum value --->
-	<cffunction name="_maxVal" displayname="_maxVal" returntype="string">
+	<cffunction name="_maxVal" displayname="_maxVal" returntype="string" output="false">
 	
 		<cfargument name="field" type="struct" required="yes" hint="The field being checked">
 		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">
@@ -257,7 +257,7 @@
 
 
 	<!--- Username --->
-	<cffunction name="_username" displayname="_username" returntype="string">
+	<cffunction name="_username" displayname="_username" returntype="string" output="false">
 	
 		<cfargument name="field" type="struct" required="yes" hint="The field being checked">
 		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">
@@ -273,7 +273,7 @@
 
 
 	<!--- Letters --->
-	<cffunction name="_letters" displayname="_letters" returntype="string">
+	<cffunction name="_letters" displayname="_letters" returntype="string" output="false">
 	
 		<cfargument name="field" type="struct" required="yes" hint="The field being checked">
 		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">
@@ -289,7 +289,7 @@
 
 
 	<!--- Numbers/Digits --->
-	<cffunction name="_digits" displayname="_digits" returntype="string">
+	<cffunction name="_digits" displayname="_digits" returntype="string" output="false">
 	
 		<cfargument name="field" type="struct" required="yes" hint="The field being checked">
 		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">
@@ -305,7 +305,7 @@
 
 
 	<!--- URL field --->
-	<cffunction name="_url" displayname="_url" returntype="string">
+	<cffunction name="_url" displayname="_url" returntype="string" output="false">
 	
 		<cfargument name="field" type="struct" required="yes" hint="The field being checked">
 		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">
@@ -321,7 +321,7 @@
 	
 
 	<!--- Provide user with freedom to limit what charactesr they want --->
-	<cffunction name="_limitChars" displayname="_limitChars" returntype="string">
+	<cffunction name="_limitChars" displayname="_limitChars" returntype="string" output="false">
 	
 		<cfargument name="field" type="struct" required="yes" hint="The field being checked">
 		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">
@@ -366,7 +366,7 @@
 
 
 	<!--- Valid/existing local directory path --->
-	<cffunction name="_localDirectory" displayname="_localDirectory" returntype="string">
+	<cffunction name="_localDirectory" displayname="_localDirectory" returntype="string" output="false">
 	
 		<cfargument name="field" type="struct" required="yes" hint="The field being checked">
 		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">
@@ -382,7 +382,7 @@
 	
 
 	<!--- Valid phone number --->
-	<cffunction name="_phoneNumber" displayname="_phoneNumber" returntype="string">
+	<cffunction name="_phoneNumber" displayname="_phoneNumber" returntype="string" output="false">
 	
 		<cfargument name="field" type="struct" required="yes" hint="The field being checked">
 		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">
@@ -400,7 +400,7 @@
 	
 
 	<!--- Valid URL characters --->
-	<cffunction name="_validURLChars" displayname="_validURLChars" returntype="string">
+	<cffunction name="_validURLChars" displayname="_validURLChars" returntype="string" output="false">
 	
 		<cfargument name="field" type="struct" required="yes" hint="The field being checked">
 		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">

@@ -12,13 +12,13 @@
 
 --->
 
-<cfcomponent displayname="Image">
+<cfcomponent displayname="Image" output="false">
 
 	<cfsetting enablecfoutputonly="yes">
 	
 	
 	<!--- Resize an image to fit a size --->
-	<cffunction name="resize" displayname="resize" returntype="struct" hint="Resize an image to fit a size">
+	<cffunction name="resize" displayname="resize" returntype="struct" hint="Resize an image to fit a size" output="false">
 		<cfargument name="fileLocation" type="string" required="yes" hint="The image location">
 		<cfargument name="fileName" type="string" required="yes" hint="The image file name. Can be different from the one specified in the file location depending on the context">
 		<cfargument name="resizeWidth" type="numeric" required="no" hint="The width to resize">
@@ -132,7 +132,7 @@
 
 
 	<!--- Upload and resize image --->
-	<cffunction name="uploadAndResize" displayname="uploadAndResize" access="public" returntype="struct" hint="Upload and resize image">
+	<cffunction name="uploadAndResize" displayname="uploadAndResize" access="public" returntype="struct" hint="Upload and resize image" output="false">
 		<cfargument name="formField" type="string" required="yes" hint="The name of the form field that contains the image">
 		<cfargument name="destinationFolder" type="string" required="yes" hint="The path to the folder where the images are uploaded to">
 		<cfargument name="resizeWidth" type="numeric" required="no" hint="The width to resize">
@@ -250,7 +250,7 @@
 
 
 	<!--- Generate qr code image --->
-	<cffunction name="generateQRCode" displayname="generateQRCode" access="public" returntype="struct" hint="Generate qr code image">
+	<cffunction name="generateQRCode" displayname="generateQRCode" access="public" returntype="struct" hint="Generate qr code image" output="false">
 		<cfargument name="destinationFolder" type="string" required="yes" hint="The path to the folder where the images are saved to">
 		<cfargument name="fileName" type="string" required="yes" hint="The file name of the qr code image">
 		<cfargument name="imageSize" type="numeric" required="yes" hint="The width and height of the image">
