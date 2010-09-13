@@ -63,7 +63,6 @@
 	application.defaultView = 'index';
 	application.guestDefaultController = "";
 	application.guestControllers = "";
-	application.refreshWhenReset = true;
 	application.defaultTemplate = "_global/template";
 	application.showLocalFriendlyError = true;
 	application.show404OnMissingController = true;

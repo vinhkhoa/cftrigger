@@ -22,7 +22,6 @@
 		<cfparam name="application.defaultController" default="">
 		<cfparam name="application.defaultView" default="index">
 		<cfparam name="application.guestDefaultController" default="">
-		<cfparam name="application.refreshWhenReset" default="true">
 		<cfparam name="application.defaultTemplate" default="">
 		<cfparam name="application.showLocalFriendlyError" default="true">
 		<cfparam name="application.show404OnMissingController" default="true">
@@ -44,7 +43,6 @@
 		<cfparam name="form.defaultController" default="#application.defaultController#">
 		<cfparam name="form.defaultView" default="#application.defaultView#">
 		<cfparam name="form.guestDefaultController" default="#application.guestDefaultController#">
-		<cfparam name="form.refreshWhenReset" default="#application.refreshWhenReset#">
 		<cfparam name="form.defaultTemplate" default="#application.defaultTemplate#">
 		<cfparam name="form.showLocalFriendlyError" default="#application.showLocalFriendlyError#">
 		<cfparam name="form.show404OnMissingController" default="#application.show404OnMissingController#">

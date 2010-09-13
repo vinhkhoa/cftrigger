@@ -23,6 +23,12 @@
 	<!--- ================================ APPLICATION METHODS ================================= --->
 
 	<cffunction name="OnApplicationStart">
+	
+		<cfset var tempCurrentPage = "">
+		<cfset var i = "">
+		<cfset var k = "">
+		
+	
 		<cfset setLocale("English (Australian)")>
 	
 		<cfscript>
@@ -49,26 +55,33 @@
 		
 			// GET CURRENT SERVER
 			application.serverType = '';
-			for (i = 1; i le arrayLen(application.servers); i++)
+			if (StructKeyExists(application, "servers"))
 			{
-				if (application.servers[i].name eq CGI.SERVER_NAME AND findNoCase(application.servers[i].url, tempCurrentPage))
+				for (i = 1; i le arrayLen(application.servers); i++)
 				{
-					application.serverType = application.servers[i].type;
-					application.serverName = application.serverType & "_" & application.servers[i].name;
-					application.appNameSuffix = application.servers[i].appNameSuffix;
-					application.rootURL = application.servers[i].url;
-					application.rootURLPath = replace(application.rootURL, listFirst(application.rootURL, '/') & '//' & listGetAt(application.rootURL, 2, '/'), '');
-					application.appLogicalPath = replace(application.rootURL, listFirst(application.rootURL, '/') & '//' & listGetAt(application.rootURL, 2, '/'), '') & '/';
-					
-					// Allow other configs to be overwritten per server
-					if (StructKeyExists(application.servers[i], "specificSettings"))
+					if (application.servers[i].name eq CGI.SERVER_NAME AND findNoCase(application.servers[i].url, tempCurrentPage))
 					{
-						for (k in application.servers[i].specificSettings)
+						application.serverType = application.servers[i].type;
+						application.serverName = application.serverType & "_" & application.servers[i].name;
+						application.appNameSuffix = application.servers[i].appNameSuffix;
+						application.rootURL = application.servers[i].url;
+						application.rootURLPath = replace(application.rootURL, listFirst(application.rootURL, '/') & '//' & listGetAt(application.rootURL, 2, '/'), '');
+						application.appLogicalPath = replace(application.rootURL, listFirst(application.rootURL, '/') & '//' & listGetAt(application.rootURL, 2, '/'), '') & '/';
+						
+						// Allow other configs to be overwritten per server
+						if (StructKeyExists(application.servers[i], "specificSettings"))
 						{
-							application[k] = application.servers[i].specificSettings[k];
+							for (k in application.servers[i].specificSettings)
+							{
+								application[k] = application.servers[i].specificSettings[k];
+							}
 						}
 					}
 				}
+			}
+			else
+			{
+				application.serverType = "";
 			}
 		</cfscript>
 		
@@ -126,13 +139,6 @@
 
 					break;						
 		
-				case "STAGING":
-					application.showFriendlyError = true;
-					application.show404OnMissingController = true;
-					application.applicationDBType = "staging";
-					application.alwaysRefreshSettings = false;
-					break;						
-		
 				case "DEV":
 					// Allow showLocalFriendlyError to be overwritten per application
 					if (StructKeyExists(application, "showLocalFriendlyError"))
@@ -145,11 +151,7 @@
 					}
 
 					// Allow show404OnMissingController to be overwritten per application
-					if (StructKeyExists(application, "show404OnMissingController"))
-					{					
-						application.show404OnMissingController = application.show404OnMissingController;
-					}
-					else
+					if (NOT StructKeyExists(application, "show404OnMissingController"))
 					{
 						application.show404OnMissingController = false;
 					}
@@ -191,7 +193,7 @@
 				<cfset application.dbIsMySQL = findNoCase("MySQL", application.dbDriver)>
 				
 				<cfcatch type="any">
-					<!--- Cannot get version from database? Don't worry, keep move on --->
+					<!--- Cannot get version from database? Don't worry, just move on --->
 				</cfcatch>
 			</cftry>
 		</cfif>
@@ -220,7 +222,6 @@
 			}
 			application.baseURLPath = application.rootURLPath & "/index.cfm";
 			application.FilePath = ReplaceNoCase(This.appComponentFilePath, application.separator & "Application.cfc", "") & application.separator;
-			appFile = replace(replace(application.appLogicalPath, "/", application.separator, "ALL") & "Application.cfc", application.separator, "");
 			
 			// Paths
 			application.appPath = application.appLogicalPath & "application";
@@ -256,7 +257,7 @@
 			application.controllerRoot = Replace(Replace(application.appLogicalPath & "application/controllers", "/", ""), "/", ".", "all");
 			application.libraryRoot = Replace(Replace(application.appLogicalPath & "application/libraries", "/", ""), "/", ".", "all");
 			
-			// System library
+			// Preload system library
 			application.load = createObject("component", "cft.libraries.load");
 			application.load.library("error", true);
 			application.load.library("utils", true);
@@ -273,7 +274,7 @@
 		</cfscript>
 		
 		<!--- Autoload at application level? --->
-		<cfif isDefined("this.autoload_application")>
+		<cfif StructKeyExists(this, "autoload_application")>
 			<cfset this.autoload_application()>
 		</cfif>
 		
@@ -298,20 +299,22 @@
 
 	<cffunction name="OnRequestStart">
 		<cfargument name="targetPage" type="string" required="true">
+		<cfset var getControllerViewResult = "">
+		<cfset var vals = "">
+		<cfset var vars = "">
+		<cfset var i = "">
+		<cfset var forwardURL = "">
+		<cfset var isGuestController = "">
+		<cfset var isAdminController = "">
+		<cfset var requireAuthentication = "">
+		<cfset var error404 = false>
 		
-		<!--- Include FI variables --->
+		<!--- Include CFT variables --->
 		<cfinclude template="/cft/config/variables.cfm">		
 		
-		<cfset doReset = StructKeyExists(url,"reset") OR NOT StructKeyExists(application, "alwaysRefreshSettings")>
-		
-		<!--- Reset the application --->
-		<cfif doReset OR application.alwaysRefreshSettings>
+		<!--- Check to reset the application --->
+		<cfif StructKeyExists(url,"reset") OR application.alwaysRefreshSettings>
 			<cfset OnApplicationStart()>
-
-			<!--- Also refresh the session --->
-			<cfif application.refreshWhenReset>
-				<cfset url.refresh = true>
-			</cfif>
 		</cfif>
 
 		<!--- Ensure that user can only access the scripts that they are allowed to --->
@@ -321,7 +324,7 @@
 			<cfset application.url.redirect()>
 		</cfif>
 	
-		<!--- User logout --->
+		<!--- User logout? --->
 		<cfif StructKeyExists(url,"logout")>
 			<cfinvoke method="onSessionEnd" sessionScope="#session#">
 			<cfset StructClear(session)>
@@ -332,24 +335,23 @@
 		</cfif>
 		
 		<!--- Get the current page and the path info string --->
-		<cfset request.currentPage = application.url.currentPage()>
+		<cfset request.currentPage = currentPage()>
 		
 		<!--- Get the form, url controller, view and other values from the path info string --->
-		<cfset pathInfoStr = application.url.getPathInfoStr()>		
-		<cfset getVarsResult = application.url.getPathInfoVariables()>
-		<cfset url.controller = getVarsResult.controller>
-		<cfset form.controller = getVarsResult.controller>
-		<cfset url.rootController = getVarsResult.rootController>
-		<cfset form.rootController = getVarsResult.rootController>
-		<cfset url.view = getVarsResult.view>
-		<cfset form.view = getVarsResult.view>
-		<cfif StructKeyExists(getVarsResult, "id")>
-			<cfset url[url.rootController & "Id"] = getVarsResult.id>
-			<cfset form[form.rootController & "Id"] = getVarsResult.id>
+		<cfset getControllerViewResult = getControllerAndView()>
+		<cfset url.controller = getControllerViewResult.controller>
+		<cfset form.controller = getControllerViewResult.controller>
+		<cfset url.rootController = getControllerViewResult.rootController>
+		<cfset form.rootController = getControllerViewResult.rootController>
+		<cfset url.view = getControllerViewResult.view>
+		<cfset form.view = getControllerViewResult.view>
+		<cfif StructKeyExists(getControllerViewResult, "id")>
+			<cfset url[url.rootController & "Id"] = getControllerViewResult.id>
+			<cfset form[form.rootController & "Id"] = getControllerViewResult.id>
 		</cfif>
-		<cfif StructKeyExists(getVarsResult, "textId")>
-			<cfset url[url.rootController & "TextId"] = getVarsResult.textId>
-			<cfset form[form.rootController & "TextId"] = getVarsResult.textId>
+		<cfif StructKeyExists(getControllerViewResult, "textId")>
+			<cfset url[url.rootController & "TextId"] = getControllerViewResult.textId>
+			<cfset form[form.rootController & "TextId"] = getControllerViewResult.textId>
 		</cfif>
 		
 		<!--- Anything to route? --->
@@ -382,8 +384,8 @@
 			<!--- Check if this is an admin controller --->
 			<cfset isAdminController = StructKeyExists(application, "adminControllerPattern") AND reFindNoCase(application.adminControllerPattern, form.controller)>
 										
-			<cfset hasAuthentication = StructKeyExists(application, "enableUserAuthentication") AND application.enableUserAuthentication>
-			<cfif NOT isGuestController AND (hasAuthentication OR isAdminController)>
+			<cfset requireAuthentication = StructKeyExists(application, "enableUserAuthentication") AND application.enableUserAuthentication>
+			<cfif NOT isGuestController AND (requireAuthentication OR isAdminController)>
 				<cfinvoke component="#application.authentication#" method="validate">
 					<!--- Get the login controller --->
 					<cfif isAdminController>
@@ -406,39 +408,25 @@
 			</cfif>
 			
 			<!--- Allow the application to dynamically refresh session when necessary --->
-			<cfif isDefined("this.refreshSession")>
+			<cfif StructKeyExists(this, "refreshSession")>
 				<cfset this.refreshSession()>
 			</cfif>
 			
 			<!--- Autoload at request level? --->
-			<cfif isDefined("this.autoload_request")>
+			<cfif StructKeyExists(this, "autoload_request")>
 				<cfset this.autoload_request()>
 			</cfif>
-			
-			<cfset error404 = false>
 			
 			
 			<!---
 				FIRST TRY: LOAD THE CONTROLLER AND THEN LOAD THE VIEW
 			--->
-			
-			<cfif getVarsResult.foundController>
-				<cfset controller = application.load.controller(form.controller)>
-				
-				<!--- Not found view in controller? Check if the controller has default view specified --->
-				<cfif NOT StructKeyExists(controller, form.view) AND controller.defaultView neq ""
-					  AND StructKeyExists(controller, controller.defaultView)>
-					<!--- We now call the default view/function and set the current view to be the id/textId --->
-					<cfset url[form.controller & "Id"] = val(form.view)>
-					<cfset form[form.controller & "Id"] = val(form.view)>
-					<cfset url[form.controller & "TextId"] = form.view>
-					<cfset form[form.controller & "TextId"] = form.view>				
-					<cfset form.view = controller.defaultView>
-				</cfif>
-				
-				<!--- Load the view --->
-				<cfif StructKeyExists(controller, form.view)>
-					<cfinvoke component="#controller#" method="#form.view#" />
+
+			<!--- Found controller? --->
+			<cfif getControllerViewResult.foundController>
+				<!--- Found view? --->
+				<cfif getControllerViewResult.foundView>
+					<cfinvoke component="#getControllerViewResult.objController#" method="#form.view#" />
 					<cfset this.onRequestEnd("")>
 					<cfabort>
 				<cfelse>
@@ -460,7 +448,7 @@
 			--->
 	
 			<cfif StructKeyExists(application, "directView") AND trim(application.directView) neq "">
-				<cfset directViewPath = replace(pathInfoStr, '/', '')>
+				<cfset directViewPath = replace(getPathInfoStr(), '/', '')>
 				<cfif right(directViewPath, 1) eq "/">
 					<cfset directViewPath = left(directViewPath, len(directViewPath) - 1)>
 				</cfif>
@@ -504,7 +492,7 @@
 					</cfif>
 				<cfelse>
 					<!--- Load the controller to throw error --->
-					<cfinvoke component="#controller#" method="#form.view#" />
+					<cfinvoke component="#getControllerViewResult.objController#" method="#form.view#" />
 				</cfif>
 			</cfif>
 		</cfif>
@@ -683,6 +671,7 @@
 		
 	</cffunction>
 	
+	
 	<!--- ================================ OTHER METHODS ================================= --->
 
 	<!--- Get the mappings from coldfusion admin --->
@@ -710,5 +699,220 @@
 		<cfreturn mappings>
 		
 	</cffunction>
+	
+
+	<!--- ================================ METHODS ABOUT PAGE URL, CONTROLLER, VIEW, ETC. ================================= --->
+
+	<!--- Get the controller, view and other data from the pathinfo --->
+	<cffunction name="getControllerAndView" access="private" returntype="struct" output="false">
+
+		<cfset var fromDevComputer = "">
+		<cfset var underMaintenaince = "">
+		<cfset var pathInfoStr = "">
+		<cfset var pathInfo = "">
+		<cfset var pathInfoLength = "">
+		<cfset var continueSearching = "">
+		<cfset var counter = "">
+		<cfset var path = "">
+		<cfset var nextPath = "">
+		<cfset var logicalPath = "">
+		<cfset var controllerPath = "">
+		<cfset var result = StructNew()>
+		<cfset var controller = "">
+		<cfset result.foundController = false>
+		<cfset result.foundView = false>
+		<cfset result.controller = "">
+		<cfset result.rootController = "">
+		<cfset result.view = "">
+		<cfset result.objController = "">
+		
+		<!--- Is this a development computer? --->
+		<cfset fromDevComputer = StructKeyExists(application, "devIPAddresses") AND
+										 listFind(application.devIPAddresses, CGI.REMOTE_ADDR) gt 0>
+		<cfset underMaintenaince = application.maintenanceMode AND NOT fromDevComputer>
+		
+		<!--- Maintenance mode on live server? Redirect user to the maintenance page --->
+		<cfif application.serverType eq 'LIVE' AND underMaintenaince>
+			<cfset result = validateControllerAndView(application.maintenancePage)>
+		<cfelse>
+			<!--- Get the path info string --->
+			<cfset pathInfoStr = getPathInfoStr()>
+					
+			<!--- Root? Grab the default controller and view --->
+			<cfif listLen(pathInfoStr, '/') eq 0>
+				<cfset result = validateControllerAndView(application.defaultController)>
+			<cfelse>
+				<cfset continueSearching = true>
+				<cfset counter = 1>
+				
+				<!--- Search through the path info string to extract the controller and view --->
+				<cfloop condition="continueSearching AND counter le listLen(pathInfoStr, '/')">
+					<cfset path = listAppend(path, listGetAt(pathInfoStr, counter, "/"), application.separator)>
+		
+					<!--- Get the next part of the path info string --->
+					<cfif counter lt listLen(pathInfoStr, '/')>
+						<cfset nextPath = listGetAt(pathInfoStr, counter + 1, "/")>
+					<cfelse>
+						<cfset nextPath = "">
+					</cfif>
+					
+					<cfset controllerPath = lcase(application.controllerFilePath & path)>
+					<cfset result = validateControllerAndView(replace(path, application.separator, "/", "ALL"), nextPath)>
+					<cfset continueSearching = (NOT result.foundController) AND directoryExists(controllerPath)>
+		
+					<cfset counter = counter + 1>
+				</cfloop>
+				
+				<!--- Not found the controller? --->
+				<cfif NOT result.foundController>
+					<!--- Is there a hidden controller that we always use? --->
+					<cfif StructKeyExists(application, "hiddenController") AND trim(application.hiddenController) neq "">
+						<cfset result = validateControllerAndView(application.hiddenController)>
+					</cfif>
+				</cfif>
+			</cfif>
+		</cfif>
+		
+		<cfset result.rootController = listLast(result.controller, "/")>
+		
+		<!--- Not maintenance mode and user attempts to visit the maintenance page on LIVE? Disable it --->
+		<cfif application.serverType eq 'LIVE' AND NOT underMaintenaince
+				AND result.controller eq application.maintenancePage>
+			<cfset application.url.redirect()>
+		</cfif>
+		
+		<!--- Found controller and view? Go on and extract other details --->
+		<cfif result.foundController AND result.foundView>
+			<!--- Remove controller --->
+			<cfset pathInfoStr = application.core.trimChar(pathInfoStr, "/")>
+			<cfset pathInfoStr = reReplaceNoCase(pathInfoStr, "^#result.controller#", "")>
+			<cfset pathInfoStr = application.core.trimChar(pathInfoStr, "/")>
+			
+			<!--- Remove view --->
+			<cfset pathInfoStr = reReplaceNoCase(pathInfoStr, "^#result.view#", "")>
+			<cfset pathInfoStr = application.core.trimChar(pathInfoStr, "/")>
+
+			<!--- Get the controller, view and resource id--->
+			<cfset pathInfo = listToArray(pathInfoStr, "/")>
+			<cfset pathInfoLength = arrayLen(pathInfo)>
+			
+			<cfif pathInfoLength ge 1>
+				<!--- Number or text? --->
+				<cfif isNumeric(pathInfo[1])>
+					<!--- Number? => This is the id --->
+					<cfset result.id = pathInfo[1]>
+					<cfset result.textId = pathInfo[1]>
+				<cfelse>
+					<!--- Text? => This is the text id, eg. short title, short name, etc. --->
+					<cfset result.id = 0>
+					<cfset result.textId = pathInfo[1]>
+				</cfif>
+	
+				<!--- Get the sub controller --->
+				<cfif pathInfoLength ge 2>
+					<cfset result.subController = pathInfo[2]>
+					
+					<!--- Get the sub Id value --->
+					<cfif pathInfoLength ge 3>
+						<!--- Number or text? --->
+						<cfif isNumeric(pathInfo[3])>
+							<!--- Number? => This is the id --->
+							<cfset result.subId = pathInfo[3]>
+							<cfset result.subTextId = "">
+						<cfelse>
+							<!--- Text? => This is the text id, eg. short title, short name, etc. --->
+							<cfset result.subId = 0>
+							<cfset result.subTextId = pathInfo[3]>
+						</cfif>
+					</cfif>
+				</cfif>
+			</cfif>
+		</cfif>
+		
+		<cfreturn result>
+
+	</cffunction>
+
+
+	<!--- Get the actual path info string --->
+	<cffunction name="getPathInfoStr" access="private" returntype="string" output="false">
+	
+		<!--- At the root level address (just index.cfm), sometimes CGI.PATH_INFO returns the full path to the file
+			instead of what is appended after the index.cfm. So we need to remove that before continuing --->
+		<cfset var result = CGI.PATH_INFO>
+		<cfif findNoCase("index.cfm", result)>
+			<cfset result = reReplace(result, "[^.]*.cfm", "")>
+		</cfif>
+		
+		<!--- Also at the root level, sometimes it returns the actual application logical path,
+			so we need to remove this as well before continuing --->
+		<cfif result eq application.appLogicalPath>
+			<cfset result = "">
+		</cfif>
+
+		<cfreturn result>
+		
+	</cffunction>
+
+
+	<!--- Get the actual path info string --->
+	<cffunction name="currentPage" access="private" returntype="string" output="false">
+		<cfargument name="includeQueryString" type="boolean" default="true" hint="true: include the query string in the result">
+	
+		<cfset var result = application.baseURL & getPathInfoStr()>
+		
+		<cfif arguments.includeQueryString AND CGI.QUERY_STRING neq "">
+			<cfset result = result & "?" & CGI.QUERY_STRING>
+		</cfif>
+		
+		<cfreturn result>
+	
+	</cffunction>
+
+
+	<!--- Get and validate the controller and view --->
+	<cffunction name="validateControllerAndView" displayname="validateControllerAndView" access="private" returntype="struct" hint="Get and validate the controller and view">
+
+		<cfargument name="controller" type="string" required="yes" hint="The controller path to validate">
+		<cfargument name="view" type="string" required="no" hint="The view to validate">
+		<cfset var result = StructNew()>
+		<cfset var logicalPath = "">
+		<cfset var controllerPath = "">
+		
+		<!--- No view passed in? --->
+		<cfif NOT StructKeyExists(arguments, "view") OR trim(arguments.view) eq "">
+			<cfset arguments.view = application.defaultView>
+		</cfif>
+		
+		<cfset result.controller = arguments.controller>
+		<cfset result.view = arguments.view>
+		<cfset result.foundController = false>
+		<cfset result.foundView = false>
+		<cfset result.objController = "">
+
+		<cfset logicalPath = replace(arguments.controller, application.separator, ".", "ALL")>
+		<cfset controllerPath = lcase(application.controllerFilePath & arguments.controller)>
+
+		<!--- Does this controller exist? --->
+		<cfif fileExists(controllerPath & ".cfc")>
+			<cfset result.objController = application.load.controller(logicalPath)>
+			<cfset result.foundController = true>
+
+			<!--- Does the view exist? --->
+			<cfif StructKeyExists(result.objController, result.view)>
+				<cfset result.foundView = true>
+			<cfelse>
+				<!--- Does this controller have a default view? --->
+				<cfif StructKeyExists(result.objController, "defaultView") AND trim(result.objController.defaultView) neq "">
+					<cfset result.foundView = true>
+					<cfset result.view = result.objController.defaultView>
+				</cfif>
+			</cfif>
+		</cfif>
+		
+		<cfreturn result>
+
+	</cffunction>
+	
 	
 </cfcomponent>

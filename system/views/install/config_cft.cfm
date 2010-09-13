@@ -27,7 +27,6 @@
 	application.defaultController = "{defaultController}";
 	application.defaultView = "{defaultView}";
 	application.guestDefaultController = "{guestDefaultController}";
-	application.refreshWhenReset = {refreshWhenReset};
 	application.defaultTemplate = "{defaultTemplate}";
 	application.showLocalFriendlyError = {showLocalFriendlyError};
 	application.show404OnMissingController = {show404OnMissingController};
