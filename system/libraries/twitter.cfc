@@ -1,6 +1,5 @@
 <!---
 	Project:	cfTrigger
-	Company:	cfTrigger
 	Summary:	Twitter library, used to handle functions related to twitter
 	
 	=========================================================================

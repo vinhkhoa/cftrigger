@@ -5,7 +5,7 @@
 	
 --->
 
-<cfcomponent displayname="Home" extends="appcontroller">
+<cfcomponent displayname="Home" extends="appcontroller" output="false">
 
 	<cfsetting enablecfoutputonly="yes">
 	

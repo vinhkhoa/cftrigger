@@ -1,6 +1,5 @@
 <!---
 	Project:	cfTrigger
-	Company:	cfTrigger
 	Summary:	Error library, used to handle errors that occur such as 404, 500...	
 	
 	Log:

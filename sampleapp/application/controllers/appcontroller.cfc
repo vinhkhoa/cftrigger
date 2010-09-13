@@ -5,7 +5,7 @@
 
 --->
 
-<cfcomponent displayname="Appcontroller" extends="cft.libraries.Controller">
+<cfcomponent displayname="Appcontroller" extends="cft.libraries.Controller" output="false">
 
 	<cfsetting enablecfoutputonly="yes">
 	

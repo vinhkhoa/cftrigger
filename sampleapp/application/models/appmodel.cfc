@@ -5,7 +5,7 @@
 
 --->
 
-<cfcomponent displayname="Appmodel" extends="cft.libraries.Model" hint="Generic model" >
+<cfcomponent displayname="Appmodel" extends="cft.libraries.Model" hint="Generic model" output="false">
 
 	<cfsetting enablecfoutputonly="yes">
 	

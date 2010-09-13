@@ -1,6 +1,5 @@
 <!---
 	Project:	cfTrigger
-	Company:	cfTrigger
 	Summary:	Contains functions extended from coldfusion core/built in functions.
 				For example, this file contains functions to enhance array, list, struct, query, etc.
 	
@@ -314,6 +313,7 @@
 		<cfargument name="orderList" type="string" required="yes" hint="The lsit used to sort the query">
 		<cfargument name="otherOrders" type="string" required="no" default="" hint="After order by the value list, also order by these criteria">
 		<cfargument name="orderColumnName" type="string" required="no" default="orderNo" hint="The name of the column containing the order number">
+		<cfset var qResult = "">
 		
 		<!--- Make the order list unique to avoid duplicating query records --->
 		<cfset arguments.orderList = ListUnique(arguments.orderList)>

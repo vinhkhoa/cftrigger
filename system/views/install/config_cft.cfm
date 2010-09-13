@@ -1,5 +1,5 @@
 <!---
-	Company:	cfTrigger
+	Project:	cfTrigger
 	Summary:	Configuration settings for application
 	Log:
 

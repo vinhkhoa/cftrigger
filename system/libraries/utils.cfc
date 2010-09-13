@@ -1,6 +1,5 @@
 <!---
 	Project:	cfTrigger
-	Company:	cfTrigger
 	Summary:	System utility library, used to handle general functions
 	
 	Log:

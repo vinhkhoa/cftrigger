@@ -1,5 +1,5 @@
 <!---
-	Company:	cfTrigger sample app
+	Project:	cfTrigger sample app
 	Summary:	Configuration settings for site
 	Log:
 
@@ -61,7 +61,8 @@
 	application.AdminEmail = "admin@sampleapp.com";
 	application.defaultController = 'home';
 	application.defaultView = 'index';
-	application.guestDefaultController = '';
+	application.guestDefaultController = "";
+	application.guestControllers = "";
 	application.refreshWhenReset = true;
 	application.defaultTemplate = "_global/template";
 	application.showLocalFriendlyError = true;

@@ -1,5 +1,5 @@
 <!---
-	Company:	cfTrigger
+	Project:	cfTrigger
 	Summary:	cfTrigger config
 	Log:
 	

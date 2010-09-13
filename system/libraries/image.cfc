@@ -1,6 +1,5 @@
 <!---
 	Project:		cfTrigger
-	Company:		cfTrigger
 	Summary:		System image class
 	
 	Log:

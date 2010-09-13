@@ -1,6 +1,5 @@
 <!---
 	Project:		cfTrigger
-	Company:		cfTrigger
 	Summary:		Main Controller class
 	
 	Log:
@@ -13,7 +12,9 @@
 --->
 
 <cfcomponent bindingname="Validation" displayname="Validation" hint="Validation class" output="false">
-
+	
+	<cfsetting enablecfoutputonly="yes">
+	
 	<cfset variables.model = "">
 	<cfset variables.modelName = "">
 	<cfset variables.fields = ArrayNew(1)>

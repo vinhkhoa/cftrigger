@@ -1,6 +1,5 @@
 <!---
 	Project:	cfTrigger
-	Company:	cfTrigger
 	Summary:	Template library. The main funciton of this library is to include a templat using
 				to the built cfinclude function except that it has the ability to receive data and
 				make it available to the included template. It works like a number of cfset before
@@ -30,17 +29,20 @@
 	
 
 	<!--- Run the include function --->
-	<cffunction name="includeWithData" access="public">
+	<cffunction name="includeWithData" access="public" returntype="string">
 	
 		<cfargument name="template" type="string" required="yes" hint="The path to the template to be included">
 		<cfargument name="data" type="struct" required="no" default="#StructNew()#" hint="Data passed to the template">
+		<cfset var result = "">
 
 		<!--- Extract the data that is passed in to make it available for "include" statement --->
 		<cfloop collection="#arguments.data#" item="key">
 			<cfset variables[key] = arguments.data[key]>
 		</cfloop>
 	
-		<cfinclude template="#arguments.template#">
+		<cfsavecontent variable="result"><cfoutput><cfinclude template="#arguments.template#"></cfoutput></cfsavecontent>
+		
+		<cfreturn result>
 	
 	</cffunction>
 	

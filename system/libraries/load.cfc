@@ -1,6 +1,5 @@
 <!---
 	Project:	cfTrigger
-	Company:	cfTrigger
 	Summary:	Loader library	
 	Log:
 	
@@ -75,7 +74,10 @@
 		<cfif validateResult.exists>
 			<!--- Include the template --->
 			<cfset objTemplate = createObject("component", "template")>
-			<cfsavecontent variable="result"><cfoutput>#objTemplate.includeWithData(validateResult.viewFile, arguments.data)#</cfoutput></cfsavecontent>
+			<cfinvoke component="#objTemplate#" method="includeWithData" returnvariable="result">
+				<cfinvokeargument name="template" value="#validateResult.viewFile#">
+				<cfinvokeargument name="data" value="#arguments.data#">
+			</cfinvoke>
 		<cfelse>
 			<!--- Display friendly error or let Coldfusion blow it up? --->
 			<cfif application.showFriendlyError>
@@ -320,7 +322,7 @@
 		<cfargument name="data" type="struct" required="no" default="#StructNew()#" hint="Data passed to the error">
 		<cfargument name="saveResult" type="boolean" required="no" default="false" hint="True: save the error page and return it. False: display the error page.">
 		<cfset var result = "">
-		<cfset var objTemplate = "">
+		<cfset var objTemplate = createObject("component", "template")>
 		
 		<!--- Get the error file --->
 		<cfset var errorFile = "#application.errorPath#/#lcase(arguments.template)#.cfm">
@@ -329,12 +331,16 @@
 		<!--- Parse the error page and save its content --->
 		<cfif fileExists(expandPath(errorFile))>
 			<!--- Include the template --->
-			<cfset objTemplate = createObject("component", "template")>
-			<cfsavecontent variable="result"><cfoutput>#objTemplate.includeWithData(errorFile, arguments.data)#</cfoutput></cfsavecontent>
+			<cfinvoke component="#objTemplate#" method="includeWithData" returnvariable="result">
+				<cfinvokeargument name="template" value="#errorFile#">
+				<cfinvokeargument name="data" value="#arguments.data#">
+			</cfinvoke>
 		<cfelse>
 			<!--- Include the template --->
-			<cfset objTemplate = createObject("component", "template")>
-			<cfsavecontent variable="result"><cfoutput>#objTemplate.includeWithData(CFT_errorFile, arguments.data)#</cfoutput></cfsavecontent>
+			<cfinvoke component="#objTemplate#" method="includeWithData" returnvariable="result">
+				<cfinvokeargument name="template" value="#CFT_errorFile#">
+				<cfinvokeargument name="data" value="#arguments.data#">
+			</cfinvoke>
 		</cfif>
 
 		<!--- Return the view or display it? --->

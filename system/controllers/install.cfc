@@ -1,12 +1,11 @@
 <!--- 
 	Project:	cfTrigger
 	Summary:	Install cftrigger
-	Company:	cfTrigger
-	Author:		Vinh Khoa Nguyen
-	Email:		nvkhoatv@gmail.com
+	Log:
+	
  --->
 
-<cfcomponent displayname="Install" extends="cft.libraries.controller">
+<cfcomponent displayname="Install" extends="cft.libraries.controller" output="false">
 
 	<cfsetting enablecfoutputonly="yes">
 	

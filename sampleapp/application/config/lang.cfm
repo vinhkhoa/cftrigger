@@ -1,5 +1,5 @@
 <!---
-	Company:	cfTrigger sample app
+	Project:	cfTrigger sample app
 	Summary:	Language settings for site
 	Log:
 

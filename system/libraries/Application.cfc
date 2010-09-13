@@ -1,6 +1,5 @@
 <!---
 	Project:		cfTrigger
-	Company:		cfTrigger
 	Summary:		Main Controller class
 	
 	Log:
@@ -523,7 +522,7 @@
 	</cffunction>
 	
 			
-	<!--- ================================ OTHER METHODS ================================= --->
+	<!--- ================================ ERROR METHODS ================================= --->
 
 	<!--- Handle exceptions --->
 	<cffunction name="onError">
@@ -594,7 +593,6 @@
 		<!--- Cosntruct the email content --->
 		<cfsavecontent variable="emailContent">
 			<cfoutput>
-			
 			<!--- ERROR DETAILS --->
 			<p>An error has occurred in the <strong>#application.name#</strong> application.</p>
 			
@@ -674,6 +672,18 @@
 
 	</cffunction>
 	
+
+	<!--- Handles errors when user goes to a non-existing coldfusion file --->
+	<cffunction name="onMissingTemplate">
+		<cfargument name="targetPage" type="string" required="yes" />
+		<cfparam name="form.controller" default="">
+		<cfparam name="form.view" default="">
+
+		<cfset application.error.show_404()>
+		
+	</cffunction>
+	
+	<!--- ================================ OTHER METHODS ================================= --->
 
 	<!--- Get the mappings from coldfusion admin --->
 	<cffunction name="getMappings" access="public" returntype="struct" output="false">

@@ -1,6 +1,5 @@
 <!---
 	Project:	cfTrigger
-	Company:	cfTrigger
 	Summary:	System url library, used to handle functions related to urls
 	
 	Log:
