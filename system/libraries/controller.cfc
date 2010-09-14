@@ -140,7 +140,7 @@
 	
 
 	<!--- Save a model --->
-	<cffunction name="save" access="private" output="false">
+	<cffunction name="save" access="private">
 		<cfargument name="saveButton" type="string" required="no" default="save" hint="The name of the save button">
 		<cfargument name="addPage" type="string" required="no" hint="The path of the add page">
 		<cfargument name="editPage" type="string" required="no" hint="The path of the edit page">
@@ -231,7 +231,7 @@
 			
 
 	<!--- Delete --->
-	<cffunction name="delete" access="public" output="false">
+	<cffunction name="delete" access="public">
 		<cfargument name="deleteButton" type="string" required="no" default="delete" hint="The name of the delete button">
 		<cfargument name="cancelButton" type="string" required="no" default="cancel" hint="The name of the cancel button">
 		<cfargument name="deletePage" type="string" required="no" hint="The path of the delete page">
