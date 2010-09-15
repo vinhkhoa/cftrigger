@@ -108,6 +108,18 @@
 					<tr>
 						<td colspan="2" style="#css_cell#"><strong>Logical paths</strong></td>
 					</tr>
+					<cfif StructKeyExists(application, "appLogicalPath")>
+						<tr>
+							<td style="#css_cell#">application.appLogicalPath</td>
+							<td style="#css_cell#">#application.appLogicalPath#</td>
+						</tr>
+					</cfif>
+					<cfif StructKeyExists(application, "appPath")>
+						<tr>
+							<td style="#css_cell#">application.appPath</td>
+							<td style="#css_cell#">#application.appPath#</td>
+						</tr>
+					</cfif>
 					<cfif StructKeyExists(application, "modelPath")>
 						<tr>
 							<td style="#css_cell#">application.modelPath</td>

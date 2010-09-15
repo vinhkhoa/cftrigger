@@ -66,7 +66,7 @@
 						application.appNameSuffix = application.servers[i].appNameSuffix;
 						application.rootURL = application.servers[i].url;
 						application.rootURLPath = replace(application.rootURL, listFirst(application.rootURL, '/') & '//' & listGetAt(application.rootURL, 2, '/'), '');
-						application.appLogicalPath = replace(application.rootURL, listFirst(application.rootURL, '/') & '//' & listGetAt(application.rootURL, 2, '/'), '') & '/';
+						application.appLogicalPath = replace(application.rootURL, listFirst(application.rootURL, '/') & '//' & listGetAt(application.rootURL, 2, '/'), '');
 						
 						// Allow other configs to be overwritten per server
 						if (StructKeyExists(application.servers[i], "specificSettings"))
@@ -93,14 +93,14 @@
 		</cfif>
 		
 		<!--- Include config files --->
-		<cfif fileExists(expandPath("#application.appLogicalPath#application/config/database.cfm"))>
-			<cfinclude template="#application.appLogicalPath#application/config/database.cfm">
+		<cfif fileExists(expandPath("#application.appLogicalPath#/application/config/database.cfm"))>
+			<cfinclude template="#application.appLogicalPath#/application/config/database.cfm">
 		</cfif>
-		<cfif fileExists(expandPath("#application.appLogicalPath#application/config/route.cfm"))>
-			<cfinclude template="#application.appLogicalPath#application/config/route.cfm">
+		<cfif fileExists(expandPath("#application.appLogicalPath#/application/config/route.cfm"))>
+			<cfinclude template="#application.appLogicalPath#/application/config/route.cfm">
 		</cfif>
-		<cfif fileExists(expandPath("#application.appLogicalPath#application/config/lang.cfm"))>
-			<cfinclude template="#application.appLogicalPath#application/config/lang.cfm">
+		<cfif fileExists(expandPath("#application.appLogicalPath#/application/config/lang.cfm"))>
+			<cfinclude template="#application.appLogicalPath#/application/config/lang.cfm">
 		</cfif>
 		<cfinclude template="/cft/config/config.cfm">
 		
@@ -224,7 +224,7 @@
 			application.FilePath = ReplaceNoCase(This.appComponentFilePath, application.separator & "Application.cfc", "") & application.separator;
 			
 			// Paths
-			application.appPath = application.appLogicalPath & "application";
+			application.appPath = application.appLogicalPath & "/application";
 			application.modelPath = application.appPath & "/models";
 			application.viewPath = application.appPath & "/views";
 			application.controllerPath = application.appPath & "/controllers";
@@ -253,9 +253,9 @@
 			application.CFT_viewFilePath = cftMapping & "views" & application.separator;
 			
 			// Package paths (roots)
-			application.modelRoot = Replace(Replace(application.appLogicalPath & "application/models", "/", ""), "/", ".", "all");
-			application.controllerRoot = Replace(Replace(application.appLogicalPath & "application/controllers", "/", ""), "/", ".", "all");
-			application.libraryRoot = Replace(Replace(application.appLogicalPath & "application/libraries", "/", ""), "/", ".", "all");
+			application.modelRoot = Replace(Replace(application.appLogicalPath & "/application/models", "/", ""), "/", ".", "all");
+			application.controllerRoot = Replace(Replace(application.appLogicalPath & "/application/controllers", "/", ""), "/", ".", "all");
+			application.libraryRoot = Replace(Replace(application.appLogicalPath & "/application/libraries", "/", ""), "/", ".", "all");
 			
 			// Preload system library
 			application.load = createObject("component", "cft.libraries.load");
@@ -319,7 +319,7 @@
 
 		<!--- Ensure that user can only access the scripts that they are allowed to --->
 		<cfset forwarded = findNoCase(replace(application.rootURL, "://", ":/") & "/", CGI.SCRIPT_NAME) ge 1>
-		<cfset logicalScriptName = replaceNoCase(CGI.SCRIPT_NAME, application.appLogicalPath, "", "ALL")>
+		<cfset logicalScriptName = replaceNoCase(CGI.SCRIPT_NAME, application.appLogicalPath & "/", "", "ALL")>
 		<cfif NOT forwarded AND NOT listFindNoCase(application.allowedScripts, logicalScriptName)>
 			<cfset application.url.redirect()>
 		</cfif>
@@ -846,7 +846,7 @@
 		
 		<!--- Also at the root level, sometimes it returns the actual application logical path,
 			so we need to remove this as well before continuing --->
-		<cfif result eq application.appLogicalPath>
+		<cfif result eq application.appLogicalPath & "/">
 			<cfset result = "">
 		</cfif>
 

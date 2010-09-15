@@ -28,7 +28,7 @@
 
 			<!--- Do not show error on the first page open --->
 			<cfif session.redirectURL eq "" OR session.redirectURL eq "/" OR
-					session.redirectURL eq application.appLogicalPath>
+					session.redirectURL eq application.appLogicalPath & "/">
 				<cfset application.url.redirect(arguments.loginController)>
 			<cfelse>
 				<cfset application.url.redirectError(arguments.loginController, application.lang.get("loginRequired"))>
