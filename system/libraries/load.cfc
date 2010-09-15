@@ -195,6 +195,9 @@
 		<cfset var result = "">
 		<cfset var paramName= "">
 		
+		<!--- Remove the .cfc extension (if exists) --->
+		<cfset arguments.template = reReplaceNoCase(arguments.template, ".cfc$", "")>
+		
 		<!--- Get the component and file paths --->
 		<cfset var templateFile = application.modelFilePath & lcase(arguments.template) & ".cfc">
 		<cfset var templateComponent = application.modelRoot & "." & lcase(arguments.template)>
@@ -381,6 +384,9 @@
 		<cfset result.exists = false>
 		<cfset result.viewFile = "">
 		
+		<!--- Remove the .cfm extension (if exists) --->
+		<cfset arguments.template = reReplaceNoCase(arguments.template, ".cfm$", "")>
+		
 		<!--- Direct file? --->
 		<cfset result.viewFile = "#application.viewPath#/#arguments.template#.cfm">
 		
@@ -407,6 +413,9 @@
 		<cfset result.exists = false>
 		<cfset result.controllerFile = "">
 		<cfset result.controllerComponent = "">
+		
+		<!--- Remove the .cfc extension (if exists) --->
+		<cfset arguments.template = reReplaceNoCase(arguments.template, ".cfc$", "")>
 		
 		<!--- Direct file? --->
 		<cfset result.controllerFile = "#application.controllerPath#/#arguments.template#.cfc">

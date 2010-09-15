@@ -890,7 +890,7 @@
 		<cfset result.foundView = false>
 		<cfset result.objController = "">
 
-		<cfset logicalPath = replace(arguments.controller, application.separator, ".", "ALL")>
+		<cfset logicalPath = replace(arguments.controller, application.separator, "/", "ALL")>
 		<cfset controllerPath = lcase(application.controllerFilePath & arguments.controller)>
 
 		<!--- Does this controller exist? --->

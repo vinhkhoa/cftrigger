@@ -17,7 +17,7 @@
 	<!--- Show 404 error --->
 	<cffunction name="show_404" access="public" returntype="string">
 	
-		<cfargument name="heading" type="string" required="no" default="Whoops! Looks like we've lost that page!" hint="The error heading to be displayed">
+		<cfargument name="heading" type="string" required="no" default="Page Not Found" hint="The error heading to be displayed">
 		<cfargument name="message" type="string" required="no" default="The page you are looking for is not found or has been deleted." hint="The error message to be displayed">
 		<cfset var data = "">
 		<cfset var errorDetails = "">
@@ -26,7 +26,13 @@
 		<cfif fileExists(application.errorFilePath & "404.cfm")>
 			<!--- Display the error --->
 			<cfset data = StructNew()>
-			<cfset data.heading = arguments.heading>		
+			
+			<!--- Is there a custom 404 error heading? --->
+			<cfif StructKeyExists(application, "error404Heading") AND trim(application.error404Heading) neq "">
+				<cfset data.heading = application.error404Heading>
+			<cfelse>
+				<cfset data.heading = arguments.heading>		
+			</cfif>
 			<cfset data.message = arguments.message>		
 			<cfset application.load.errorInTemplate("404", data)>
 		<cfelse>
