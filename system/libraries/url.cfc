@@ -135,7 +135,7 @@
 		<cfif isValid("url", arguments.location)>
 			<cfset finalLocation = arguments.location>
 		<cfelse>
-			<cfset finalLocation = reReplace(reReplace("#application.baseURL#/#arguments.finalLocation#", "([^:])/{2,}", "\1/", "ALL"), "index.cfm/$", "")>
+			<cfset finalLocation = reReplace(reReplace("#application.baseURL#/#arguments.location#", "([^:])/{2,}", "\1/", "ALL"), "index.cfm/$", "")>
 		</cfif>
 		
 		<cfset variables.redirect("redirectparent?parentRedirectURL=#finalLocation#")>
