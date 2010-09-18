@@ -69,6 +69,7 @@
 		<cfargument name="modelName" type="string" required="no" hint="When passed in: get this model instead of the current one">
 		<cfargument name="getArchived" type="boolean" required="no" default="false" hint="true: get archived model">
 		<cfargument name="redirectOnNotFound" type="boolean" required="no" default="true" hint="true: redirect to the list page if the model is not found">
+		<cfargument name="listPage" type="string" required="no" hint="The list view page">
 		<cfset var thisModelName = "">
 		<cfset var objModel = "">
 	
@@ -79,9 +80,14 @@
 			<cfset thisModelName = variables.modelName>
 		</cfif>
 		
+		<!--- Is there a list view specified? --->
+		<cfif NOT StructKeyExists(arguments, "listPage")>
+			<cfset arguments.listPage = lcase(thisModelName)>
+		</cfif>
+		
 		<!--- Has id? --->
 		<cfif NOT StructKeyExists(form, thisModelName & "Id") OR form[thisModelName & "Id"] eq "">
-			<cfset application.url.redirect(thisModelName)>
+			<cfset application.url.redirect(arguments.listPage)>
 		</cfif>
 	
 		<!--- Get the model details --->
@@ -93,7 +99,7 @@
 		
 		<!--- Any error in getting the model?--->
 		<cfif objModel.error neq "" AND arguments.redirectOnNotFound>
-			<cfset application.url.redirectError(lcase(thisModelName), objModel.error)>
+			<cfset application.url.redirectError(arguments.listPage, objModel.error)>
 		</cfif>
 		
 		<cfreturn objModel>
@@ -107,6 +113,7 @@
 		<cfargument name="modelName" type="string" required="no" hint="When passed in: get this model instead of the current one">
 		<cfargument name="getArchived" type="boolean" required="no" default="false" hint="true: get archived model">
 		<cfargument name="redirectOnNotFound" type="boolean" required="no" default="true" hint="true: redirect to the list page if the model is not found">
+		<cfargument name="listPage" type="string" required="no" hint="The list view page">
 		<cfset var thisModelName = "">
 		<cfset var objModel = "">
 		
@@ -117,9 +124,14 @@
 			<cfset thisModelName = variables.modelName>
 		</cfif>
 		
+		<!--- Is there a list view specified? --->
+		<cfif NOT StructKeyExists(arguments, "listPage")>
+			<cfset arguments.listPage = lcase(thisModelName)>
+		</cfif>
+
 		<!--- Has text id? --->
 		<cfif NOT StructKeyExists(form, thisModelName & "TextId") OR form[thisModelName & "TextId"] eq "">
-			<cfset application.url.redirect(thisModelName)>
+			<cfset application.url.redirect(arguments.listPage)>
 		</cfif>
 		
 		<!--- Get the model details --->
@@ -131,7 +143,7 @@
 		
 		<!--- Any error in getting the model? --->
 		<cfif objModel.error neq "" AND arguments.redirectOnNotFound>
-			<cfset application.url.redirectError(lcase(thisModelName), objModel.error)>
+			<cfset application.url.redirectError(arguments.listPage, objModel.error)>
 		</cfif>
 		
 		<cfreturn objModel>
@@ -251,8 +263,13 @@
 			<cfset arguments.listPage = "#variables.modelName#/list">
 		</cfif>
 		
+		<!--- Is there a list view specified? --->
+		<cfif NOT StructKeyExists(arguments, "listPage")>
+			<cfset arguments.listPage = lcase(thisModelName)>
+		</cfif>
+
 		<!--- Get model --->
-		<cfset objModel = getById()>
+		<cfset objModel = getById(listPage=arguments.listPage)>
 		<cfset qModel = objModel.get()>
 		
 		<!--- User delete? --->

@@ -634,6 +634,10 @@
 				<th style="#css_th# #css_minimized#">Application</th>
 				<td style="#css_td#"><cfset application.debug.simpleAppVariables()></td>
 			</tr>
+			<tr>
+				<th style="#css_th# #css_minimized#">CGI:</th>
+				<td style="#css_td#"><cfdump var="#CGI#" label="CGI"></td>
+			</tr>
 			</table>
 			</cfoutput>
 		</cfsavecontent>
@@ -649,12 +653,6 @@
 		<cfif StructKeyExists(application, "hideColdfusionError") AND application.hideColdfusionError>
 			<cfset application.error.show_production_error()>
 		<cfelse>
-			<!--- <cfif application.showFriendlyError>
-				<cfset application.error.show_error("Coldfusion Error", arguments.Exception.cause.message)>
-			<cfelse>
-				<cfthrow object="#arguments.exception#">
-			</cfif> --->
-			
 			<cfthrow object="#arguments.exception#">
 		</cfif>
 
