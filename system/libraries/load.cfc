@@ -82,6 +82,7 @@
 			<!--- Display friendly error or let Coldfusion blow it up? --->
 			<cfif application.showFriendlyError>
 				<cfset application.error.show_error("View not found", "The system cannot find the specified view: #validateResult.viewFile#")>
+				<cfabort>
 			<cfelse>
 				<!--- THIS WILL THROW ERROR!!! INCLUDE THE FILE TO THROW ERROR ON PURPOSE --->
 				<cfinclude template="#validateResult.viewFile#">

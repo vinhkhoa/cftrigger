@@ -271,6 +271,9 @@
 			application.load.library("core", true);
 			application.load.library("debug", true);
 			application.load.library("text", true);
+			
+			// Record that the application has started
+			application.started = true;
 		</cfscript>
 		
 		<!--- Autoload at application level? --->
@@ -313,7 +316,8 @@
 		<cfinclude template="/cft/config/variables.cfm">		
 		
 		<!--- Check to reset the application --->
-		<cfif StructKeyExists(url,"reset") OR application.alwaysRefreshSettings>
+		<cfif NOT StructKeyExists(application, "started") OR NOT application.started OR
+			  StructKeyExists(url,"reset") OR application.alwaysRefreshSettings>
 			<cfset OnApplicationStart()>
 		</cfif>
 

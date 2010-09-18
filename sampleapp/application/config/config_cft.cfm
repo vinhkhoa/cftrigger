@@ -50,6 +50,8 @@
 	s.type = "live";
 	s.url = "http://sampleapp.com";
 	s.appNameSuffix = 'live';
+	s.specificSettings = StructNew();
+	s.specificSettings.canSendEmail = true;
 	arrayAppend(application.servers, s);
 	
 	// =========================== End of Server settings ===========================
