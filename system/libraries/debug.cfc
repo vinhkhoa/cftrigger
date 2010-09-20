@@ -62,16 +62,16 @@
 							<td style="#css_cell#">#application.baseURL#</td>
 						</tr>
 					</cfif>
-					<cfif StructKeyExists(application, "rootURLPath")>
+					<cfif StructKeyExists(application, "rootPath")>
 						<tr>
-							<td style="#css_cell#">application.rootURLPath</td>
-							<td style="#css_cell#">#application.rootURLPath#</td>
+							<td style="#css_cell#">application.rootPath</td>
+							<td style="#css_cell#">#application.rootPath#</td>
 						</tr>
 					</cfif>
-					<cfif StructKeyExists(application, "baseURLPath")>
+					<cfif StructKeyExists(application, "basePath")>
 						<tr>
-							<td style="#css_cell#">application.baseURLPath</td>
-							<td style="#css_cell#">#application.baseURLPath#</td>
+							<td style="#css_cell#">application.basePath</td>
+							<td style="#css_cell#">#application.basePath#</td>
 						</tr>
 					</cfif>
 					<cfif StructKeyExists(application, "separator")>

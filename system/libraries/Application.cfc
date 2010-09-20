@@ -65,7 +65,7 @@
 						application.serverName = application.serverType & "_" & application.servers[i].name;
 						application.appNameSuffix = application.servers[i].appNameSuffix;
 						application.rootURL = application.servers[i].url;
-						application.rootURLPath = replace(application.rootURL, listFirst(application.rootURL, '/') & '//' & listGetAt(application.rootURL, 2, '/'), '');
+						application.rootPath = replace(application.rootURL, listFirst(application.rootURL, '/') & '//' & listGetAt(application.rootURL, 2, '/'), '');
 						application.appLogicalPath = replace(application.rootURL, listFirst(application.rootURL, '/') & '//' & listGetAt(application.rootURL, 2, '/'), '');
 						
 						// Allow other configs to be overwritten per server
@@ -88,7 +88,7 @@
 		<!--- Not found the server on the list? terminate the application. This should not happen
 				unless the server settings are not included on the server list inside the application config.cfm file --->
 		<cfif (application.serverType eq '')>
-			<cfoutput>INVALID SERVER. THE APPLICATION IS NOT ALLOWED TO RUN ON THIS SERVER. PLEASE DOUBLE CHECK YOUR SERVER SETTINGS.</cfoutput>
+			<cfoutput><p style="color: ##f00;">INVALID SERVER. THE APPLICATION IS NOT ALLOWED TO RUN ON THIS SERVER. PLEASE DOUBLE CHECK YOUR SERVER SETTINGS.</p></cfoutput>
 			<cfabort>
 		</cfif>
 		
@@ -220,7 +220,7 @@
 			{
 				application.baseURL = application.rootURL & "/index.cfm";
 			}
-			application.baseURLPath = application.rootURLPath & "/index.cfm";
+			application.basePath = application.rootPath & "/index.cfm";
 			application.FilePath = ReplaceNoCase(This.appComponentFilePath, application.separator & "Application.cfc", "") & application.separator;
 			
 			// Paths
@@ -375,7 +375,7 @@
 			</cfloop>
 			
 			<!--- Get the final forward url --->
-			<cfset forwardURL = application.baseURLPath & "/" & replaceList(application.routes[form.controller], arrayToList(vars), arrayToList(vals))>
+			<cfset forwardURL = application.basePath & "/" & replaceList(application.routes[form.controller], arrayToList(vars), arrayToList(vals))>
 			
 			<!--- Forward/route user to this url and stop --->
 			<cfset getPageContext().forward(forwardURL)>
