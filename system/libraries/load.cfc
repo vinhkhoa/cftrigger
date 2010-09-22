@@ -195,13 +195,15 @@
 		<cfargument name="getArchived" type="boolean" required="no" hint="true: get archived model">
 		<cfset var result = "">
 		<cfset var paramName= "">
+		<cfset var templateFile = "">
+		<cfset var templateComponent = "">
 		
 		<!--- Remove the .cfc extension (if exists) --->
 		<cfset arguments.template = reReplaceNoCase(arguments.template, ".cfc$", "")>
 		
 		<!--- Get the component and file paths --->
-		<cfset var templateFile = application.modelFilePath & lcase(arguments.template) & ".cfc">
-		<cfset var templateComponent = application.modelRoot & "." & lcase(arguments.template)>
+		<cfset templateFile = application.modelFilePath & lcase(arguments.template) & ".cfc">
+		<cfset templateComponent = application.modelRoot & "." & lcase(arguments.template)>
 		
 		<!--- load the application model --->
 		<cfif fileExists(templateFile)>
