@@ -156,8 +156,7 @@
 		</cfif>
 		
 		<!--- Validate 2 things: CGI.HTTP_REFERER starts with the expected url and that is the only url it contains --->
-		<cfif NOT reFindNoCase("^" & arguments.pagePattern, CGI.HTTP_REFERER) OR
-			  reFindNoCase("https?://", reReplaceNoCase(CGI.HTTP_REFERER, "^" & arguments.pagePattern, ""))>
+		<cfif NOT isValid("url", CGI.HTTP_REFERER) OR NOT reFindNoCase("^" & arguments.pagePattern, CGI.HTTP_REFERER)>
 			<cfset result.valid = false>
 		</cfif>
 		
