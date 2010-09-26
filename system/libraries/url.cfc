@@ -143,4 +143,26 @@
 	</cffunction>
 	
 
+	<!--- Validate the request referer against a particular page/pattern --->
+	<cffunction name="validateReferer" access="public" returntype="struct" output="false" hint="Validate the request referer against a particular page/pattern">
+
+		<cfargument name="pagePattern" type="string" required="yes" hint="The pattern to validate against">
+		<cfset var result = StructNew()>
+		<cfset result.valid = true>
+		
+		<!--- Is this a full page url? --->
+		<cfif NOT reFindNoCase("^#application.baseURL#", arguments.pagePattern)>
+			<cfset arguments.pagePattern = "#application.baseURL#/" & arguments.pagePattern>
+		</cfif>
+		
+		<!--- Validate 2 things: CGI.HTTP_REFERER starts with the expected url and that is the only url it contains --->
+		<cfif NOT reFindNoCase("^" & arguments.pagePattern, CGI.HTTP_REFERER) OR
+			  reFindNoCase("https?://", reReplaceNoCase(CGI.HTTP_REFERER, "^" & arguments.pagePattern, ""))>
+			<cfset result.valid = false>
+		</cfif>
+		
+		<cfreturn result>
+
+	</cffunction>
+	
 </cfcomponent>

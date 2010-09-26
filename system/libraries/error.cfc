@@ -35,6 +35,7 @@
 			</cfif>
 			<cfset data.message = arguments.message>		
 			<cfset application.load.errorInTemplate("404", data)>
+			<cfabort>
 		<cfelse>
 			<!--- Display the FI error page --->
 			<cfset errorDetails = StructNew()>
