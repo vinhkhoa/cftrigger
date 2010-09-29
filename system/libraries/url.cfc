@@ -151,7 +151,7 @@
 		<cfset result.valid = true>
 		
 		<!--- Is this a full page url? --->
-		<cfif NOT reFindNoCase("^#application.baseURL#", arguments.pagePattern)>
+		<cfif NOT reFindNoCase("^#application.rootURL#", arguments.pagePattern)>
 			<cfset arguments.pagePattern = "#application.baseURL#/" & arguments.pagePattern>
 		</cfif>
 		
