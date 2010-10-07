@@ -236,6 +236,25 @@
 	</cffunction>
 	
 	
+	<!--- Randomize a list --->
+	<!--- Thanks to Ben Nadel blog post:
+		http://www.bennadel.com/blog/280-Randomly-Sort-A-ColdFusion-Array-Updated-Thanks-Mark-Mandel.htm
+	--->
+	<cffunction name="ListRandomize" access="public" returntype="string" output="false">
+		<cfargument name="ls" type="string" required="yes" hint="The list to be randomized" />
+		<cfargument name="delimiter" type="string" required="no" default="," hint="The list delimiter" />
+		<cfset var result = "">
+		<cfset var arr = "">
+		
+		<cfset arr = listToArray(arguments.ls, arguments.delimiter)>
+		<cfset CreateObject("java", "java.util.Collections").shuffle(arr)>
+		<cfset result = arrayToList(arr, arguments.delimiter)>
+		
+		<cfreturn result>
+	
+	</cffunction>
+	
+	
 	<!--- ============================================= ARRAY ============================================ --->
 
 	<!--- Remove duplicates from an array --->
@@ -269,12 +288,27 @@
 	
 	<!--- Reverse an array --->
 	<cffunction name="ArrayReverse" access="public" returntype="array" output="false">
-		<cfargument name="arr" type="array" required="yes" hint="The first array" />
+		<cfargument name="arr" type="array" required="yes" hint="The array to be reversed" />
 		<cfset var result = ArrayNew(1)>
 		
 		<cfloop array="#arguments.arr#" index="i">
 			<cfset arrayPrepend(result, i)>
 		</cfloop>
+		
+		<cfreturn result>
+	
+	</cffunction>
+	
+	
+	<!--- Randomize an array --->
+	<!--- Thanks to Ben Nadel blog post:
+		http://www.bennadel.com/blog/280-Randomly-Sort-A-ColdFusion-Array-Updated-Thanks-Mark-Mandel.htm
+	--->
+	<cffunction name="ArrayRandomize" access="public" returntype="array" output="false">
+		<cfargument name="arr" type="array" required="yes" hint="The array to be randomized" />
+		<cfset var result = arguments.arr>
+		
+		<cfset CreateObject("java", "java.util.Collections").shuffle(result)>
 		
 		<cfreturn result>
 	
