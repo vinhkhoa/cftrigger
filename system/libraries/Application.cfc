@@ -529,11 +529,6 @@
 		<cfset var css_heading_th = "">
 		<cfset var css_lineNumber = "">
 		<cfset var css_mainErrorMsg = "">
-		<cfset var  = "">
-		<cfset var  = "">
-		<cfset var  = "">
-		<cfset var  = "">
-		<cfset var  = "">
 		
 		<!--- Get the application title --->
 		<cfif StructKeyExists(application, "title")>
