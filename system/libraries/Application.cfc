@@ -520,6 +520,20 @@
 	<cffunction name="onError">
 		<cfargument name="Exception" required="yes" />
 		<cfargument name="EventName" type="string" required="yes" />
+		<cfset var errorMsg = "">
+		<cfset var errorMsgDetails = "">
+		<cfset var appTitle = "">
+		<cfset var css_td = "">
+		<cfset var css_th = "">
+		<cfset var css_minimized = "">
+		<cfset var css_heading_th = "">
+		<cfset var css_lineNumber = "">
+		<cfset var css_mainErrorMsg = "">
+		<cfset var  = "">
+		<cfset var  = "">
+		<cfset var  = "">
+		<cfset var  = "">
+		<cfset var  = "">
 		
 		<!--- Get the application title --->
 		<cfif StructKeyExists(application, "title")>
@@ -537,8 +551,15 @@
 		<cfset css_mainErrorMsg = "font-size: 1.2em;">
 
 		<!--- Get error message --->
-		<cfset errorMsg = arguments.Exception.cause.message>
-		<cfset errorMsgDetails = arguments.Exception.cause.detail>
+		<cfif StructKeyExists(arguments.Exception, "cause")>
+			<cfif StructKeyExists(arguments.Exception.cause, "message")>
+				<cfset errorMsg = arguments.Exception.cause.message>
+			</cfif>
+		
+			<cfif StructKeyExists(arguments.Exception.cause, "detail")>
+				<cfset errorMsgDetails = arguments.Exception.cause.detail>
+			</cfif>
+		</cfif>
 		
 		<!--- Get stack trace --->
 		<cfsavecontent variable="stackTrace">
