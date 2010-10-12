@@ -1,3 +1,3 @@
 <!--- Get mappings in the Railo way --->
-<cfadmin action="getMappings" type="web" password="vinhkhoa" returnvariable="qMappings">
+<cfadmin action="getMappings" type="web" returnvariable="qMappings">
 

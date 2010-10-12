@@ -49,6 +49,31 @@
 	</cffunction>
 
 
+	<!--- Remove leading spaces (tabs in specific for now, will add in spaces later on) of every line --->
+	<cffunction name="removeLeadingSpaces" access="public" returntype="string" hint="" output="false">
+		<cfargument name="str" type="string" required="yes" hint="The text to be removed of tabs">
+		<cfset var result = "">
+		<cfset var minLeadingTab = 9999>
+		<cfset var leadingTab = "">
+		<cfset var line = "">
+		
+		<!--- Find the smallest number of tabs that are leading every line --->
+		<cfloop list="#arguments.str#" delimiters="#chr(10)#" index="line">
+			<cfif trim(line) neq "">
+				<cfset leadingTab = len(line) - len(reReplace(line, "^[\t]+", "", "ALL"))>
+				<cfif leadingTab lt minLeadingTab>
+					<cfset minLeadingTab = leadingTab>
+				</cfif>
+			</cfif>
+		</cfloop>
+		
+		<cfset result = reReplace(arguments.str, "(?m)^[\t]{#minLeadingTab#}", "", "ALL")>
+		
+		<cfreturn result>
+
+	</cffunction>
+
+
 	<!--- ============================================= LIST ============================================ --->
 
 	<!--- Remove duplicates from a list --->
@@ -367,7 +392,7 @@
 			
 			ORDER BY #arguments.orderColumnName#
 				<cfif trim(arguments.otherOrders) neq "">
-					, #otherOrders#
+					, #arguments.otherOrders#
 				</cfif>
 		</cfquery>
 		

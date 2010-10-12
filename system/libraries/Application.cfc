@@ -707,7 +707,6 @@
 			<!--- Get mappings in the Railo way --->
 			<cfinclude template="railo/admin.cfm">
 
-			<!--- Get mappings in the Railo way --->
 			<cfset mappings = StructNew()>
 			<cfloop query="qMappings">
 				<cfset mappings[qMappings.virtual] = qMappings.strPhysical>
