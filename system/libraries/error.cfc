@@ -15,7 +15,7 @@
 	
 
 	<!--- Show 404 error --->
-	<cffunction name="show_404" access="public" returntype="string">
+	<cffunction name="show_404" access="public">
 	
 		<cfargument name="heading" type="string" required="no" default="Page Not Found" hint="The error heading to be displayed">
 		<cfargument name="message" type="string" required="no" default="The page you are looking for is not found or has been deleted." hint="The error message to be displayed">

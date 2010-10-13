@@ -21,6 +21,10 @@
 	postToTwitter(status,username,password)
 	getFriendsTimeline(username,password)
 	getPublicTimeline()
+	
+	
+	
+	NOTE: THIS FILE IS NOT COMPLETED YET!!!
 
 --->
 
