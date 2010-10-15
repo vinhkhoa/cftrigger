@@ -351,7 +351,7 @@
 				<cfset regExpWords = listAppend(regExpWords, " hyphen")>
 			</cfif>
 			<cfif find(".", arguments.args)>
-				<cfset regExpWords = listAppend(regExpWords, " dot")>
+				<cfset regExpWords = listAppend(regExpWords, " period")>
 			</cfif>
 			<cfif find(" ", arguments.args)>
 				<cfset regExpWords = listAppend(regExpWords, " space")>

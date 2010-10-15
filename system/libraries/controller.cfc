@@ -37,6 +37,7 @@
 		<cfset request.controller = this>
 		<cfset metaData = getMetaData(this)>
 		<cfset variables.modelName = lcase(listLast(metaData.name, '.'))>
+		<cfset variables.modelNames = application.utils.plural(variables.modelName)>
 		<cfset variables.displayName = metaData.displayName>
 		
 		<cfreturn this>

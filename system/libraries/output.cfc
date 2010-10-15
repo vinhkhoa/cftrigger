@@ -248,4 +248,28 @@
 		
 	</cffunction>
 
+
+	<!--- Download a file --->
+	<cffunction name="download" access="public" hint="Download a file" output="false">
+		<cfargument name="filePath" type="string" required="yes" hint="Full path to the file to be downloaded">
+		<cfargument name="downloadFileName" type="string" required="no" hint="Filename that the end user will save the file as">
+		<cfargument name="MIMEType" type="string" required="no" hint="Specify the MIME type for download. If not passed in, an appropriate mime type will be used based on the file extension">
+		
+		<!--- Get the filename for download --->
+		<cfif NOT StructKeyExists(arguments, "downloadFileName")>
+			<cfset arguments.downloadFileName = getFileFromPath(argumenst.filePath)>
+		</cfif>
+
+		<!--- Get the download file MIME type --->
+		<cfif NOT StructKeyExists(arguments, "MIMEType")>
+			<cfset arguments.MIMEType = getPageContext().getServletContext().getMimeType(arguments.downloadFileName)>
+		</cfif>
+		
+		<!--- Download the file now --->
+		<cfheader name="content-disposition" value="attachment;filename=""#arguments.downloadFileName#""">
+		<cfcontent type="#arguments.MIMEType#" file="#arguments.filePath#">
+		
+	</cffunction>
+
+
 </cfcomponent>
