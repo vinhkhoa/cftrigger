@@ -670,7 +670,10 @@
 		</cfif>
 		
 		<!--- Display error message --->
-		<cfif StructKeyExists(application, "hideColdfusionError") AND application.hideColdfusionError>
+		<cfif StructKeyExists(application, "hideColdfusionError") AND application.hideColdfusionError AND
+			  NOT (StructKeyExists(application, "showErrorsForUserIds") AND
+					listLen(application.showErrorsForUserIds) AND
+					listFind(application.showErrorsForUserIds, val(session.userId)))>
 			<cfset application.error.show_production_error()>
 		<cfelse>
 			<cfthrow object="#arguments.exception#">
