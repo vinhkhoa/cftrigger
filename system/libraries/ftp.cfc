@@ -45,7 +45,7 @@
 	<!--- =================================== CONNECTION FUNCTIONS ======================================== --->
 	
 	<!--- Open the connection --->
-	<cffunction name="open" displayname="open" access="private" returntype="struct" hint="Open the connection" output="false">
+	<cffunction name="open" displayname="open" access="public" returntype="struct" hint="Open the connection" output="false">
 	
 		<cfset var result = StructNew()>
 		<cfset result.error = "">
@@ -78,7 +78,7 @@
 	
 		
 	<!--- Close the connection --->
-	<cffunction name="close" displayname="close" access="private" returntype="struct" hint="Close the connection" output="false">
+	<cffunction name="close" displayname="close" access="public" returntype="struct" hint="Close the connection" output="false">
 	
 		<cfif this.isConnected()>
 			<cfftp action="close" server="#variables.server#" username="#variables.username#" password="#variables.password#" port="#variables.port#" stoponerror="No">
