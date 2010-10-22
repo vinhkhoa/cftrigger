@@ -48,7 +48,7 @@
 		<cfloop from="1" to="#size#" index="i">
 			<cfset c = mid(arguments.char, i, 1)>
 			
-			<cfset result = reReplace(result, "^(\#c#)+|(\#c#)+$", "", "ALL")>
+			<cfset result = reReplace(result, "^(#c#)+|(#c#)+$", "", "ALL")>
 		</cfloop>
 		
 		<cfreturn result>
