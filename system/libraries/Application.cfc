@@ -755,39 +755,52 @@
 		<cfif application.serverType eq 'LIVE' AND underMaintenaince>
 			<cfset result = validateControllerAndView(application.maintenancePage)>
 		<cfelse>
-			<!--- Get the path info string --->
-			<cfset pathInfoStr = getPathInfoStr()>
-					
-			<!--- Root? Grab the default controller and view --->
-			<cfif listLen(pathInfoStr, '/') eq 0>
-				<cfset result = validateControllerAndView(application.defaultController)>
+			<!--- There is a controller and view specified explicitly in the url? --->
+			<cfif StructKeyExists(url, "controller")>
+				<cfset result.controller = url.controller>
+				
+				<cfif StructKeyExists(url, "view")>
+					<cfset result.view = url.view>
+				<cfelse>
+					<cfset result.view = application.defaultView>
+				</cfif>
+				
+				<cfset result = validateControllerAndView(result.controller, result.view)>
 			<cfelse>
-				<cfset continueSearching = true>
-				<cfset counter = 1>
-				
-				<!--- Search through the path info string to extract the controller and view --->
-				<cfloop condition="continueSearching AND counter le listLen(pathInfoStr, '/')">
-					<cfset path = listAppend(path, listGetAt(pathInfoStr, counter, "/"), application.separator)>
-		
-					<!--- Get the next part of the path info string --->
-					<cfif counter lt listLen(pathInfoStr, '/')>
-						<cfset nextPath = listGetAt(pathInfoStr, counter + 1, "/")>
-					<cfelse>
-						<cfset nextPath = "">
-					</cfif>
+				<!--- Get the path info string --->
+				<cfset pathInfoStr = getPathInfoStr()>
+						
+				<!--- Root? Grab the default controller and view --->
+				<cfif listLen(pathInfoStr, '/') eq 0>
+					<cfset result = validateControllerAndView(application.defaultController)>
+				<cfelse>
+					<cfset continueSearching = true>
+					<cfset counter = 1>
 					
-					<cfset controllerPath = lcase(application.controllerFilePath & path)>
-					<cfset result = validateControllerAndView(replace(path, application.separator, "/", "ALL"), nextPath)>
-					<cfset continueSearching = (NOT result.foundController) AND directoryExists(controllerPath)>
-		
-					<cfset counter = counter + 1>
-				</cfloop>
-				
-				<!--- Not found the controller? --->
-				<cfif NOT result.foundController>
-					<!--- Is there a hidden controller that we always use? --->
-					<cfif StructKeyExists(application, "hiddenController") AND trim(application.hiddenController) neq "">
-						<cfset result = validateControllerAndView(application.hiddenController)>
+					<!--- Search through the path info string to extract the controller and view --->
+					<cfloop condition="continueSearching AND counter le listLen(pathInfoStr, '/')">
+						<cfset path = listAppend(path, listGetAt(pathInfoStr, counter, "/"), application.separator)>
+			
+						<!--- Get the next part of the path info string --->
+						<cfif counter lt listLen(pathInfoStr, '/')>
+							<cfset nextPath = listGetAt(pathInfoStr, counter + 1, "/")>
+						<cfelse>
+							<cfset nextPath = "">
+						</cfif>
+						
+						<cfset controllerPath = lcase(application.controllerFilePath & path)>
+						<cfset result = validateControllerAndView(replace(path, application.separator, "/", "ALL"), nextPath)>
+						<cfset continueSearching = (NOT result.foundController) AND directoryExists(controllerPath)>
+			
+						<cfset counter = counter + 1>
+					</cfloop>
+					
+					<!--- Not found the controller? --->
+					<cfif NOT result.foundController>
+						<!--- Is there a hidden controller that we always use? --->
+						<cfif StructKeyExists(application, "hiddenController") AND trim(application.hiddenController) neq "">
+							<cfset result = validateControllerAndView(application.hiddenController)>
+						</cfif>
 					</cfif>
 				</cfif>
 			</cfif>
