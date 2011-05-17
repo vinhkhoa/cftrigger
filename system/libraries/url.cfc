@@ -21,7 +21,7 @@
 		<cfargument name="message" type="string" required="yes" hint="The message to be displayed">
 	
 		<cfset session.message = arguments.message>
-		<cfset variables.redirect(arguments.location)>
+		<cfset redirect(arguments.location)>
 	
 	</cffunction>
 
@@ -33,7 +33,7 @@
 		<cfargument name="error" type="string" required="yes" hint="The error to be displayed">
 		
 		<cfset session.error = arguments.error>
-		<cfset variables.redirect(arguments.location)>
+		<cfset redirect(arguments.location)>
 	
 	</cffunction>
 	
@@ -45,7 +45,7 @@
 		<cfargument name="errorList" type="array" required="yes" hint="The error list to be displayed">
 	
 		<cfset session.errorList = arguments.errorList>
-		<cfset variables.redirect(arguments.location)>
+		<cfset redirect(arguments.location)>
 	
 	</cffunction>
 	
@@ -55,12 +55,33 @@
 
 		<cfargument name="location" type="string" required="no" default="" hint="The location to redirect to">
 		<cfset var finalLocation = "">
+		<cfset var processedLocation = "">
 		
 		<!--- Remove multi-slash and ending index.cfm to make the url looks nicer --->
 		<cfif isValid("url", arguments.location)>
 			<cfset finalLocation = arguments.location>
 		<cfelse>
-			<cfset finalLocation = reReplace(reReplace("#application.baseURL#/#arguments.location#", "([^:])/{2,}", "\1/", "ALL"), "index.cfm/$", "")>
+			<!--- Does this application have redirection set up --->
+			<cfif StructKeyExists(application, "hasRedirects") AND application.hasRedirects>
+				<cfset processedLocation = arguments.location>
+			<cfelse>
+				<!--- 1 parts in URL --->
+				<cfif listLen(arguments.location, "/")>
+					<cfset processedLocation = processedLocation & "?controller=#listFirst(arguments.location, '/')#&">
+					
+					<!--- 2 parts in URL --->
+					<cfif listLen(arguments.location, "/") gt 1>
+						<cfset processedLocation = processedLocation & "view=#listGetAt(arguments.location, 2, '/')#&">
+	
+						<!--- 3 parts in URL --->
+						<cfif listLen(arguments.location, "/") gt 3>
+							<cfset processedLocation = processedLocation & "id=#listGetAt(arguments.location, 3, '/')#&">
+						</cfif>
+					</cfif>
+				</cfif>
+			</cfif>
+		
+			<cfset finalLocation = reReplace(reReplace("#application.baseURL#/#processedLocation#", "([^:])/{2,}", "\1/", "ALL"), "index.cfm/$", "")>
 		</cfif>
 		
 		<cflocation url="#finalLocation#" addtoken="no">
@@ -108,7 +129,7 @@
 		<cfargument name="message" type="string" required="yes" hint="The message to be displayed">
 	
 		<cfset session.message = arguments.message>
-		<cfset variables.redirectParent(arguments.location)>
+		<cfset redirectParent(arguments.location)>
 	
 	</cffunction>
 
@@ -120,7 +141,7 @@
 		<cfargument name="error" type="string" required="yes" hint="The error to be displayed">
 	
 		<cfset session.error = arguments.error>
-		<cfset variables.redirectParent(arguments.location)>
+		<cfset redirectParent(arguments.location)>
 	
 	</cffunction>
 	
@@ -138,7 +159,7 @@
 			<cfset finalLocation = reReplace(reReplace("#application.baseURL#/#arguments.location#", "([^:])/{2,}", "\1/", "ALL"), "index.cfm/$", "")>
 		</cfif>
 		
-		<cfset variables.redirect("redirectparent?parentRedirectURL=#finalLocation#")>
+		<cfset redirect("redirectparent?parentRedirectURL=#finalLocation#")>
 		
 	</cffunction>
 	
