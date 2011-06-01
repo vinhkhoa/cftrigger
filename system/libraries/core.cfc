@@ -448,6 +448,29 @@
 		
 	</cffunction>
 			
+	
+	<!--- Get executed SQL statement --->
+	<cffunction name="getSQLStatement" displayname="getSQLStatement" access="public" hint="Get executed SQL statement" returntype="string" output="false">
+	
+		<cfargument name="sqlResult" type="struct" required="yes" hint="The SQL result">
+		<cfset var result = "">
+		<cfset var local = StructNew()>
+		
+		<cfset result = HTMLEditFormat(trim(application.core.removeIndentation(arguments.sqlResult.sql)))>
+		<cfloop array="#arguments.sqlResult.sqlParameters#" index="local.thisParam">
+			<cfif LSIsDate(local.thisParam)>
+				<cfset local.thisParam = "'" & dateFormat(local.thisParam, "yyyy-mm-dd") & timeFormat(local.thisParam, " hh:mm:ss.l") & "'">
+			<cfelseif NOT isNumeric(local.thisParam)>
+				<cfset local.thisParam = "'#local.thisParam#'">
+			</cfif>
+			
+			<cfset result = replace(result, "?", "<strong>#local.thisParam#</strong>")>
+		</cfloop>
+	
+		<cfreturn result>
+	
+	</cffunction>
+	
 
 	<!--- ============================================= OBJECT/COMPONENT ============================================ --->
 
