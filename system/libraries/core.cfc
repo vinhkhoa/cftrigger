@@ -457,15 +457,17 @@
 		<cfset var local = StructNew()>
 		
 		<cfset result = HTMLEditFormat(trim(application.core.removeIndentation(arguments.sqlResult.sql)))>
-		<cfloop array="#arguments.sqlResult.sqlParameters#" index="local.thisParam">
-			<cfif LSIsDate(local.thisParam)>
-				<cfset local.thisParam = "'" & dateFormat(local.thisParam, "yyyy-mm-dd") & timeFormat(local.thisParam, " hh:mm:ss.l") & "'">
-			<cfelseif NOT isNumeric(local.thisParam)>
-				<cfset local.thisParam = "'#local.thisParam#'">
-			</cfif>
-			
-			<cfset result = replace(result, "?", "<strong>#local.thisParam#</strong>")>
-		</cfloop>
+		<cfif StructKeyExists(arguments.sqlResult, "sqlParameters") AND arrayLen(arguments.sqlResult.sqlParameters)>
+			<cfloop array="#arguments.sqlResult.sqlParameters#" index="local.thisParam">
+				<cfif LSIsDate(local.thisParam)>
+					<cfset local.thisParam = "'" & dateFormat(local.thisParam, "yyyy-mm-dd") & timeFormat(local.thisParam, " hh:mm:ss.l") & "'">
+				<cfelseif NOT isNumeric(local.thisParam)>
+					<cfset local.thisParam = "'#local.thisParam#'">
+				</cfif>
+				
+				<cfset result = replace(result, "?", "<strong>#local.thisParam#</strong>")>
+			</cfloop>
+		</cfif>
 	
 		<cfreturn result>
 	

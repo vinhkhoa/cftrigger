@@ -257,7 +257,7 @@
 		
 		<!--- Get the filename for download --->
 		<cfif NOT StructKeyExists(arguments, "downloadFileName")>
-			<cfset arguments.downloadFileName = getFileFromPath(argumenst.filePath)>
+			<cfset arguments.downloadFileName = getFileFromPath(arguments.filePath)>
 		</cfif>
 
 		<!--- Get the download file MIME type --->
