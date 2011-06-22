@@ -288,6 +288,18 @@
 	</cffunction>
 	
 	
+	<!--- Count the number of unique items in a list --->
+	<cffunction name="ListLenUnique" access="public" returntype="string" output="false">
+		<cfargument name="list" type="string" required="yes" hint="The original list" />
+		<cfargument name="delimiter" type="string" required="no" default="," hint="The list delimiter" />
+	
+		<cfset var result = listLen(listUnique(arguments.list, arguments.delimiter), arguments.delimiter)>
+		
+		<cfreturn result>
+	
+	</cffunction>
+	
+	
 	<!--- ============================================= ARRAY ============================================ --->
 
 	<!--- Remove duplicates from an array --->

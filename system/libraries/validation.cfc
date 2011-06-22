@@ -416,4 +416,20 @@
 	</cffunction>
 
 
+	<!--- Valid datetime --->
+	<cffunction name="_datetime" displayname="_datetime" returntype="string" output="false">
+	
+		<cfargument name="field" type="struct" required="yes" hint="The field being checked">
+		<cfargument name="value" type="string" required="yes" hint="The value of the field being checked">
+		<cfset var error = "">
+
+		<cfif NOT isValid("date", arguments.value)>
+			<cfset error = application.lang.getValidationLang(variables.modelName, arguments.field, arguments.value, "datetime")>
+		</cfif>
+			
+		<cfreturn error>
+	
+	</cffunction>
+
+
 </cfcomponent>
