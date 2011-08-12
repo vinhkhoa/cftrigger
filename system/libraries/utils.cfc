@@ -314,4 +314,26 @@
 	
 	</cffunction>
 	
+	
+	<!--- Create a random number with specified number of digits --->
+	<cffunction name="createRandomNumber" access="public" returntype="numeric" output="false">
+		
+		<cfargument name="digitsNum" type="numeric" required="yes" hint="The number of digits to be generated">
+		<cfset var result = "">
+		<cfset var local = StructNew()>
+		
+		<cfloop from="1" to="#val(arguments.digitsNum)#" index="local.index">
+			<!--- The first digit cannot be 0 --->
+			<cfif local.index eq 1>
+				<cfset local.thisDigit = randRange(1, 9)>
+			<cfelse>
+				<cfset local.thisDigit = randRange(0, 9)>
+			</cfif>
+			
+			<cfset result = result & local.thisDigit>
+		</cfloop>
+		
+		<cfreturn result>		
+		
+	</cffunction>
 </cfcomponent>

@@ -81,6 +81,7 @@
 	</cffunction>
 
 
+
 	<!--- ============================================= LIST ============================================ --->
 
 	<!--- Remove duplicates from a list --->
@@ -300,6 +301,7 @@
 	</cffunction>
 	
 	
+	
 	<!--- ============================================= ARRAY ============================================ --->
 
 	<!--- Remove duplicates from an array --->
@@ -308,8 +310,8 @@
 		<cfset var result = ArrayNew(1)>
 	
 		<!--- Create a linked hashset java object as it has: 1) unique key and 2) order --->
-		<cfset var lhs = createObject("java", "java.util.LinkedHashSet").init(arguments.array)>
-		<cfset result = lhs.toArray()>
+		<cfset var hs = createObject("java", "java.util.HashSet").init(arguments.array)>
+		<cfset result = hs.toArray()>
 		
 		<cfreturn result>
 	
@@ -360,6 +362,7 @@
 	</cffunction>
 	
 	
+	
 	<!--- ============================================= STRUCT ============================================ --->
 	
 	<!--- Get the list of values inside a struct. Similar to StructKeyList. Ignores complex variables --->
@@ -380,6 +383,7 @@
 		<cfreturn result>
 
 	</cffunction>
+
 
 
 	<!--- ============================================= QUERY ============================================ --->
@@ -486,6 +490,7 @@
 	</cffunction>
 	
 
+
 	<!--- ============================================= OBJECT/COMPONENT ============================================ --->
 
 	<!--- Retrieve private variables --->
@@ -559,4 +564,48 @@
 		
 	</cffunction>
 		
+
+
+	<!--- ============================================= OBJECT/COMPONENT ============================================ --->
+
+	<!--- Extract cookies from HTTP response --->
+	<cffunction name="getResponseCookies" displayname="getResponseCookies" access="public" returntype="struct" hint="Extract cookies from HTTP response">
+		
+		<cfargument name="response" type="struct" required="yes" hint="The HTTP response">
+		<cfset var local = StructNew()>
+		<cfset var result = StructNew()>
+		
+		<!--- Check that this response object contains new cookies --->
+		<cfif StructKeyExists(arguments.response, "responseHeader") AND 
+			  StructKeyExists(arguments.response.responseHeader, "set-cookie") AND
+			  isArray(arguments.response.responseHeader["set-cookie"])>
+			<cfloop array="#arguments.response.responseHeader['set-cookie']#" index="local.thisCookie">
+				<cfset local.stCookie = StructNew()>
+				
+				<!--- Extract cookie name --->
+				<cfset local.namePair = listFirst(local.thisCookie, ";")>
+				<cfset local.cookieName = listFirst(local.namePair, "=")>
+				<cfset local.cookieValue = listLast(local.namePair, "=")>
+				<cfset local.thisCookie = listDeleteAt(local.thisCookie, 1)>
+	
+				<cfset local.stCookie.name = cookieName>
+				<cfset local.stCookie.value = cookieValue>
+				
+				<!--- Extract cookie attributes --->
+				<cfset local.stCookie.attributes = StructNew()>
+				<cfloop list="#local.thisCookie#" index="local.pair">
+					<cfset local.stCookie.attributes[listFirst(local.namePair, "=")] = listLast(local.namePair, "=")>
+				</cfloop>
+				
+				<!--- Reconstruct the cookie --->
+				<cfset result[local.stCookie.name] = StructNew()>
+				<cfset result[local.stCookie.name].value = local.stCookie.value>
+				<cfset result[local.stCookie.name].attributes = local.stCookie.attributes>
+			</cfloop>
+		</cfif>
+		
+		<cfreturn result>
+		
+	</cffunction>
+
 </cfcomponent>
