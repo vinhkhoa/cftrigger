@@ -65,7 +65,7 @@
 			<cfif StructKeyExists(application, "hasRedirects") AND application.hasRedirects>
 				<cfset processedLocation = arguments.location>
 			<cfelse>
-				<!--- 1 parts in URL --->
+				<!--- 1 part in URL --->
 				<cfif listLen(arguments.location, "/")>
 					<cfset processedLocation = processedLocation & "?controller=#listFirst(arguments.location, '/')#&">
 					
@@ -183,6 +183,44 @@
 		
 		<cfreturn result>
 
+	</cffunction>
+	
+
+	<!--- Create a link based on whether redirection is set up or not --->
+	<cffunction name="link" access="public" output="false">
+
+		<cfargument name="path" type="string" required="no" default="" hint="The link path">
+		<cfset var result = "">
+		
+		<!--- Remove multi-slash and ending index.cfm to make the url looks nicer --->
+		<cfif isValid("url", arguments.path)>
+			<cfset result = arguments.path>
+		<cfelse>
+			<!--- Does this application have redirection set up --->
+			<cfif StructKeyExists(application, "hasRedirects") AND application.hasRedirects>
+				<cfset result = arguments.path>
+			<cfelse>
+				<!--- 1 part in URL --->
+				<cfif listLen(arguments.path, "/")>
+					<cfset result = result & "?controller=#listFirst(arguments.path, '/')#&amp;">
+					
+					<!--- 2 parts in URL --->
+					<cfif listLen(arguments.path, "/") gt 1>
+						<cfset result = result & "view=#listGetAt(arguments.path, 2, '/')#&amp;">
+	
+						<!--- 3 parts in URL --->
+						<cfif listLen(arguments.path, "/") gt 3>
+							<cfset result = result & "id=#listGetAt(arguments.path, 3, '/')#&amp;">
+						</cfif>
+					</cfif>
+				</cfif>
+			</cfif>
+		
+			<cfset result = reReplace(reReplace("#application.baseURL#/#result#", "([^:])/{2,}", "\1/", "ALL"), "index.cfm/$", "")>
+		</cfif>
+		
+		<cfreturn result>
+		
 	</cffunction>
 	
 </cfcomponent>

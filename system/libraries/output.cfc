@@ -254,6 +254,7 @@
 		<cfargument name="filePath" type="string" required="yes" hint="Full path to the file to be downloaded">
 		<cfargument name="downloadFileName" type="string" required="no" hint="Filename that the end user will save the file as">
 		<cfargument name="MIMEType" type="string" required="no" hint="Specify the MIME type for download. If not passed in, an appropriate mime type will be used based on the file extension">
+		<cfset var local = StructNew()>
 		
 		<!--- Get the filename for download --->
 		<cfif NOT StructKeyExists(arguments, "downloadFileName")>
@@ -264,6 +265,10 @@
 		<cfif NOT StructKeyExists(arguments, "MIMEType")>
 			<cfset arguments.MIMEType = getPageContext().getServletContext().getMimeType(arguments.downloadFileName)>
 		</cfif>
+		
+		<!--- Set the cookie indicating that a file download has happened, useful for clients to take action if need to --->
+		<cfset local.expiry = dateAdd('n', 2, now())>
+		<cfheader name="Set-Cookie" value="fileDownloaded=1;expires=#DateFormat(local.expiry, 'ddd, dd-mmm-yyyy')# #TimeFormat(local.expiry, 'HH:mm:ss')# GMT">
 		
 		<!--- Download the file now --->
 		<cfheader name="content-disposition" value="attachment;filename=""#arguments.downloadFileName#""">
