@@ -86,4 +86,14 @@
 		
 	</cffunction>
 	
+
+	<!--- Create a directory for a file, ignore if the directory already exists --->
+	<cffunction name="createForFile" returntype="struct" access="public" output="false">
+		<cfargument name="fileLocation" type="string" required="yes" hint="Location of the file whose directory is to be deleted">
+		<cfargument name="ignoreExisting" type="boolean" required="no" default="true" hint="true: ignore when the directory already exists, ie. does not return error in that case.">
+		
+		<cfreturn create(getDirectoryFromPath(arguments.fileLocation), arguments.ignoreExisting)>
+		
+	</cffunction>
+	
 </cfcomponent>

@@ -362,7 +362,69 @@
 	</cffunction>
 	
 	
+	<!--- Convert 2D array to Java array --->
+	<cffunction name="Array2DToJava" access="private" returntype="any">
 	
+		<cfargument name="array" type="Array" required="yes" hint="The array to be converted">
+		<cfset var result = "">
+		<cfset var local = StructNew()>
+		
+		<!--- Create java array dimension --->
+		<cfset local.dimensions = ArrayNew(1)>
+		<cfset local.dimensions[1] = arrayLen(arguments.array)>
+		<cfset local.dimensions[2] = 1>
+
+		<!--- Get some java class --->
+		<cfset local.objStringClass = createObject("java", "java.lang.String").getClass()>
+		<cfset local.objReflect = createObject("java", "java.lang.reflect.Array")>
+		
+		<!--- Create java array --->
+		<cfset result = local.objReflect.newInstance(local.objStringClass, javaCast("int[]", local.dimensions))>
+		
+		<!--- Populate native array --->
+		<cfloop from="1" to="#arrayLen(arguments.array)#" index="local.row">
+			<cfset local.tempArray = ArrayNew(1)>
+		
+			<cfloop from="1" to="#arrayLen(arguments.array[1])#" index="local.col">
+				<cfset arrayAppend(local.tempArray, arguments.array[local.row][local.col])>
+			</cfloop>
+			
+			<cfset local.objReflect.set(result, javaCast("int", local.row - 1), javaCast("string[]", local.tempArray))>
+		</cfloop>
+	
+		<cfreturn result>
+	
+	</cffunction>
+	
+	
+	<!--- Convert array to Java array --->
+	<cffunction name="ArrayToJava" access="private" returntype="any">
+	
+		<cfargument name="array" type="Array" required="yes" hint="The array to be converted">
+		<cfset var result = "">
+		<cfset var local = StructNew()>
+		
+		<!--- Create java array dimension --->
+		<cfset local.dimensions = ArrayNew(1)>
+		<cfset local.dimensions[1] = arrayLen(arguments.array)>
+
+		<!--- Get some java class --->
+		<cfset local.objStringClass = createObject("java", "java.lang.String").getClass()>
+		<cfset local.objReflect = createObject("java", "java.lang.reflect.Array")>
+		
+		<!--- Create java array --->
+		<cfset result = local.objReflect.newInstance(local.objStringClass, javaCast("int[]", local.dimensions))>
+		
+		<!--- Populate native array --->
+		<cfloop from="1" to="#arrayLen(arguments.array)#" index="local.index">
+			<cfset local.objReflect.set(result, javaCast("int", local.index - 1), arguments.array[local.index])>
+		</cfloop>
+	
+		<cfreturn result>
+	
+	</cffunction>
+	
+
 	<!--- ============================================= STRUCT ============================================ --->
 	
 	<!--- Get the list of values inside a struct. Similar to StructKeyList. Ignores complex variables --->
@@ -490,6 +552,61 @@
 	</cffunction>
 	
 
+	<!--- Convert query to 2D array --->
+	<cffunction name="QueryToArray" access="private" returntype="array">
+		<cfargument name="query" type="query" required="yes" hint="The query to be converted">
+		<cfargument name="columnList" type="string" required="no" hint="The columns to be converted. Do not pass in to include all columns">
+		<cfset var local = StructNew()>
+		<cfset var result = ArrayNew(2)>
+		
+		<!--- Get column names and types available in the query --->
+		<cfset local.strFields = StructNew()>
+		<cfloop array="#GetMetaData(arguments.query)#" index="local.thisCol">
+			<cfset local.strFields[local.thisCol.name] = local.thisCol.typeName>
+		</cfloop>
+
+		<!--- Is there a column list specified? --->
+		<cfif StructKeyExists(arguments, "columnList") AND trim(arguments.columnList) neq "">
+			<!--- Remove invalid columns --->
+			<cfset local.columnList = "">
+			
+			<cfloop list="#arguments.columnList#" index="local.thisColumn">
+				<cfif listFindNoCase(arguments.query.columnList, local.thisColumn)>
+					<cfset local.columnList = listAppend(local.columnList, local.thisColumn)>
+				</cfif>
+			</cfloop>
+		<cfelse>
+			<!--- No column list specified, get all columns of the query --->
+			<cfset local.columnList = arguments.query.columnList>
+		</cfif>
+		
+		<cfset result = ArrayNew(1)>
+		
+		<!--- Loop through query rows --->
+		<cfloop query="arguments.query">
+			<cfset local.tempArray = ArrayNew(1)>
+			<cfset local.colNum = 1>			
+			
+			<!--- Loop through columns --->
+			<cfloop list="#local.columnList#" index="local.thisColumn">
+				<cfset local.thisValue = arguments.query[local.thisColumn][arguments.query.currentRow]>
+			
+				<!--- Format this field --->
+				<cfswitch expression="#local.strFields[local.thisColumn]#">
+					<cfcase value="timestamp">
+						<cfset local.thisValue = dateFormat(local.thisValue, "dd/mm/yyyy") & " " & timeFormat(local.thisValue, "hh:mm:ss")>
+					</cfcase>
+				</cfswitch>
+			
+				<cfset arrayAppend(local.tempArray, local.thisValue)>
+			</cfloop>
+			
+			<cfset arrayAppend(result, duplicate(local.tempArray))>
+		</cfloop>
+		
+		<cfreturn result>
+	
+	</cffunction>
 
 	<!--- ============================================= OBJECT/COMPONENT ============================================ --->
 
@@ -602,6 +719,49 @@
 				<cfset result[local.stCookie.name].value = local.stCookie.value>
 				<cfset result[local.stCookie.name].attributes = local.stCookie.attributes>
 			</cfloop>
+		</cfif>
+		
+		<cfreturn result>
+		
+	</cffunction>
+
+
+
+	<!--- ============================================= DATE ============================================ --->
+
+	<!--- Create date from string in the format dd/mm/yyyy --->
+	<cffunction name="dateParse" access="public" returntype="struct" hint="Create date from string">
+		
+		<cfargument name="strDate" type="string" required="yes" hint="The date string">
+		<cfset var local = StructNew()>
+		<cfset var result = StructNew()>
+		<cfset result.date = "">
+		<cfset result.valid = 0>
+		<cfset result.error = "">
+		
+		<!--- Does the string contains all 3 parts? --->
+		<cfif listLen(arguments.strDate, "/") eq 3>
+			<cftry>
+				<!--- Attempt to parse the date --->
+				<cfset result.date = createDate(listLast(arguments.strDate, "/"), listGetAt(arguments.strDate, 2, "/"), listFirst(arguments.strDate, "/"))>
+				<cfset result.valid = 1>
+				
+				<cfcatch type="any">
+					<cfset result.valid = 0>
+					<cfset result.error = "Invalid date">
+				</cfcatch>
+			</cftry>
+			
+			<!--- Validate the date range --->
+			<cfif result.error eq "">
+				<cfif (result.date lt createDate(1900,1,1)) OR (result.date gt createDate(3000,12,31))>
+					<cfset result.valid = 0>
+					<cfset result.error = "Date out of range">
+				</cfif>
+			</cfif>
+		<cfelse>
+			<cfset result.valid = 0>
+			<cfset result.error = "Invalid date">
 		</cfif>
 		
 		<cfreturn result>
