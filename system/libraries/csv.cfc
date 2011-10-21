@@ -109,6 +109,24 @@
 	</cffunction>
 
 
+	<!--- Read CSV file into Array --->
+	<cffunction name="CSVToArray" access="public" output="false" returntype="array">
+		<cfargument name="filePath" type="string" required="yes" hint="The CSV file path to be converted">
+
+		<!--- Read the file --->
+		<cftry>
+			<cfset result = createObject("java", variables.CSVClassPath).read(javaCast("String", arguments.filePath))>
+			
+			<cfcatch type="any">
+				<cfthrow object="#cfcatch#">
+			</cfcatch>
+		</cftry>
+		
+		<cfreturn result>
+		
+	</cffunction>
+
+
 	<!--- Write array out to CSV file --->
 	<cffunction name="ArrayToCSV" access="public" output="false" returntype="struct">
 		<cfargument name="array" type="array" required="yes" hint="The array containing data to be written into CSV file">

@@ -336,4 +336,53 @@
 		<cfreturn result>		
 		
 	</cffunction>
+
+
+	<!---
+		Replace old HTML invalid ascii characters characters (mostly come from MS) with valid ascii characters
+		The purpose of this function is to avoid funny characters showing up, especially used in feed.
+		The replacement characters clearly lose its meanings and do not reflect the original character. But
+		they were the closet ones that I could find.
+	--->
+	<cffunction name="replaceInvalidASCIICharacters" access="public" returntype="string" output="false">
+		<cfargument name="string" type="string" required="yes" hint="The string in which characters are replaced" />
+		<cfset var local = StructNew()>
+		<cfset var result = "">
+
+		<!--- The list of those characters that need to be escaped are taken from here: http://www.ascii.cl/htmlcodes.htm --->
+		<!--- Get the list of old HTML characters that need to be replaced --->
+		<cfset local.toConvert = StructNew()>
+		
+		<cfset local.toConvert[chr(338)] = "OE">
+		<cfset local.toConvert[chr(339)] = "oe">
+		<cfset local.toConvert[chr(352)] = "S">
+		<cfset local.toConvert[chr(353)] = "s">
+		<cfset local.toConvert[chr(376)] = "Y">
+		<cfset local.toConvert[chr(402)] = "f">
+
+		<cfset local.toConvert[chr(8211)] = "-">
+		<cfset local.toConvert[chr(8212)] = "-">
+		<cfset local.toConvert[chr(8216)] = "'">
+		<cfset local.toConvert[chr(8217)] = "'">
+		<cfset local.toConvert[chr(8218)] = "'">
+		<cfset local.toConvert[chr(8220)] = '"'>
+		<cfset local.toConvert[chr(8221)] = '"'>
+		<cfset local.toConvert[chr(8222)] = ",,">
+		<cfset local.toConvert[chr(8224)] = "|">
+		<cfset local.toConvert[chr(8225)] = "|">
+		<cfset local.toConvert[chr(8226)] = "*">
+		<cfset local.toConvert[chr(8230)] = "...">
+		<cfset local.toConvert[chr(8240)] = "%%">
+		<cfset local.toConvert[chr(8364)] = "&euro;">
+		<cfset local.toConvert[chr(8482)] = "TM">
+		
+		<!--- Replace the invalid characters one by one --->
+		<cfset result = arguments.string>
+		<cfloop collection="#local.toConvert#" item="local.fromCharacter">
+			<cfset result = replace(result, local.fromCharacter, local.toConvert[local.fromCharacter], "ALL")>
+		</cfloop>
+
+		<cfreturn result>
+
+	</cffunction>
 </cfcomponent>
