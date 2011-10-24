@@ -268,7 +268,7 @@
 		
 		<!--- Set the cookie indicating that a file download has happened, useful for clients to take action if need to --->
 		<cfset local.expiry = dateAdd('n', 2, now())>
-		<cfheader name="Set-Cookie" value="fileDownloaded=1;expires=#DateFormat(local.expiry, 'ddd, dd-mmm-yyyy')# #TimeFormat(local.expiry, 'HH:mm:ss')# GMT">
+		<cfheader name="Set-Cookie" value="cftfiledownloaded=1;expires=#DateFormat(local.expiry, 'ddd, dd-mmm-yyyy')# #TimeFormat(local.expiry, 'HH:mm:ss')# GMT">
 		
 		<!--- Download the file now --->
 		<cfheader name="content-disposition" value="attachment;filename=""#arguments.downloadFileName#""">
