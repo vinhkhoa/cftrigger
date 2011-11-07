@@ -14,8 +14,11 @@
 
 	<cfscript>
 		// GENERAL SETTINGS
-		This.Sessionmanagement = "True";
+		This.applicationTimeout = createTimeSpan(1, 0, 0, 0);
+		This.sessionmanagement = True;
+		This.sessionTimeout = createTimeSpan(0, 0, 30, 0);
 		This.loginstorage = "session";
+		This.setDomainCookies = true;
 		This.scriptProtect = "none";
 	</cfscript>
 	
@@ -28,7 +31,6 @@
 		<cfset var i = "">
 		<cfset var k = "">
 		
-	
 		<cfset setLocale("English (Australian)")>
 	
 		<cfscript>
@@ -116,7 +118,8 @@
 		
 		<cfscript>
 			application.onLiveServer = false;
-			application.name = application.appName & "_" & application.appNameSuffix;
+			this.name = this.name & "_" & application.appNameSuffix;
+			application.name = this.name
 			
 			// SPECIFIC SERVER SETTINGS
 			switch(application.serverType) {
@@ -311,7 +314,7 @@
 		<cfset var isAdminController = "">
 		<cfset var requireAuthentication = "">
 		<cfset var error404 = false>
-		
+	
 		<!--- Include CFT variables --->
 		<cfinclude template="/cft/config/variables.cfm">		
 		

@@ -33,6 +33,18 @@
 	</cffunction>
 
 
+	<!--- Capitalize the first letter of each word (copied from: http://www.stillnetstudios.com/capitalizing-first-letter-each-word/) --->
+	<cffunction name="capFirstLetters" access="public" returntype="string" hint="" output="false">
+		<cfargument name="string" type="string" required="yes" hint="The string whose each word's first letter is to be capitalized">
+		<cfset var result = "">
+		
+		<cfset result = reReplace(arguments.string, "(\b\w)", "\u\1", "ALL") />
+
+		<cfreturn result>
+
+	</cffunction>
+
+
 	<!--- Trim a particular character. Similar to the default trim which trims spaces, this one trims any characters --->
 	<cffunction name="trimChar" access="public" returntype="string" hint="" output="false">
 		<cfargument name="string" type="string" required="yes" hint="The text to be trimmed">
@@ -770,4 +782,25 @@
 		
 	</cffunction>
 
+
+
+	<!--- ============================================= DATE ============================================ --->
+
+	<!--- Escape json characters --->
+	<cffunction name="jsonEscape" access="public" returntype="string" hint="Escape json characters">
+	
+		<cfargument name="string" type="string" required="yes" hint="The string that contains characters to be escaped">
+		<cfset var result = "">
+	
+		<!---
+			The list can be foud here: http://json.org:
+			
+			double quote, single quote, back slash, slash, backspace, form feed, newline, carriage return, tab
+		--->
+		<cfset result = replaceList(arguments.string, """,',\,/,#chr(8)#,#chr(12)#,#chr(10)#,#chr(13)#,#chr(9)#", "\"",\',\\,\/,\b,\f,\n,\r,\t")>
+		
+		<cfreturn result>
+	
+	</cffunction>
+	
 </cfcomponent>
