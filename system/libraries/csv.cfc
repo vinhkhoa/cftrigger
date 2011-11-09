@@ -141,17 +141,25 @@
 			<cfset arguments.filePath = getTempDirectory() & createUUID() & ".csv">
 		</cfif>
 		
-		<!--- Write the file --->
-		<cftry>
-			<cfset local.writeResult = createObject("java", variables.CSVClassPath).write(convert2DArrayToJava(arguments.array), javaCast("String", arguments.filePath))>
-			
-			<cfcatch type="any">
-				<cfthrow object="#cfcatch#">
-			</cfcatch>
-		</cftry>
-
-		<cfset result.filePath = arguments.filePath>
-
+		<!--- Create missing directories --->
+		<cfset local.createDirsResult = application.directory.createForFile(arguments.filePath)>
+		
+		<!--- Were directories created ok? --->
+		<cfif local.createDirsResult.error eq "">
+			<!--- Write the file --->
+			<cftry>
+				<cfset local.writeResult = createObject("java", variables.CSVClassPath).write(convert2DArrayToJava(arguments.array), javaCast("String", arguments.filePath))>
+				
+				<cfcatch type="any">
+					<cfthrow object="#cfcatch#">
+				</cfcatch>
+			</cftry>
+	
+			<cfset result.filePath = arguments.filePath>
+		<cfelse>
+			<cfset result.error = "Cannot create directory path for #arguments.filePath#. ERROR: #local.createDirsResult.error#">
+		</cfif>
+		
 		<cfreturn result>
 
 	</cffunction>
