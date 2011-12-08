@@ -375,7 +375,7 @@
 	
 	
 	<!--- Convert 2D array to Java array --->
-	<cffunction name="Array2DToJava" access="private" returntype="any">
+	<cffunction name="Array2DToJava" access="private" returntype="any" output="false">
 	
 		<cfargument name="array" type="Array" required="yes" hint="The array to be converted">
 		<cfset var result = "">
@@ -410,7 +410,7 @@
 	
 	
 	<!--- Convert array to Java array --->
-	<cffunction name="ArrayToJava" access="private" returntype="any">
+	<cffunction name="ArrayToJava" access="private" returntype="any" output="false">
 	
 		<cfargument name="array" type="Array" required="yes" hint="The array to be converted">
 		<cfset var result = "">
@@ -700,7 +700,7 @@
 	<!--- ============================================= OBJECT/COMPONENT ============================================ --->
 
 	<!--- Extract cookies from HTTP response --->
-	<cffunction name="getResponseCookies" displayname="getResponseCookies" access="public" returntype="struct" hint="Extract cookies from HTTP response">
+	<cffunction name="getResponseCookies" displayname="getResponseCookies" access="public" returntype="struct" hint="Extract cookies from HTTP response" output="false">
 		
 		<cfargument name="response" type="struct" required="yes" hint="The HTTP response">
 		<cfset var local = StructNew()>
@@ -741,10 +741,10 @@
 
 
 
-	<!--- ============================================= DATE ============================================ --->
+	<!--- ============================================= DATE/TIME ============================================ --->
 
 	<!--- Create date from string in the format dd/mm/yyyy --->
-	<cffunction name="dateParse" access="public" returntype="struct" hint="Create date from string">
+	<cffunction name="dateParse" access="public" returntype="struct" hint="Create date from string" output="false">
 		
 		<cfargument name="strDate" type="string" required="yes" hint="The date string">
 		<cfset var local = StructNew()>
@@ -783,11 +783,54 @@
 	</cffunction>
 
 
-
+	<!--- Get the time difference in a friendly format between 2 specified time --->
+	<cffunction name="getTimeDifference" access="public" returntype="struct" hint="Get time difference" output="false">
+		
+		<cfargument name="fromDate" type="date" required="yes" hint="Compare from this time">
+		<cfargument name="toDate" type="date" required="yes" hint="Compare to this time">
+		<cfset var local = StructNew()>
+		<cfset var result = StructNeW()>
+		
+		<!--- Get the difference in individual time component --->
+		<cfset local.fromDate 	= arguments.fromDate>
+		<cfset result["year"] 	= dateDiff("yyyy",	local.fromDate, arguments.toDate)>
+	
+		<cfset local.fromDate 	= dateAdd("yyyy",	result["year"], local.fromDate)>
+		<cfset result["month"] 	= dateDiff("m", 	local.fromDate, arguments.toDate)>
+	
+		<cfset local.fromDate 	= dateAdd("m", 		result["month"], local.fromDate)>
+		<cfset result["day"] 	= dateDiff("d", 	local.fromDate, arguments.toDate)>
+	
+		<cfset local.fromDate 	= dateAdd("d", 		result["day"], local.fromDate)>
+		<cfset result["hour"] 	= dateDiff("h", 	local.fromDate, arguments.toDate)>
+	
+		<cfset local.fromDate 	= dateAdd("h", 		result["hour"], local.fromDate)>
+		<cfset result["minute"] = dateDiff("n", 	local.fromDate, arguments.toDate)>
+	
+		<cfset local.fromDate 	= dateAdd("n", 		result["minute"], local.fromDate)>
+		<cfset result["second"] = dateDiff("s", 	local.fromDate, arguments.toDate)>
+		
+		<!--- Create a friendly text --->
+		<cfset result["text"] = "">
+		<cfset result["shorttext"] = "">
+		<cfloop list="year,month,day,hour,minute,second" index="part">
+			<cfif val(result[part])>
+				<cfset result["text"] = result["text"] & "#result[part]# #part# ">
+				<cfset result["shorttext"] = result["shorttext"] & "#result[part]##left(part, 1)# ">
+			</cfif>
+		</cfloop>
+		<cfset result["text"] = trim(result["text"])>
+		<cfset result["shorttext"] = trim(result["shorttext"])>
+		
+		<cfreturn result>
+	
+	</cffunction>
+	
+	
 	<!--- ============================================= DATE ============================================ --->
 
 	<!--- Escape json characters --->
-	<cffunction name="jsonEscape" access="public" returntype="string" hint="Escape json characters">
+	<cffunction name="jsonEscape" access="public" returntype="string" hint="Escape json characters" output="false">
 	
 		<cfargument name="string" type="string" required="yes" hint="The string that contains characters to be escaped">
 		<cfset var result = "">
