@@ -12,16 +12,14 @@
 <cfcomponent displayname="Application" output="false">
 	<cfsetting enablecfoutputonly="yes">
 
-	<cfscript>
-		// GENERAL SETTINGS
-		This.applicationTimeout = createTimeSpan(1, 0, 0, 0);
-		This.sessionmanagement = True;
-		This.sessionTimeout = createTimeSpan(0, 0, 30, 0);
-		This.loginstorage = "session";
-		This.setDomainCookies = true;
-		This.scriptProtect = "none";
-	</cfscript>
-	
+	<!--- GENERAL SETTINGS --->
+	<cfset This.applicationTimeout = createTimeSpan(1, 0, 0, 0)>
+	<cfset This.sessionmanagement = True>
+	<cfset This.sessionTimeout = createTimeSpan(0, 0, 30, 0)>
+	<cfset This.loginstorage = "session">
+	<cfset This.setDomainCookies = true>
+	<cfset This.scriptProtect = "none">
+
 
 	<!--- ================================ APPLICATION METHODS ================================= --->
 
@@ -33,59 +31,45 @@
 		
 		<cfset setLocale("English (Australian)")>
 	
-		<cfscript>
-			/* =========================================== SERVER SETTINGS =========================================== */
-			
-			// Get the current page from CGI to check for server
-			// HTTPS?
-			if (CGI.HTTPS neq 'ON' AND CGI.HTTPS neq 1)
-			{
-				tempCurrentPage = 'http://' & CGI.SERVER_NAME;
-			}
-			else
-			{
-				tempCurrentPage = 'https://' & CGI.SERVER_NAME;
-			}
-			
-			// Has a port number?
-			if (CGI.SERVER_PORT neq '' AND CGI.SERVER_PORT neq 80)
-			{
-				tempCurrentPage = tempCurrentPage & ":" & CGI.SERVER_PORT;
-			}
-			
-			tempCurrentPage = tempCurrentPage & CGI.SCRIPT_NAME;
+		<!--- =========================================== SERVER SETTINGS =========================================== --->
 		
-			// GET CURRENT SERVER
-			application.serverType = '';
-			if (StructKeyExists(application, "servers"))
-			{
-				for (i = 1; i le arrayLen(application.servers); i++)
-				{
-					if (application.servers[i].name eq CGI.SERVER_NAME AND findNoCase(application.servers[i].url, tempCurrentPage))
-					{
-						application.serverType = application.servers[i].type;
-						application.serverName = application.serverType & "_" & application.servers[i].name;
-						application.appNameSuffix = application.servers[i].appNameSuffix;
-						application.rootURL = application.servers[i].url;
-						application.rootPath = replace(application.rootURL, listFirst(application.rootURL, '/') & '//' & listGetAt(application.rootURL, 2, '/'), '');
-						application.appLogicalPath = replace(application.rootURL, listFirst(application.rootURL, '/') & '//' & listGetAt(application.rootURL, 2, '/'), '');
-						
-						// Allow other configs to be overwritten per server
-						if (StructKeyExists(application.servers[i], "specificSettings"))
-						{
-							for (k in application.servers[i].specificSettings)
-							{
-								application[k] = application.servers[i].specificSettings[k];
-							}
-						}
-					}
-				}
-			}
-			else
-			{
-				application.serverType = "";
-			}
-		</cfscript>
+		<!--- Get the current page from CGI to check for server --->
+		<!--- HTTPS? --->
+		<cfif CGI.HTTPS neq "ON" AND CGI.HTTPS neq 1>
+			<cfset tempCurrentPage = "http://" & CGI.SERVER_NAME>
+		<cfelse>
+			<cfset tempCurrentPage = "https://" & CGI.SERVER_NAME>
+		</cfif>
+		
+		<!--- Has a port number? --->
+		<cfif CGI.SERVER_PORT neq "" AND CGI.SERVER_PORT neq 80>
+			<cfset tempCurrentPage = tempCurrentPage & ":" & CGI.SERVER_PORT>
+		</cfif>
+		<cfset tempCurrentPage = tempCurrentPage & CGI.SCRIPT_NAME>
+	
+		<!--- GET CURRENT SERVER --->
+		<cfset application.serverType = "">
+		<cfif StructKeyExists(application, "servers")>
+			<cfloop from="1" to="#arrayLen(application.servers)#" index="i">
+				<cfif application.servers[i].name eq CGI.SERVER_NAME AND findNoCase(application.servers[i].url, tempCurrentPage)>
+					<cfset application.serverType = application.servers[i].type>
+					<cfset application.serverName = application.serverType & "_" & application.servers[i].name>
+					<cfset application.appNameSuffix = application.servers[i].appNameSuffix>
+					<cfset application.rootURL = application.servers[i].url>
+					<cfset application.rootPath = replace(application.rootURL, listFirst(application.rootURL, '/') & '//' & listGetAt(application.rootURL, 2, '/'), '')>
+					<cfset application.appLogicalPath = replace(application.rootURL, listFirst(application.rootURL, '/') & '//' & listGetAt(application.rootURL, 2, '/'), '')>
+					
+					<!--- Allow other configs to be overwritten per server --->
+					<cfif StructKeyExists(application.servers[i], "specificSettings")>
+						<cfloop collection="#application.servers[i].specificSettings#" item="k">
+							<cfset application[k] = application.servers[i].specificSettings[k]>
+						</cfloop>
+					</cfif>
+				</cfif>
+			</cfloop>
+		<cfelse>
+			<cfset application.serverType = "">
+		</cfif>
 		
 		<!--- Not found the server on the list? terminate the application. This should not happen
 				unless the server settings are not included on the server list inside the application config.cfm file --->
@@ -116,71 +100,58 @@
 			<cfinclude template="/cft/lang/#lcase(application.language)#/message.cfm">
 		</cfif>
 		
-		<cfscript>
-			application.onLiveServer = false;
-			this.name = this.name & "_" & application.appNameSuffix;
-			application.name = this.name
-			
-			// SPECIFIC SERVER SETTINGS
-			switch(application.serverType) {
-				case "LIVE":
-					application.showFriendlyError = true;
-					application.show404OnMissingController = true;
-					application.applicationDBType = "live";
-					application.alwaysRefreshSettings = false;
-					application.onLiveServer = true;
-					
-					// Allow hideColdfusionError to be overwritten per application
-					if (StructKeyExists(application, "hideColdfusionError"))
-					{					
-						application.hideColdfusionError = application.hideColdfusionError;
-					}
-					else
-					{
-						application.hideColdfusionError = true;
-					}
-
-					break;						
+		<cfset application.onLiveServer = false>
+		<cfset this.name = this.name & "_" & application.appNameSuffix>
+		<cfset application.name = this.name>
 		
-				case "DEV":
-					// Allow showLocalFriendlyError to be overwritten per application
-					if (StructKeyExists(application, "showLocalFriendlyError"))
-					{					
-						application.showFriendlyError = application.showLocalFriendlyError;
-					}
-					else
-					{
-						application.showFriendlyError = false;
-					}
+		<!--- SPECIFIC SERVER SETTINGS --->
+		<cfswitch expression="#application.serverType#">
+			<cfcase value="LIVE">
+				<cfset application.showFriendlyError = true>
+				<cfset application.show404OnMissingController = true>
+				<cfset application.applicationDBType = "live">
+				<cfset application.alwaysRefreshSettings = false>
+				<cfset application.onLiveServer = true>
+				
+				<!--- Allow hideColdfusionError to be overwritten per application --->
+				<cfif StructKeyExists(application, "hideColdfusionError")>
+					<cfset application.hideColdfusionError = application.hideColdfusionError>
+				<cfelse>
+					<cfset application.hideColdfusionError = true>
+				</cfif>
+			</cfcase>
+				
+			<cfcase value="DEV">
+				<!--- Allow showLocalFriendlyError to be overwritten per application --->
+				<cfif StructKeyExists(application, "showLocalFriendlyError")>
+					<cfset application.showFriendlyError = application.showLocalFriendlyError>
+				<cfelse>
+					<cfset application.showFriendlyError = false>
+				</cfif>
 
-					// Allow show404OnMissingController to be overwritten per application
-					if (NOT StructKeyExists(application, "show404OnMissingController"))
-					{
-						application.show404OnMissingController = false;
-					}
+				<!--- Allow show404OnMissingController to be overwritten per application --->
+				<cfif NOT StructKeyExists(application, "show404OnMissingController")>
+					<cfset application.show404OnMissingController = false>
+				</cfif>
 
-					application.applicationDBType = "dev";
-					application.alwaysRefreshSettings = true;
-					break;
-			}
-			
-			
-			/* =========================================== APPLICATION SETTINGS =========================================== */
-			
-			// Get the application DB settings
-			if (isDefined("databases"))
-			{
-				application.dbname = databases[application.applicationDBType]["dbname"];
-				application.dbuser = databases[application.applicationDBType]["dbuser"];
-				application.dbpassword = databases[application.applicationDBType]["dbpassword"];
-			}
-			else
-			{
-				application.dbname = "";
-				application.dbuser = "";
-				application.dbpassword = "";
-			}
-		</cfscript>
+				<cfset application.applicationDBType = "dev">
+				<cfset application.alwaysRefreshSettings = true>
+			</cfcase>
+		</cfswitch>
+		
+		
+		<!--- =========================================== APPLICATION SETTINGS =========================================== --->
+		
+		<!--- Get the application DB settings --->
+		<cfif isDefined("databases")>
+			<cfset application.dbname = databases[application.applicationDBType]["dbname"]>
+			<cfset application.dbuser = databases[application.applicationDBType]["dbuser"]>
+			<cfset application.dbpassword = databases[application.applicationDBType]["dbpassword"]>
+		<cfelse>
+			<cfset application.dbname = "">
+			<cfset application.dbuser = "">
+			<cfset application.dbpassword = "">
+		</cfif>
 		
 		<!--- Get database driver info --->	
 		<cfset application.dbDriver = "">
@@ -201,83 +172,74 @@
 			</cftry>
 		</cfif>
 		
-		<cfscript>
-			// Get the separator & opposite separator
-			application.separator = createObject("java", "java.io.File").separator;
-			
-			if (application.separator eq "/")
-			{
-				application.oppSeparator = "\";
-			}
-			else
-			{
-				application.oppSeparator = "/";
-			}
+		<!--- Get the separator & opposite separator --->
+		<cfset application.separator = createObject("java", "java.io.File").separator>
 		
-			// Keep or remove the index.cfm page
-			if (StructKeyExists(application, "removeIndexPage") AND application.removeIndexPage)
-			{
-				application.baseURL = application.rootURL;
-			}
-			else
-			{
-				application.baseURL = application.rootURL & "/index.cfm";
-			}
-			application.basePath = application.rootPath & "/index.cfm";
-			application.FilePath = ReplaceNoCase(This.appComponentFilePath, application.separator & "Application.cfc", "") & application.separator;
-			
-			// Paths
-			application.appPath = application.appLogicalPath & "/application";
-			application.modelPath = application.appPath & "/models";
-			application.viewPath = application.appPath & "/views";
-			application.controllerPath = application.appPath & "/controllers";
-			application.libraryPath = application.appPath & "/libraries";
-			application.errorPath = application.appPath & "/errors";
-			
-			// File paths
-			application.appFilePath = application.FilePath & "application" & application.separator;
-			application.modelFilePath = application.appFilePath & "models" & application.separator;
-			application.viewFilePath = application.appFilePath & "views" & application.separator;
-			application.controllerFilePath = application.appFilePath & "controllers" & application.separator;
-			application.libraryFilePath = application.appFilePath & "libraries" & application.separator;
-			application.errorFilePath = application.appFilePath & "errors" & application.separator;
-			application.configFilePath = application.appFilePath & "config" & application.separator;
+		<cfif application.separator eq "/">
+			<cfset application.oppSeparator = "\">
+		<cfelse>
+			<cfset application.oppSeparator = "/">
+		</cfif>
+	
+		<!--- Keep or remove the index.cfm page --->
+		<cfif StructKeyExists(application, "removeIndexPage") AND application.removeIndexPage>
+			<cfset application.baseURL = application.rootURL>
+		<cfelse>
+			<cfset application.baseURL = application.rootURL & "/index.cfm">
+		</cfif>
+		<cfset application.basePath = application.rootPath & "/index.cfm">
+		<cfset application.FilePath = ReplaceNoCase(This.appComponentFilePath, application.separator & "Application.cfc", "") & application.separator>
 		
-			// Get coldfusion admin mappings for cft and makes sure the path ends with a / or \ --->
-			mappings = this.getMappings();
-			cftMapping = trim(mappings['/cft']);
-			if (right(cftMapping, 1) neq application.separator)
-			{
-				cftMapping = cftMapping & application.separator;
-			}
-			
-			// CFT file path
-			application.CFT_libraryFilePath = cftMapping & "libraries" & application.separator;
-			application.CFT_viewFilePath = cftMapping & "views" & application.separator;
-			
-			// Package paths (roots)
-			application.modelRoot = Replace(Replace(application.appLogicalPath & "/application/models", "/", ""), "/", ".", "all");
-			application.controllerRoot = Replace(Replace(application.appLogicalPath & "/application/controllers", "/", ""), "/", ".", "all");
-			application.libraryRoot = Replace(Replace(application.appLogicalPath & "/application/libraries", "/", ""), "/", ".", "all");
-			
-			// Preload system library
-			application.load = createObject("component", "cft.libraries.load");
-			application.load.library("error", true);
-			application.load.library("utils", true);
-			application.load.library("url", true);
-			application.load.library("image", true);
-			application.load.library("file", true);
-			application.load.library("directory", true);
-			application.load.library("output", true);
-			application.load.library("lang", true);
-			application.load.library("authentication", true);
-			application.load.library("core", true);
-			application.load.library("debug", true);
-			application.load.library("text", true);
-			
-			// Record that the application has started
-			application.started = true;
-		</cfscript>
+		<!--- Paths --->
+		<cfset application.appPath = application.appLogicalPath & "/application">
+		<cfset application.modelPath = application.appPath & "/models">
+		<cfset application.viewPath = application.appPath & "/views">
+		<cfset application.controllerPath = application.appPath & "/controllers">
+		<cfset application.libraryPath = application.appPath & "/libraries">
+		<cfset application.errorPath = application.appPath & "/errors">
+		
+		<!--- File paths --->
+		<cfset application.appFilePath = application.FilePath & "application" & application.separator>
+		<cfset application.modelFilePath = application.appFilePath & "models" & application.separator>
+		<cfset application.viewFilePath = application.appFilePath & "views" & application.separator>
+		<cfset application.controllerFilePath = application.appFilePath & "controllers" & application.separator>
+		<cfset application.libraryFilePath = application.appFilePath & "libraries" & application.separator>
+		<cfset application.errorFilePath = application.appFilePath & "errors" & application.separator>
+		<cfset application.configFilePath = application.appFilePath & "config" & application.separator>
+	
+		<!--- Get coldfusion admin mappings for cft and makes sure the path ends with a / or \ --->
+		<cfset mappings = this.getMappings()>
+		<cfset cftMapping = trim(mappings['/cft'])>
+		<cfif right(cftMapping, 1) neq application.separator>
+			<cfset cftMapping = cftMapping & application.separator>
+		</cfif>
+		
+		<!--- CFT file path --->
+		<cfset application.CFT_libraryFilePath = cftMapping & "libraries" & application.separator>
+		<cfset application.CFT_viewFilePath = cftMapping & "views" & application.separator>
+		
+		<!--- Package paths (roots) --->
+		<cfset application.modelRoot = Replace(Replace(application.appLogicalPath & "/application/models", "/", ""), "/", ".", "all")>
+		<cfset application.controllerRoot = Replace(Replace(application.appLogicalPath & "/application/controllers", "/", ""), "/", ".", "all")>
+		<cfset application.libraryRoot = Replace(Replace(application.appLogicalPath & "/application/libraries", "/", ""), "/", ".", "all")>
+		
+		<!--- Preload system library --->
+		<cfset application.load = createObject("component", "cft.libraries.load")>
+		<cfset application.load.library("error", true)>
+		<cfset application.load.library("utils", true)>
+		<cfset application.load.library("url", true)>
+		<cfset application.load.library("image", true)>
+		<cfset application.load.library("file", true)>
+		<cfset application.load.library("directory", true)>
+		<cfset application.load.library("output", true)>
+		<cfset application.load.library("lang", true)>
+		<cfset application.load.library("authentication", true)>
+		<cfset application.load.library("core", true)>
+		<cfset application.load.library("debug", true)>
+		<cfset application.load.library("text", true)>
+		
+		<!--- Record that the application has started --->
+		<cfset application.started = true>
 		
 		<!--- Autoload at application level? --->
 		<cfif StructKeyExists(this, "autoload_application")>
