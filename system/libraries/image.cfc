@@ -19,16 +19,15 @@
 	<!--- Resize an image to fit a size --->
 	<cffunction name="resize" displayname="resize" returntype="struct" hint="Resize an image to fit a size" output="false">
 		<cfargument name="fileLocation" type="string" required="yes" hint="The image location">
-		<cfargument name="fileName" type="string" required="yes" hint="The image file name. Can be different from the one specified in the file location depending on the context">
 		<cfargument name="resizeWidth" type="numeric" required="no" hint="The width to resize">
 		<cfargument name="resizeHeight" type="numeric" required="no" hint="The height to resize">
 		<cfargument name="forceScaling" type="boolean" required="no" default="false" hint="true: always attempt to scale and throw error when attempting to scale up an image. flase: when the image size is unchanged or smaller than then scale size, just ignore and return no error">
 		<cfset var result = StructNew()>
-		<cfset var imgInfo = "">
+		<cfset var image = "">
 		<cfset var imgRatio = "">
 		<cfset var resizeRatio = "">
-		<cfset var w = "">
-		<cfset var h = "">
+		<cfset var resizeWidth = "">
+		<cfset var resizeHeight = "">
 		<cfset result.error = "">
 		
 		<!--- Is there a size passed in? --->
@@ -39,44 +38,44 @@
 		
 		<!--- Is this actually an image? --->
 		<cfif NOT isImageFile(arguments.fileLocation) OR NOT isImage(ImageNew(arguments.fileLocation))>
-			<cfset result.error = "The file '#arguments.fileName#' is a not valid image.">
+			<cfset result.error = "The file '#getFileFromPath(arguments.fileLocation)#' is a not valid image.">
 			<cfreturn result>
 		</cfif>
 			
 		<!--- Get original image size --->
-		<cfimage action="read" source="#arguments.fileLocation#" name="imgInfo">
-		<cfset imgRatio = imgInfo.width / imgInfo.height>
+		<cfimage action="read" source="#arguments.fileLocation#" name="image">
+		<cfset imgRatio = image.width / image.height>
 			
 		<!--- Get the height from width or vice versa --->
 		<cfif NOT StructKeyExists(arguments, "resizeHeight") OR NOT val(arguments.resizeHeight)>
-			<cfset w = val(arguments.resizeWidth)>
-			<cfset h = w / imgRatio>
+			<cfset resizeWidth = val(arguments.resizeWidth)>
+			<cfset resizeHeight = resizeWidth / imgRatio>
 		<cfelseif NOT StructKeyExists(arguments, "resizeWidth") OR NOT val(arguments.resizeWidth)>
-			<cfset h = val(arguments.resizeHeight)>
-			<cfset w = h * imgRatio>
+			<cfset resizeHeight = val(arguments.resizeHeight)>
+			<cfset resizeWidth = resizeHeight * imgRatio>
 		<cfelse>
-			<cfset w = val(arguments.resizeWidth)>
-			<cfset h = val(arguments.resizeHeight)>
+			<cfset resizeWidth = val(arguments.resizeWidth)>
+			<cfset resizeHeight = val(arguments.resizeHeight)>
 		</cfif>
 			
-		<cfset resizeRatio = w / h>
+		<cfset resizeRatio = resizeWidth / resizeHeight>
 	
 		<!--- Which ratio is bigger? --->
 		<cfif resizeRatio gt imgRatio>
-			<!--- Will fit as long as height fits => get w from h --->
-			<cfset w = h * imgRatio>
+			<!--- Will fit as long as height fits => get resizeWidth from resizeHeight --->
+			<cfset resizeWidth = resizeHeight * imgRatio>
 		<cfelseif resizeRatio lt imgRatio>
-			<!--- will fit as long as width fits => get h from w --->
-			<cfset h = w / imgRatio>
+			<!--- will fit as long as width fits => get resizeHeight from resizeWidth --->
+			<cfset resizeHeight = resizeWidth / imgRatio>
 		</cfif>
 		
 		<!--- Resize to 0? --->
-		<cfif w le 0 OR h le 0>
+		<cfif resizeWidth le 0 OR resizeHeight le 0>
 			<cfset result.error = "Cannot resize an image to 0 size">
 			<cfreturn result>
 		
 		<!--- Scale up? --->
-		<cfelseif w gt imgInfo.width OR h gt imgInfo.height>
+		<cfelseif resizeWidth gt image.width OR resizeHeight gt image.height>
 			<!--- Force scaling? Return error --->
 			<cfif arguments.forceScaling>
 				<cfset result.error = "Cannot scale up the image">
@@ -84,7 +83,7 @@
 			<cfreturn result>
 		
 		<!--- Image size unchanged? --->
-		<cfelseif w eq imgInfo.width OR h eq imgInfo.height>
+		<cfelseif resizeWidth eq image.width OR resizeHeight eq image.height>
 			<!--- Force scaling? Return error --->
 			<cfif arguments.forceScaling>
 				<cfset result.error = "The size is unchanged. Nothing to resize">
@@ -92,38 +91,7 @@
 			<cfreturn result>
 		</cfif>
 		
-		<cfimage action="resize" height="#h#" width="#w#" source="#arguments.fileLocation#" destination="#arguments.fileLocation#" overwrite="yes">
-			
-			<!--- Create thumb? --->
-			<!---<cfif StructKeyExists(arguments, "thumbWidth") OR StructKeyExists(arguments, "thumbHeight")>
-				<!--- Get the height from width or vice versa --->
-				<cfif NOT StructKeyExists(arguments, "thumbHeight") OR NOT val(arguments.thumbHeight)>
-					<cfset tw = val(arguments.thumbWidth)>
-					<cfset th = tw / imgRatio>
-				<cfelseif NOT StructKeyExists(arguments, "thumbWidth") OR NOT val(arguments.thumbWidth)>
-					<cfset th = val(arguments.thumbHeight)>
-					<cfset tw = th * imgRatio>
-				<cfelse>
-					<cfset tw = val(arguments.thumbWidth)>
-					<cfset th = val(arguments.thumbHeight)>
-				</cfif>
-				
-				<cfset resizeRatio = tw / th>
-			
-				<!--- Which ratio is bigger? --->
-				<cfif resizeRatio gt imgRatio>
-					<!--- Will fit as long as height fits => get w from h --->
-					<cfset tw = th * imgRatio>
-				<cfelseif resizeRatio lt imgRatio>
-					<!--- will fit as long as width fits => get h from w --->
-					<cfset th = tw / imgRatio>
-				</cfif>
-				
-				<!--- Only scale down the image thumb --->
-				<cfset createThumb = (tw gt 0) AND (th gt 0) AND (tw lt imgInfo.width OR th lt imgInfo.height)>
-				<cfset arguments.thumbLocation = reReplace(arguments.fileLocation, '.([a-zA-Z]+)$', '_thumb.\1')>
-			</cfif>--->
-		
+		<cfimage action="resize" height="#resizeHeight#" width="#resizeWidth#" source="#arguments.fileLocation#" destination="#arguments.fileLocation#" overwrite="yes">
 		
 		<cfreturn result>
 			
@@ -154,10 +122,14 @@
 		<cfset result.clientFileExists = true>
 		<cfset result.fileExisted = false>
 		
-		<!--- Upload the file --->
-		<cfset destFolder = application.FilePath & arguments.destinationFolder & application.separator>
-		<cfset destFolder = reReplace(destFolder, "\#application.oppSeparator#", application.separator, "ALL")>
-		<cfset destFolder = reReplace(destFolder, "\#application.separator#{2,}", application.separator, "ALL")>
+		<!--- Set the destination folder --->
+		<cfif directoryExists(arguments.destinationFolder)>
+			<cfset destFolder = arguments.destinationFolder>
+		<cfelse>
+			<cfset destFolder = application.FilePath & arguments.destinationFolder & application.separator>
+			<cfset destFolder = reReplace(destFolder, "\#application.oppSeparator#", application.separator, "ALL")>
+			<cfset destFolder = reReplace(destFolder, "\#application.separator#{2,}", application.separator, "ALL")>
+		</cfif>
 		
 		<cftry>
 			<!--- Overwrite? --->
@@ -271,6 +243,118 @@
 		
 		<cfreturn result>
 				
+	</cffunction>
+	
+	
+	<!--- Create a thumbnail for the image --->
+	<cffunction name="cropAndResize" displayname="cropAndResize" returntype="struct" hint="Crop and Resize an image to fit a size" output="false">
+	
+		<cfargument name="fileLocation" type="string" required="yes" hint="The image location">
+		<cfargument name="newFileLocation" type="string" required="no" hint="The new (resized) image location. Do not pass this in to save it into the same location">
+		<cfargument name="resizeWidth" type="numeric" required="no" hint="The width to resize">
+		<cfargument name="resizeHeight" type="numeric" required="no" hint="The height to resize">
+		<cfargument name="forceScaling" type="boolean" required="no" default="false" hint="true: always attempt to scale and throw error when attempting to scale up an image. flase: when the image size is unchanged or smaller than then scale size, just ignore and return no error">
+		<cfset var result = StructNew()>
+		<cfset var image = "">
+		<cfset var imgRatio = "">
+		<cfset var resizeRatio = "">
+		<cfset var resizeWidth = "">
+		<cfset var resizeHeight = "">
+		<cfset var cropWidth = "">
+		<cfset var cropHeight = "">
+		<cfset result.error = "">
+		
+		<!--- Is there a size passed in? --->
+		<cfif NOT StructKeyExists(arguments, "resizeWidth") AND NOT StructKeyExists(arguments, "resizeHeight")>
+			<cfset result.error = "Either width or height is required to resize the image">
+			<cfreturn result>
+		</cfif>
+		
+		<!--- Is this actually an image? --->
+		<cfif NOT isImageFile(arguments.fileLocation) OR NOT isImage(ImageNew(arguments.fileLocation))>
+			<cfset result.error = "The file '#getFileFromPath(arguments.fileLocation)#' is a not valid image.">
+			<cfreturn result>
+		</cfif>
+			
+		<!--- Get original image size --->
+		<cfimage action="read" source="#arguments.fileLocation#" name="image">
+		<cfset imgRatio = image.width / image.height>
+		
+		<!--- Get the height from width or vice versa --->
+		<cfif NOT StructKeyExists(arguments, "resizeHeight") OR NOT val(arguments.resizeHeight)>
+			<cfset resizeWidth = val(arguments.resizeWidth)>
+			<cfset resizeHeight = resizeWidth / imgRatio>
+		<cfelseif NOT StructKeyExists(arguments, "resizeWidth") OR NOT val(arguments.resizeWidth)>
+			<cfset resizeHeight = val(arguments.resizeHeight)>
+			<cfset resizeWidth = resizeHeight * imgRatio>
+		<cfelse>
+			<cfset resizeWidth = val(arguments.resizeWidth)>
+			<cfset resizeHeight = val(arguments.resizeHeight)>
+		</cfif>
+		<cfset resizeRatio = resizeWidth / resizeHeight>
+		
+		
+		<!--- ==================== CROP ==================== --->
+		
+		<!--- Anything to crop? --->
+		<cfif resizeRatio neq imgRatio>
+			<!--- Get the crop size --->
+			<cfif resizeRatio gt imgRatio>
+				<cfset cropWidth = image.width>
+				<cfset cropHeight = cropWidth / resizeRatio>
+			<cfelse>
+				<cfset cropHeight = image.height>
+				<cfset cropWidth = cropHeight * resizeRatio>
+			</cfif>
+		
+			<!--- Crop now --->
+			<cfset imageCrop(image, 1, 1, cropWidth, cropHeight)>
+			<cfset imgRatio = image.width / image.height>
+		</cfif>
+
+
+		<!--- ==================== RESIZE ==================== --->
+		
+		<!--- Get the resize size --->
+		<cfif resizeRatio gt imgRatio>
+			<cfset resizeWidth = resizeHeight * imgRatio>
+		<cfelseif resizeRatio lt imgRatio>
+			<cfset resizeHeight = resizeWidth / imgRatio>
+		</cfif>
+
+		<!--- Resize to 0? --->
+		<cfif resizeWidth le 0 OR resizeHeight le 0>
+			<cfset result.error = "Cannot resize an image to 0 size">
+			<cfreturn result>
+		
+		<!--- Scale up? --->
+		<cfelseif resizeWidth gt image.width OR resizeHeight gt image.height>
+			<!--- Force scaling? Return error --->
+			<cfif arguments.forceScaling>
+				<cfset result.error = "Cannot scale up the image">
+			</cfif>
+			<cfreturn result>
+		
+		<!--- Image size unchanged? --->
+		<cfelseif resizeWidth eq image.width OR resizeHeight eq image.height>
+			<!--- Force scaling? Return error --->
+			<cfif arguments.forceScaling>
+				<cfset result.error = "The size is unchanged. Nothing to resize">
+			</cfif>
+			<cfreturn result>
+		</cfif>
+		<cfset imageResize(image, resizeWidth, resizeHeight)>
+		
+		<!--- Save the image --->
+		<cfif StructKeyExists(arguments, "newFileLocation")>
+			<cfset application.directory.createForFile(arguments.newFileLocation)>
+		<cfelse>
+			<cfset arguments.newFileLocation = arguments.fileLocation>
+		</cfif>
+		<cfimage action="write" source="#image#" destination="#arguments.newFileLocation#" overwrite="yes">
+		
+		<cfreturn result>
+			
 	</cffunction>
 	
 </cfcomponent>

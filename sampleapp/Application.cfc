@@ -10,6 +10,7 @@
 	
 	<!--- Have to record this in here before going to anywhere else --->
 	<cfset This.appComponentFilePath = GetCurrentTemplatePath()>
+	<cfset This.name = "sampleapp">
 	
 	<cffunction name="OnApplicationStart">
 	
