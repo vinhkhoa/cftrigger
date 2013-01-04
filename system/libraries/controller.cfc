@@ -125,6 +125,11 @@
 			<cfset thisModelName = variables.modelName>
 		</cfif>
 		
+		<!--- Has text id? --->
+		<cfif NOT StructKeyExists(form, thisModelName & "TextId") AND StructKeyExists(url, thisModelName & "TextId")>
+			<cfset form[thisModelName & "TextId"] = url[thisModelName & "TextId"]>
+		</cfif>
+		
 		<!--- Is there a list view specified? --->
 		<cfif NOT StructKeyExists(arguments, "listPage")>
 			<cfset arguments.listPage = lcase(thisModelName)>

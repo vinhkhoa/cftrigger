@@ -288,7 +288,7 @@
 
 		<!--- Ensure that user can only access the scripts that they are allowed to --->
 		<cfset forwarded = findNoCase(replace(application.rootURL, "://", ":/") & "/", CGI.SCRIPT_NAME) ge 1>
-		<cfset logicalScriptName = replaceNoCase(CGI.SCRIPT_NAME, application.appLogicalPath & "/", "", "ALL")>
+		<cfset logicalScriptName = replaceNoCase(CGI.SCRIPT_NAME, reReplace(application.appLogicalPath & "/", "/{2,}", "/", "ALL"), "", "ALL")>
 		<cfif NOT forwarded AND NOT listFindNoCase(application.allowedScripts, logicalScriptName)>
 			<cfset application.url.redirect()>
 		</cfif>
