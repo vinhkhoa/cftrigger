@@ -142,6 +142,7 @@
 		<cfargument name="paginationClassName" type="string" required="no" default="pagination" hint="The class name to be used for the pagination">	
 		<cfargument name="nextPrevClassName" type="string" required="no" default="nextprev" hint="The class name to be used for the next and previous buttons">	
 		<cfargument name="paginationId" type="string" required="no" default="pagination" hint="The ID to be used for the pagination">	
+		<cfargument name="pageURL" type="string" required="no" hint="The url for the pagination. Use {p} as a placeholder for the page number">	
 		<cfset var thisPage = "">
 		<cfset var pageNum = "">
 		<cfset var queryString = "">
@@ -165,19 +166,24 @@
 				<cfset pageNum = int(val(arguments.total) / val(arguments.pageSize)) + 1>
 			</cfif>
 			
-			<!--- Remove page number from the query string --->
-			<cfset queryString = reReplaceNoCase(reReplaceNoCase(reReplaceNoCase(CGI.QUERY_STRING, "#urlPageVariable#=[^&]+", "", "ALL"), "^&|&$", "", "ALL"), "[&]+", "&amp;", "ALL")>
-			<cfif queryString neq "">
-				<cfset queryString = queryString & "&amp;">
-			</cfif>
-
-			<!--- Get the current page url. If home page, set it to the ad list page --->
-			<cfif CGI.PATH_INFO eq "" AND StructKeyExists(arguments, "alternativePathInfo")>
-				<cfset pathInfo = arguments.alternativePathInfo>
+			<!--- Construct the page url --->
+			<cfif StructKeyExists(arguments, "pageURL")>
+				<cfset pageURL = arguments.pageURL>
 			<cfelse>
-				<cfset pathInfo = CGI.PATH_INFO>
+				<!--- Remove page number from the query string --->
+				<cfset queryString = reReplaceNoCase(reReplaceNoCase(reReplaceNoCase(CGI.QUERY_STRING, "#urlPageVariable#=[^&]+", "", "ALL"), "^&|&$", "", "ALL"), "[&]+", "&amp;", "ALL")>
+				<cfif queryString neq "">
+					<cfset queryString = queryString & "&amp;">
+				</cfif>
+	
+				<!--- Get the current page url. If home page, set it to the ad list page --->
+				<cfif CGI.PATH_INFO eq "" AND StructKeyExists(arguments, "alternativePathInfo")>
+					<cfset pathInfo = arguments.alternativePathInfo>
+				<cfelse>
+					<cfset pathInfo = CGI.PATH_INFO>
+				</cfif>
+				<cfset pageURL = application.baseURL & pathInfo & "?" & queryString & urlPageVariable & "={p}">
 			</cfif>
-			<cfset pageURL = application.baseURL & pathInfo & "?" & queryString>
 			
 			<!--- ============================ Pagination ============================ --->
 			
@@ -214,8 +220,8 @@
 				
 				<!--- Check if to display the "First" and "Previous" links --->
 				<cfif thisPage gt 1>
-					<li><a href="#pageURL##urlPageVariable#=1" class="#nextPrevClassName#">First</a></li>
-					<li><a href="#pageURL##urlPageVariable#=#thisPage - 1#" class="#nextPrevClassName#">&lt; Prev</a></li>
+					<li><a href="#replace(pageURL, '{p}', 1, 'all')#" class="#nextPrevClassName#">First</a></li>
+					<li><a href="#replace(pageURL, '{p}', thisPage - 1, 'all')#" class="#nextPrevClassName#">&lt; Prev</a></li>
 				<cfelse>
 					<li><span class="#nextPrevClassName#">First</span></li>
 					<li><span class="#nextPrevClassName#">&lt; Prev</span></li>
@@ -227,15 +233,15 @@
 						<cfif counter eq thisPage>
 							<li class="current"><span>Page </span>#counter#</li>
 						<cfelse>
-							<li><a href="#pageURL##urlPageVariable#=#counter#"><span>Page </span>#counter#</a></li>
+							<li><a href="#replace(pageURL, '{p}', counter, 'all')#"><span>Page </span>#counter#</a></li>
 						</cfif>
 					</cfif>
 				</cfloop>
 				
 				<!--- Check if to display the "Next" and "Last" links --->
 				<cfif thisPage lt pageNum>
-					<li><a href="#pageURL##urlPageVariable#=#thisPage + 1#" class="#nextPrevClassName#">Next &gt;</a></li>
-					<li><a href="#pageURL##urlPageVariable#=#pageNum#" class="#nextPrevClassName#">Last</a></li>
+					<li><a href="#replace(pageURL, '{p}', thisPage + 1, 'all')#" class="#nextPrevClassName#">Next &gt;</a></li>
+					<li><a href="#replace(pageURL, '{p}', pageNum, 'all')#" class="#nextPrevClassName#">Last</a></li>
 				<cfelse>
 					<li><span class="#nextPrevClassName#">Next &gt;</span></li>
 					<li><span class="#nextPrevClassName#">Last</span></li>
