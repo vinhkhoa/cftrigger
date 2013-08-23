@@ -57,6 +57,18 @@
 		<cfset var finalLocation = "">
 		<cfset var processedLocation = "">
 		
+		<!--- Is this a full url? If so, redirect user to that url immediately --->
+		<cfif isValid("url", arguments.location)>
+			<cflocation url="#arguments.location#" addtoken="no">
+		</cfif>
+		
+		<!--- QUICK FIX: Convert "controller=XXX&view=YYY" to the right format --->
+		<cfif reFindNoCase("\??controller=[^&]+&view=[^&]+$", arguments.location)>
+			<cfset arguments.location = reReplace(arguments.location, "\?controller=([^&]+)&view=([^&]+)$", "\1/\2")>
+		<cfelseif reFindNoCase("\??controller=[^&]+$", arguments.location)>
+			<cfset arguments.location = reReplace(arguments.location, "\?controller=([^&]+)$", "\1")>
+		</cfif>
+		
 		<!--- Remove multi-slash and ending index.cfm to make the url looks nicer --->
 		<cfif isValid("url", arguments.location)>
 			<cfset finalLocation = arguments.location>
