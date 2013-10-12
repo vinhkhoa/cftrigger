@@ -28,7 +28,14 @@
 		
 		<!--- Get the controller file --->
 		<cfif validateResult.exists>
-			<cfset result = CreateObject("component", validateResult.controllerComponent).init()>
+			<cftry>
+				<cfset result = CreateObject("component", validateResult.controllerComponent).init()>
+				
+				<cfcatch type="any">
+					<!--- Error intialising the component. Likely that it in fact does not exist or its path is invalid --->
+					<cfset application.error.show_404()>
+				</cfcatch>
+			</cftry>
 		<cfelse>
 			<!--- Display friendly error or let Coldfusion blow it up? --->
 			<cfif application.showFriendlyError>
